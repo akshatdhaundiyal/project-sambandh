@@ -1,0 +1,116 @@
+{
+  "resourceType": "Bundle",
+  "id": "ABDM-FHIR-RX-2026-09-10-8819",
+  "type": "collection",
+  "timestamp": "2026-09-10T11:45:00+05:30",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "medrx-001",
+        "status": "active",
+        "intent": "order",
+        "subject": {
+          "reference": "Patient/SENIOR_RAMESH_001",
+          "display": "Ramesh Chandra (ABHA: 91-8273-1928-4491)"
+        },
+        "requester": {
+          "reference": "Practitioner/DR_VK_SHARMA",
+          "display": "Dr. V. K. Sharma (MD, Cardiology - Reg: UP-44918)"
+        },
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "386864001",
+              "display": "Telmisartan 40mg oral tablet"
+            }
+          ],
+          "text": "Telmisartan 40mg (Brand: Telma 40 / Glenmark)"
+        },
+        "dosageInstruction": [
+          {
+            "text": "Take 1 tablet daily in the morning immediately after breakfast with water",
+            "timing": {
+              "repeat": {
+                "frequency": 1,
+                "period": 1,
+                "periodUnit": "d"
+              }
+            },
+            "asNeededBoolean": false,
+            "route": {
+              "text": "Oral"
+            }
+          }
+        ],
+        "dispenseRequest": {
+          "quantity": {
+            "value": 30,
+            "unit": "tablets"
+          },
+          "expectedSupplyDuration": {
+            "value": 30,
+            "unit": "days"
+          },
+          "sku": "TELMI_40_30TAB",
+          "unit_price_inr": 640.0
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "medrx-002",
+        "status": "active",
+        "intent": "order",
+        "subject": {
+          "reference": "Patient/SENIOR_RAMESH_001",
+          "display": "Ramesh Chandra (ABHA: 91-8273-1928-4491)"
+        },
+        "requester": {
+          "reference": "Practitioner/DR_VK_SHARMA",
+          "display": "Dr. V. K. Sharma (MD, Cardiology - Reg: UP-44918)"
+        },
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "372567009",
+              "display": "Metformin hydrochloride 500mg oral tablet"
+            }
+          ],
+          "text": "Metformin 500mg (Brand: Glycomet 500)"
+        },
+        "dosageInstruction": [
+          {
+            "text": "Take half tablet (250mg) twice daily after meals (morning and night)",
+            "timing": {
+              "repeat": {
+                "frequency": 2,
+                "period": 1,
+                "periodUnit": "d"
+              }
+            },
+            "asNeededBoolean": false,
+            "route": {
+              "text": "Oral"
+            }
+          }
+        ],
+        "dispenseRequest": {
+          "quantity": {
+            "value": 30,
+            "unit": "tablets"
+          },
+          "expectedSupplyDuration": {
+            "value": 30,
+            "unit": "days"
+          },
+          "sku": "MET_500_30TAB",
+          "unit_price_inr": 120.0
+        }
+      }
+    }
+  ]
+}

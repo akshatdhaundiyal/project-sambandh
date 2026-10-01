@@ -1,0 +1,51 @@
+{
+  "senior_profile": {
+    "id": "SENIOR_RAMESH_001",
+    "name": "Ramesh Chandra",
+    "age": 72,
+    "gender": "Male",
+    "primary_language": "Hindi",
+    "abha_id": "91-8273-1928-4491",
+    "location": {
+      "address_line": "B-42, Sector C, Aliganj",
+      "city": "Lucknow",
+      "state": "Uttar Pradesh",
+      "pin_code": "226024"
+    },
+    "telephony": {
+      "carrier_number": "+919415012345",
+      "voiceprint_sid": "VP_R_CHANDRA_88910",
+      "daily_call_window_ist": "08:30:00"
+    },
+    "biographical_context": {
+      "career": "Retired Chief Mechanical Engineer, Indian Railways (Joined 1978, Lucknow Workshop)",
+      "mentorship_domains": [
+        "Shop-floor Leadership",
+        "Technician Respect & Trust",
+        "Railway Mechanical Engineering"
+      ],
+      "morning_routine": "Morning tea and poha by 08:00 AM, seated in drawing room for daily 08:30 AM call"
+    },
+    "caregiver": {
+      "name": "Priya Sharma",
+      "relationship": "Daughter",
+      "location": "Bengaluru, Karnataka",
+      "whatsapp_number": "whatsapp:+919876543210",
+      "fiduciary_envelope": {
+        "monthly_spending_cap_inr": 4500.0,
+        "active_mandate_id": "PINE_MANDATE_UP_882910",
+        "mandate_type": "UPI_AUTOPAY",
+        "bank_reference": "HDFC0001234"
+      }
+    },
+    "health_summary": {
+      "chronic_conditions": [
+        "Hypertension (Grade 1)",
+        "Type 2 Diabetes Mellitus"
+      ],
+      "active_prescriptions_count": 2,
+      "attending_physician": "Dr. V. K. Sharma (Cardiology, Apollo Clinic Lucknow)",
+      "last_clinic_visit": "2026-09-10"
+    }
+  }
+}

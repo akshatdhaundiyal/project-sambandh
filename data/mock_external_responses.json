@@ -1,0 +1,50 @@
+{
+  "gnani_telephony_dial": {
+    "call_sid": "GN_CALL_9081234891",
+    "carrier_trunk": "AIRTEL_SIP_DELHI_NCR",
+    "status": "CONNECTED",
+    "voiceprint_match": true,
+    "confidence": 0.96,
+    "codec": "G.711_ALAW",
+    "latency_ms": 142
+  },
+  "inventory_runway_assessment": {
+    "last_delivery_timestamp": "2026-09-12T16:30:00+05:30",
+    "units_dispensed": 30,
+    "days_elapsed": 24,
+    "days_remaining": 6,
+    "runway_percentage": 0.20,
+    "refill_sku": "TELMI_40_30TAB",
+    "salt_name": "Telmisartan 40mg",
+    "cost_inr": 640.00,
+    "pre_authorized_cap_inr": 4500.00,
+    "threshold_breached": true,
+    "action_required": "AUTONOMOUS_REFILL_WITHIN_CAP"
+  },
+  "pine_labs_plural_debit": {
+    "plural_transaction_id": "PL_TXN_88192301",
+    "order_reference": "SAMBANDH_REFILL_20261012_01",
+    "mandate_id": "PINE_MANDATE_UP_882910",
+    "status": "CAPTURED",
+    "amount": 640.00,
+    "currency": "INR",
+    "mandate_monthly_cap_inr": 4500.00,
+    "remaining_monthly_cap_inr": 3860.00,
+    "auth_timestamp": "2026-10-12T08:34:12+05:30"
+  },
+  "delhivery_logistics_dispatch": {
+    "status": "Success",
+    "waybill": "988120391203",
+    "sort_code": "LKO/ALGN",
+    "pickup_location": "Netmeds_DarkStore_Lucknow_East",
+    "destination_pin": "226024",
+    "delivery_tier": "PRIORITY_HEALTHCARE_48H",
+    "estimated_delivery_date": "Tomorrow by 04:00 PM",
+    "cold_chain_required": false
+  },
+  "caregiver_whatsapp_brief_template": {
+    "template_id": "sambandh_daily_reassurance_v3",
+    "category": "UTILITY",
+    "sample_rendered_body": "🌿 *Daily Care Briefing: Papa's Morning Call (08:35 AM)*\n━━━━━━━━━━━━━━━━━━━━\n👤 *Participants:* Papa & Sambandh Voice Agent\n💡 *Mentorship Topic:* Aarav (Pune) asked about earning respect from older technicians. Papa shared a spirited 4-minute railway story on working alongside senior technicians.\n💊 *Medication Adherence:* Confirmed taken after breakfast (Telmisartan 40mg + Metformin half-tablet).\n📦 *Autonomous Refill:* 6 days remaining (20% runway). Fresh Telmisartan pack dispatched via Delhivery (₹640 debited under pre-set ₹4,500 limit). Est. arrival: Tomorrow 4 PM.\n\n_Everything is calm and on schedule._"
+  }
+}
