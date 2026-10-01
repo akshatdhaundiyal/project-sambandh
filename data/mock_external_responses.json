@@ -46,5 +46,19 @@
     "template_id": "sambandh_daily_reassurance_v3",
     "category": "UTILITY",
     "sample_rendered_body": "🌿 *Daily Care Briefing: Papa's Morning Call (08:35 AM)*\n━━━━━━━━━━━━━━━━━━━━\n👤 *Participants:* Papa & Sambandh Voice Agent\n💡 *Mentorship Topic:* Aarav (Pune) asked about earning respect from older technicians. Papa shared a spirited 4-minute railway story on working alongside senior technicians.\n💊 *Medication Adherence:* Confirmed taken after breakfast (Telmisartan 40mg + Metformin half-tablet).\n📦 *Autonomous Refill:* 6 days remaining (20% runway). Fresh Telmisartan pack dispatched via Delhivery (₹640 debited under pre-set ₹4,500 limit). Est. arrival: Tomorrow 4 PM.\n\n_Everything is calm and on schedule._"
+  },
+  "telegram_caregiver_brief_template": {
+    "channel": "TELEGRAM_BOT_API",
+    "bot_username": "SambandhCareBot",
+    "endpoint": "https://api.telegram.org/bot<TOKEN>/sendMessage",
+    "sample_rendered_body": "🌿 <b>Daily Care Briefing: Papa's Morning Call (08:35 AM)</b>\n━━━━━━━━━━━━━━━━━━━━\n👤 <b>Participants:</b> Papa & Sambandh Voice Agent\n💡 <b>Mentorship Topic:</b> Aarav (Pune) asked about earning respect from older technicians. Papa shared a spirited 4-minute railway story on working alongside senior technicians.\n💊 <b>Medication Adherence:</b> Confirmed taken after breakfast (Telmisartan 40mg + Metformin half-tablet).\n📦 <b>Autonomous Refill:</b> 6 days remaining (20% runway). Fresh Telmisartan pack dispatched via Delhivery (₹640 debited under pre-set ₹4,500 limit). Est. arrival: Tomorrow 4 PM.\n\n<i>Everything is calm and on schedule.</i>",
+    "inline_keyboard": [
+      [
+        {"text": "🎧 Listen to Papa's Story (30s)", "callback_data": "play_story_snippet"}
+      ],
+      [
+        {"text": "📋 View Longitudinal Record", "callback_data": "view_report"}
+      ]
+    ]
   }
 }

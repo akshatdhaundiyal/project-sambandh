@@ -21,12 +21,13 @@ Arrange your display before hitting record:
 ┌──────────────────────────────────────┬──────────────────────────────────────┐
 │ LEFT 50%: PROTOTYPE RUNNER          │ RIGHT 50%: LIVE PHYSICAL RECEPTOR    │
 │                                      │                                      │
-│ • VS Code / Jupyter Notebook         │ • WhatsApp Web (web.whatsapp.com)    │
-│   (simulate_sambandh.ipynb)          │ • Logged in as Priya Sharma          │
-│ • Or Terminal running:               │   (caregiver in Bengaluru)           │
-│   uv run python simulate_sambandh.py │ • Shows the live WhatsApp            │
-│ • Live Gemini reasoning, tool calls, │   Reassurance Card arriving in       │
-│   and deterministic rail responses   │   real-time upon autonomous trigger  │
+│ • VS Code / Jupyter Notebook         │ • Telegram Web (web.telegram.org) or │
+│   (simulate_sambandh.ipynb)          │   Telegram Desktop App               │
+│ • Or Terminal running:               │ • Logged in as Priya Sharma          │
+│   uv run python simulate_sambandh.py │ • Shows the live Telegram            │
+│ • Live Gemini reasoning, tool calls, │   Reassurance Card arriving with     │
+│   and deterministic rail responses   │   clickable inline buttons in <500ms │
+│                                      │ • (WhatsApp Web also supported)      │
 └──────────────────────────────────────┴──────────────────────────────────────┘
 ```
 
@@ -39,7 +40,7 @@ Arrange your display before hitting record:
 - **Narrative:**
   - "Indian elders reject clinical surveillance apps; they feel infantalized. Project Sambandh inverts this by introducing the **Reciprocal Care Engine**."
   - "Sambandh is bounded by **Level 3 Autonomy**: inside the family's pre-set parameters, it handles the tedious logistics without asking; outside those limits, it defers to humans."
-  - Point to the screen setup: On the left is Sambandh's reasoning brain powered by Gemini 1.5 Pro with deterministic rails; on the right is the caregiver's real WhatsApp.
+  - Point to the screen setup: On the left is Sambandh's reasoning brain powered by Gemini 1.5 Pro with deterministic rails; on the right is the caregiver's live receptor (Telegram / WhatsApp).
 
 ### 0:45 – 1:45 | Scene 2: 08:30 AM Clock Tick & Lane 1 (Wisdom Exchange)
 - **Action on Left:** Execute Step 1 and Step 2 in `simulate_sambandh.ipynb` (or runner).
@@ -66,18 +67,19 @@ Arrange your display before hitting record:
     2. A 48-hour priority doorstep dispatch from Netmeds Lucknow East dark store via Delhivery (Waybill: `988120391203`).
   - "Neither Ramesh nor Priya had to manage cart checkouts or OTPs."
 
-### 3:45 – 4:30 | Scene 5: Live WhatsApp Buzz & Family Transparency
-- **Action on Right:** Watch the WhatsApp card pop up in WhatsApp Web (or terminal console mock).
+### 3:45 – 4:30 | Scene 5: Live Telegram Chime & Clickable Inline Buttons
+- **Action on Right:** Watch the card pop up live on Telegram Web/Desktop with instant sound.
 - **Narrative:**
-  - "Notice the right side of the screen: within 60 seconds of the call ending, Priya's WhatsApp buzzes with the **Daily Reassurance Card**."
+  - "Notice the right side of the screen: within seconds of the call ending, Priya's Telegram chimes with the **Daily Reassurance Card**."
   - "Priya sees: Papa is spirited and cheerful; he mentored Aarav on railway leadership; pills are confirmed taken; and a fresh pack is arriving tomorrow afternoon."
+  - "Even better: the card includes **live interactive buttons**—Priya can tap `[🎧 Listen to Papa's Story]` to hear a 30-second audio clip, or review the longitudinal adherence record."
   - "No anxiety, no nagging phone calls asking 'Papa did you take medicine?'—pure family peace."
 
 ### 4:30 – 5:00 | Scene 6: Boundary Governance & Closing
 - **Speaker Focus:** Conclude on why L3 matters and how Reliance Jio can scale it.
 - **Narrative:**
   - "What does Sambandh NEVER do? It never alters dosages, substitutes clinical salts, or ignores price spikes."
-  - "If an emergency or budget breach occurs, it immediately triggers an asynchronous 1-tap exception link."
+  - "If an emergency or budget breach occurs, it immediately triggers an asynchronous 1-tap exception link right in Telegram with buttons like `[📞 Call Papa Directly]` or `[⚡ Approve via UPI]`."
   - "By combining Jio's 450M connectivity pipe, Netmeds supply chain, JioPay UPI mandates, and ABDM health records, Project Sambandh can be deployed nationally on Day One."
 
 ---
@@ -89,9 +91,13 @@ Arrange your display before hitting record:
    uv sync
    ```
 2. **Environment Variables (`.env`):**
-   - Ensure `GEMINI_API_KEY` is active.
-   - For live WhatsApp delivery: Set `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_NUMBER`, and `CAREGIVER_WHATSAPP_NUMBER`.
-   - *Fallback:* If Twilio is not configured, the runner displays formatted visual cards directly in the terminal/notebook.
+   - **Google Gemini:** `GEMINI_API_KEY` (Free from Google AI Studio).
+   - **Telegram (Recommended for Demo):**
+     1. Open Telegram & talk to `@BotFather` &rarr; Send `/newbot` to get your `TELEGRAM_BOT_TOKEN`.
+     2. Talk to `@userinfobot` &rarr; Get your numeric `TELEGRAM_CHAT_ID`.
+     3. Start your bot and put both into `.env`.
+   - **WhatsApp (Alternative):** `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `CAREGIVER_WHATSAPP_NUMBER`.
+   - *Fallback:* If credentials are not set, the runner displays formatted visual cards directly in the terminal and Jupyter Notebook.
 3. **Launch Notebook:**
    ```powershell
    uv run jupyter lab simulate_sambandh.ipynb

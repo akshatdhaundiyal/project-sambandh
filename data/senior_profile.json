@@ -30,6 +30,8 @@
       "name": "Priya Sharma",
       "relationship": "Daughter",
       "location": "Bengaluru, Karnataka",
+      "preferred_channel": "telegram",
+      "telegram_chat_id": "@priya_sharma_care",
       "whatsapp_number": "whatsapp:+919876543210",
       "fiduciary_envelope": {
         "monthly_spending_cap_inr": 4500.0,

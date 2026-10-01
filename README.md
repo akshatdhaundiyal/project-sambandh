@@ -72,12 +72,15 @@ cp .env.example .env
 | Key | Description | Where to get it |
 | :--- | :--- | :--- |
 | `GEMINI_API_KEY` | Google Gemini API Key | [Google AI Studio](https://aistudio.google.com/) |
-| `TWILIO_ACCOUNT_SID` | Twilio Account SID *(Optional)* | [Twilio Console](https://www.twilio.com/) |
-| `TWILIO_AUTH_TOKEN` | Twilio Auth Token *(Optional)* | [Twilio Console](https://www.twilio.com/) |
+| `TELEGRAM_BOT_TOKEN` | Telegram Bot Token *(Recommended for Demo)* | Chat with `@BotFather` on Telegram |
+| `TELEGRAM_CHAT_ID` | Your Telegram Chat ID *(Recommended for Demo)* | Chat with `@userinfobot` on Telegram |
+| `CAREGIVER_CHANNEL` | Notification Channel (`telegram` / `whatsapp`) | Set to `telegram` (default) |
+| `TWILIO_ACCOUNT_SID` | Twilio Account SID *(Optional alternative)* | [Twilio Console](https://www.twilio.com/) |
+| `TWILIO_AUTH_TOKEN` | Twilio Auth Token *(Optional alternative)* | [Twilio Console](https://www.twilio.com/) |
 | `TWILIO_WHATSAPP_NUMBER` | Twilio Sandbox Number | Usually `whatsapp:+14155238886` |
-| `CAREGIVER_WHATSAPP_NUMBER` | Your personal WhatsApp number | e.g. `whatsapp:+919876543210` |
+| `CAREGIVER_WHATSAPP_NUMBER` | Personal WhatsApp number | e.g. `whatsapp:+919876543210` |
 
-> *Note: If Gemini or Twilio credentials are not provided, the simulation runs in **Console / Notebook Inspection Mode**, executing deterministic rails and displaying the formatted WhatsApp card.*
+> *Note: If API credentials are not provided, the simulation runs in **Console / Notebook Inspection Mode**, executing deterministic rails and displaying the rich interactive Telegram cards locally.*
 
 ### 3. Run the Simulation
 
@@ -86,7 +89,7 @@ Open `simulate_sambandh.ipynb` in VS Code or Jupyter Lab:
 ```bash
 uv run jupyter lab simulate_sambandh.ipynb
 ```
-Select the kernel **`Python (Project Sambandh)`** to step through the interaction and render rich WhatsApp cards visually.
+Select the kernel **`Python (Project Sambandh)`** to step through the interaction and render rich interactive Telegram / WhatsApp cards visually.
 
 **Option B: CLI Script Runner**
 ```bash
@@ -100,9 +103,9 @@ uv run python simulate_sambandh.py
 When recording your demonstration video:
 
 1. **Split your screen 50/50:**
-   * **Left Side:** Terminal executing `simulate_sambandh.py` showing Gemini's thinking, rule triggers, and function calls.
-   * **Right Side:** [WhatsApp Web](https://web.whatsapp.com/) logged into the caregiver's account.
-2. **Watch the live trigger:** As soon as Gemini decides to reorder and brief the family, the formatted care card arrives on WhatsApp Web in real-time.
+   * **Left Side:** VS Code / Jupyter Notebook executing `simulate_sambandh.ipynb` (or Terminal) showing Gemini's thinking, rule triggers, and function calls.
+   * **Right Side:** [Telegram Web](https://web.telegram.org/) or Telegram Desktop logged in as the caregiver. *(WhatsApp Web is also supported).*
+2. **Watch the live trigger:** As soon as Gemini decides to reorder and brief the family, the reassurance card arrives on Telegram in real-time with clickable interactive buttons.
 
 ---
 

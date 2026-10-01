@@ -8,7 +8,7 @@ Demonstrates L3 Autonomous Decision-Making:
 3. Lane 2: Conversational adherence ground-truthing.
 4. Autonomous evaluation of medication runway and pre-authorized spend cap.
 5. Deterministic payment (Pine Labs) & courier dispatch (Delhivery) tool calls.
-6. Live dispatch of WhatsApp Reassurance Card to adult child.
+6. Live dispatch of Reassurance Card to caregiver via Telegram / WhatsApp.
 """
 
 import os
@@ -16,7 +16,7 @@ import sys
 import time
 import json
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional, List
 from dotenv import load_dotenv
 
 # Ensure UTF-8 output on Windows terminals
@@ -60,7 +60,7 @@ except ImportError:
     print("    Run: uv sync\n")
     sys.exit(1)
 
-# Third-party HTTP requests (Twilio / Meta API)
+# Third-party HTTP requests (Telegram / Twilio APIs)
 import requests
 
 
@@ -122,10 +122,67 @@ def schedule_delhivery_dispatch(patient_address: str, pin_code: str, sku_list: s
         "estimated_delivery_date": mock.get("estimated_delivery_date", "Tomorrow by 04:00 PM")
     }
 
+def send_telegram_caregiver_brief(chat_id: str, brief_payload: str, inline_keyboard: Optional[List[List[Dict[str, str]]]] = None) -> Dict[str, Any]:
+    """Sends the daily post-interaction reassurance brief or alert to the caregiver's Telegram."""
+    bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
+    target_chat = os.getenv("TELEGRAM_CHAT_ID", chat_id)
+    print(f"\n  [Caregiver Rail (Telegram)] ✈️ Dispatching reassurance brief to Chat ID: {target_chat}...")
+
+    # Default interactive inline keyboard for Telegram
+    if inline_keyboard is None:
+        inline_keyboard = [
+            [{"text": "🎧 Listen to Papa's Railway Story (30s)", "callback_data": "play_story_clip"}],
+            [{"text": "📋 View Detailed Adherence Ledger", "callback_data": "view_ledger"}]
+        ]
+
+    if bot_token and not bot_token.startswith("your_") and target_chat and not target_chat.startswith("your_"):
+        try:
+            url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+            payload = {
+                "chat_id": target_chat,
+                "text": brief_payload,
+                "parse_mode": "HTML",
+                "reply_markup": {"inline_keyboard": inline_keyboard}
+            }
+            resp = requests.post(url, json=payload, timeout=10)
+            res_data = resp.json()
+            if res_data.get("ok"):
+                message_id = res_data.get("result", {}).get("message_id")
+                print(f"  [Telegram API] ✅ Live message delivered (Message ID: {message_id})")
+                return {"status": "DELIVERED_LIVE_TELEGRAM", "message_id": message_id}
+            else:
+                # Retry with plain text if HTML tags were unparseable
+                payload.pop("parse_mode", None)
+                resp2 = requests.post(url, json=payload, timeout=10)
+                return {"status": "DELIVERED_LIVE_TELEGRAM", "result": resp2.json()}
+        except Exception as exc:
+            print(f"  [Telegram API] ⚠️ Live dispatch network exception: {exc}")
+            return {"status": "FAILED_NETWORK", "error": str(exc)}
+    else:
+        # Fallback: Print formatted Telegram card with buttons to console
+        print("\n" + "="*60)
+        print("  ✈️ SIMULATED TELEGRAM MESSAGE RECEIVED BY CAREGIVER")
+        print("="*60)
+        print(brief_payload)
+        print("-" * 60)
+        print("  [Interactive Inline Buttons]:")
+        for row in inline_keyboard:
+            for btn in row:
+                print(f"  [🔘 {btn.get('text')}]")
+        print("="*60 + "\n")
+        return {"status": "DELIVERED_CONSOLE_MOCK", "note": "Telegram bot keys not set; displayed locally."}
+
 def send_whatsapp_caregiver_brief(child_phone: str, brief_payload: str) -> Dict[str, Any]:
-    """Sends the daily post-interaction reassurance brief to the caregiver's WhatsApp."""
-    print(f"\n  [Caregiver Rail] 💬 Dispatching WhatsApp card to {child_phone}...")
-    
+    """Sends the daily post-interaction reassurance brief to the caregiver.
+    Routes to Telegram or WhatsApp based on CAREGIVER_CHANNEL environment setting."""
+    channel = os.getenv("CAREGIVER_CHANNEL", "telegram").lower()
+
+    if channel in ["telegram", "both"]:
+        telegram_result = send_telegram_caregiver_brief(child_phone, brief_payload)
+        if channel == "telegram":
+            return telegram_result
+
+    print(f"\n  [Caregiver Rail (WhatsApp)] 💬 Dispatching WhatsApp card to {child_phone}...")
     twilio_sid = os.getenv("TWILIO_ACCOUNT_SID")
     twilio_token = os.getenv("TWILIO_AUTH_TOKEN")
     from_whatsapp = os.getenv("TWILIO_WHATSAPP_NUMBER", "whatsapp:+14155238886")
@@ -141,10 +198,11 @@ def send_whatsapp_caregiver_brief(child_phone: str, brief_payload: str) -> Dict[
                     "To": to_whatsapp,
                     "Body": brief_payload
                 },
-                auth=(twilio_sid, twilio_token)
+                auth=(twilio_sid, twilio_token),
+                timeout=10
             )
             result = resp.json()
-            return {"status": "DELIVERED", "sid": result.get("sid")}
+            return {"status": "DELIVERED_LIVE_WHATSAPP", "sid": result.get("sid")}
         except Exception as exc:
             return {"status": "FAILED_NETWORK", "error": str(exc)}
     else:
@@ -155,6 +213,10 @@ def send_whatsapp_caregiver_brief(child_phone: str, brief_payload: str) -> Dict[
         print(brief_payload)
         print("="*56 + "\n")
         return {"status": "DELIVERED_CONSOLE_MOCK", "note": "Twilio keys not set; displayed locally."}
+
+def send_caregiver_brief(recipient_id: str, brief_payload: str) -> Dict[str, Any]:
+    """Unified caregiver briefing tool supporting Telegram and WhatsApp."""
+    return send_whatsapp_caregiver_brief(recipient_id, brief_payload)
 
 
 # ============================================================================
@@ -175,15 +237,17 @@ CORE OPERATIONAL BOUNDARIES (L3 AUTONOMY):
 5. If inventory runway falls <= 20%:
    - Verify cost against pre_authorized_monthly_cap.
    - If cost <= cap: Call execute_pine_labs_debit and schedule_delhivery_dispatch autonomously.
-   - If cost > cap: Trigger route_whatsapp_exception to child for 1-tap UPI step-up authorization.
-6. Following every interaction, generate an empathetic post-interaction summary card for the child's WhatsApp detailing participants, tone/mood, adherence confirmation, and inventory runway.
+   - If cost > cap: Trigger route_caregiver_exception to child for 1-tap UPI step-up authorization.
+6. Following every interaction, generate an empathetic post-interaction summary card for the child (via Telegram / WhatsApp) detailing participants, tone/mood, adherence confirmation, and inventory runway.
 
 AVAILABLE TOOLS:
 - gnani_telephony_dial
 - check_inventory_runway
 - execute_pine_labs_debit
 - schedule_delhivery_dispatch
+- send_telegram_caregiver_brief
 - send_whatsapp_caregiver_brief
+- send_caregiver_brief
 
 Always provide your step-by-step internal reasoning:
 Thought -> Decision -> Action/Tool Call.
@@ -196,7 +260,8 @@ Thought -> Decision -> Action/Tool Call.
 
 def run_mock_dry_run():
     """Runs a simulated offline trajectory showing the exact L3 execution steps."""
-    print("\n  [INFO] Running in Deterministic Offline Simulation Mode...")
+    channel = os.getenv("CAREGIVER_CHANNEL", "telegram").upper()
+    print(f"\n  [INFO] Running in Deterministic Offline Simulation Mode (Channel: {channel})...")
     print("  (To run live with Gemini 1.5 Pro, add your GEMINI_API_KEY to .env)\n")
 
     time.sleep(0.4)
@@ -240,15 +305,17 @@ def run_mock_dry_run():
     
     # Caregiver Reassurance Card
     brief_body = (
-        "Daily Care Briefing: Papa's Morning Call (08:35 AM)\n"
-        "========================================================\n"
-        "Participants: Papa & Sambandh Voice Agent\n"
-        "Mentorship Topic: Aarav (Pune) asked about earning respect from older technicians. Papa shared a spirited 4-minute railway story on working alongside senior technicians.\n"
-        "Medication Adherence: Confirmed taken after breakfast (Telmisartan 40mg + Metformin half-tablet).\n"
-        "Autonomous Refill: 6 days remaining (20% runway). Fresh Telmisartan pack dispatched via Delhivery (Rs.640 debited under pre-set Rs.4,500 limit). Est. arrival: Tomorrow 4 PM.\n\n"
-        "Everything is calm and on schedule."
+        "🌿 <b>Daily Care Briefing: Papa's Morning Call (08:35 AM)</b>\n"
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        "👤 <b>Participants:</b> Papa & Sambandh Voice Agent\n"
+        "💡 <b>Mentorship Topic:</b> Aarav (Pune) asked about earning respect from older technicians. Papa shared a spirited 4-minute railway story on working alongside senior technicians.\n"
+        "💊 <b>Medication Adherence:</b> Confirmed taken after breakfast (Telmisartan 40mg + Metformin half-tablet).\n"
+        "📦 <b>Autonomous Refill:</b> 6 days remaining (20% runway). Fresh Telmisartan pack dispatched via Delhivery (₹640 debited under pre-set ₹4,500 limit). Est. arrival: Tomorrow 4 PM.\n\n"
+        "<i>Everything is calm and on schedule.</i>"
     )
-    send_whatsapp_caregiver_brief("whatsapp:+919876543210", brief_body)
+    
+    # Dispatch via configured channel (default Telegram)
+    send_caregiver_brief("@priya_sharma_care", brief_body)
 
 
 def run_simulation():
@@ -257,6 +324,7 @@ def run_simulation():
     print("="*65)
     print("  Target Senior: Ramesh Chandra (Lucknow, UP)")
     print("  Target Caregiver: Priya Sharma (Bengaluru, KA)")
+    print("  Active Caregiver Channel: " + os.getenv("CAREGIVER_CHANNEL", "telegram").upper())
     print("  Autonomy Level: Level 3 (Bounded Autonomous Fiduciary & Operational)")
     print("="*65 + "\n")
 
@@ -277,7 +345,9 @@ def run_simulation():
         check_inventory_runway,
         execute_pine_labs_debit,
         schedule_delhivery_dispatch,
-        send_whatsapp_caregiver_brief
+        send_telegram_caregiver_brief,
+        send_whatsapp_caregiver_brief,
+        send_caregiver_brief
     ]
 
     # Initialize chat session
