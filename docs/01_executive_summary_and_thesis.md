@@ -31,47 +31,62 @@ $$\text{Adherence Fidelity} \propto \text{Dignity Preserved} - \text{Clinical Fr
 
 $$\text{Caregiver Peace} = \text{Autonomous Operational Replenishment} + \text{Transparent Reassurance}$$
 
-### 2.1 Dual-Lane Conversational Design
+### 2.1 The 3-Tier Architecture: Companion-First, Bounded L3 Autonomy, JIT Governance
 
-Instead of initiating calls with clinical interrogations, Sambandh operates across two synchronized conversational lanes:
+Instead of initiating calls with clinical interrogations or fixed script robocalls, Sambandh operates across a synchronized 3-tier architecture:
 
 ```
-┌────────────────────────────────────────────────────────────────────────┐
-│                   08:30 AM SCHEDULED PSTN MORNING CALL                 │
-└──────────────────────────────────┬─────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                   08:30 AM SCHEDULED PSTN MORNING COMPANION CALL                       │
+└──────────────────────────────────┬─────────────────────────────────────────────────────┘
                                    │
-         ┌─────────────────────────┴─────────────────────────┐
-         ▼                                                   ▼
-┌──────────────────────────────────┐        ┌──────────────────────────────────┐
-│   LANE 1: WISDOM & SOCIAL UTILITY│        │  LANE 2: ADHERENCE & VERIFICATION│
-│   (Reinforces Elder Dignity)     │        │  (Deterministic Replenishment)   │
-├──────────────────────────────────┤        ├──────────────────────────────────┤
-│ • Elder answers standard phone   │        │ • Contextual bridge from tea     │
-│ • Presented with mentorship      │        │ • Vernacular pill recall         │
-│   prompt from aspiring youth     │        │ • ABDM FHIR cross-reference      │
-│ • Shares lived career experience │        │ • Inventory depletion math       │
-│ • Validates mental lucidity      │        │ • Autonomous auto-debit & drop   │
-│ • 30s audio story packaged       │        │ • Caregiver reassurance brief    │
-└──────────────────────────────────┘        └──────────────────────────────────┘
+         ┌─────────────────────────┼─────────────────────────┐
+         ▼                         ▼                         ▼
+┌─────────────────────────┐┌────────────────────────┐┌────────────────────────┐
+│ TIER 1: CONVERSATIONAL  ││ TIER 2: SUBTLE ADHERENCE││ TIER 3: JIT MODULAR   │
+│ COMPANION & DIGNITY     ││ & L3 AUTONOMOUS RAILS   ││ PROMPT & TOPIC ENGINE │
+├─────────────────────────┤├────────────────────────┤├────────────────────────┤
+│ • Randomized warm opener││ • Weaves reminders in   ││ • Lean companion core  │
+│   (Delhi weather/news)  ││   after 2-3 turns       ││ • Conditional slices:  │
+│ • Wholesome elder humor ││ • ABDM FHIR inventory   ││   Adherence, Clinical, │
+│ • Asks Uncle's opinion  ││   validation (<5D check)││   Refill, Tripwire     │
+│ • Intergenerational     ││ • Autonomous ₹840 UPI   ││ • Hybrid topic pool:   │
+│   mentorship & career   ││   debit via Pine Labs   ││   Priya's portal list  │
+│ • Validates lucidity &  ││ • Delhivery courier drop││   + autonomous voice   │
+│   banishes loneliness   ││ • Caregiver daily brief ││   entity extraction    │
+└─────────────────────────┘└────────────────────────┘└────────────────────────┘
 ```
 
-#### Lane 1: Wisdom & Social Utility (Reinforcing Elder Dignity)
-Every morning at the senior's calibrated morning window (e.g., 08:30 AM), Sambandh dials the elder over standard Jio PSTN telephony. The call begins not with a medical audit, but with a genuine request for guidance from an aspiring young student or professional:
-> *"Pranam Uncle Ji! Aarav, a 23-year-old mechanical engineer from Pune, was asking on our mentorship rail: he is stepping into his first supervisory role next week and feels nervous managing senior workshop mechanics. Back when you were Chief Signal Inspector in Northern Railway, how did you earn respect from older colleagues?"*
+#### Tier 1: Conversational Companion & Wisdom (Reinforcing Elder Dignity)
+Every morning at the senior's calibrated morning window (e.g., 08:30 AM), Sambandh dials the elder over standard Jio PSTN telephony. The call begins not with a medical audit, but with a natural conversational spark:
+- **Local News & Opinion Elicitation:** *"प्रणाम रमेश अंकल! आज रोहिणी जापानी पार्क के नए वॉकवे की चर्चा हो रही थी... आप तो 15 साल से वहां टहल रहे हैं, आपका क्या मानना है इसपर?"*
+- **Weather & Balcony Comfort:** Commenting on the crisp Delhi winter sunshine, asking if Uncle has had his ginger tea in the balcony.
+- **Wholesome Elder Humor:** Sharing lighthearted banter about morning walking club debates or gentle neighborhood anecdotes.
+- **Career Mentorship & Wisdom:** Inviting advice for young engineers based on his 35 years as Chief Signal Inspector in Northern Railway.
 
-The senior spends 3 to 4 minutes sharing authentic lived experience. In doing so:
-- The elder feels respected, needed, and intellectually vibrant.
-- Cognitive lucidity, vocal vitality, speech cadence, and emotional sentiment are passively benchmarked without stress.
-- A 30-second audio story snippet is extracted and shared with the elder's daughter, deepening intergenerational connection.
+In doing so:
+- The elder feels respected, heard, and intellectually vibrant.
+- Loneliness is banished; the elder looks forward to speaking every day.
+- Cognitive lucidity, vocal vitality, speech cadence, and emotional sentiment are passively benchmarked without clinical stress.
 
-#### Lane 2: Conversational Adherence Ground-Truthing
-Once baseline rapport and emotional warmth are established, Sambandh transitions naturally:
-> *"Uncle, that is invaluable advice—I will share that with Aarav today. While you have your morning tea, did you take your pink blood pressure tablet and the sugar half-tablet after breakfast?"*
+#### Tier 2: Subtle Adherence Bridge & Bounded L3 Autonomy
+The agent never opens with a clinical checklist. After establishing genuine rapport over 2 to 3 natural conversational turns, Sambandh transitions organically:
+> *"वैसे रमेश अंकल, आपसे बातों-बातों में ध्यान आया... सुबह की ताज़ा चाय तो बढ़िया हो गई, नाश्ते के बाद वाली लाल गोली (Telma 40) और शुगर की आधी गोली ले ली थी ना आपने?"*
 
-The elder naturally confirms: *"Haan beta, I took my poha and swallowed the Telma and Metformin just now."*
-- **Speech Intent Parsing:** Colloquial Indic speech is mapped directly to active ABDM FHIR medication orders.
-- **Inventory Runway Math:** The system calculates cumulative consumption since the last verified delivery timestamp.
-- **Deterministic Action:** If the medication runway drops $\le 20\%$ (<5 days remaining), the autonomous replenishment rail is triggered immediately.
+The elder naturally confirms: *"हाँ बेटा, पोहा खाकर अभी-अभी दोनों ले ली थीं।"*
+- **Speech Intent Parsing:** Colloquial Indic speech (*"laal wali goli"*) is mapped directly to active ABDM FHIR medication orders (`Telmisartan 40mg`).
+- **Inventory Runway Math:** The system computes consumption against verified deliveries. If inventory runway drops $\le 20\%$ (<5 days remaining), the autonomous replenishment rail is triggered immediately.
+- **Autonomous Execution:** Captures ₹840 UPI auto-debit via Pine Labs Plural and dispatches priority doorstep delivery via Delhivery CMU within the family's ₹4,500 monthly limit.
+
+#### Tier 3: Just-In-Time (JIT) Modular Prompt & Hybrid Topic Engine
+To avoid system prompt escalation and cognitive bloat, Sambandh does not load heavy clinical questionnaires or transaction rules upfront:
+- **Lean Companion Core:** Maintains a compact, warm niece persona (~180 tokens) with active topic memory.
+- **Conditional Slices:** Specialized instructions are attached **Just-In-Time** only when triggered:
+  - `[Subtle Adherence Module]`: Injected at Turn $\ge 2$ or routine mentions.
+  - `[Clinical Dossier Module]`: Injected only if symptoms or joint pain are reported.
+  - `[Fiduciary Refill Module]`: Injected only when low stock or payment is discussed.
+  - `[Acoustic Tripwire Module]`: Injected only upon caller impersonation or fraud patterns.
+- **Hybrid Topic Knowledge Pool:** Synchronizes topics curated by daughter Priya in the Caregiver Telegram Portal with topics discovered autonomously during voice conversations (e.g., steam locomotives, gardening, Purani Delhi food).
 
 ---
 

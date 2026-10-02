@@ -52,6 +52,27 @@ export interface CaregiverConfig {
   orderTotalLimitInr: number;
 }
 
+export interface ElderTopicOfInterest {
+  id: string;
+  topic: string;
+  category: 'RAILWAYS_CAREER' | 'LOCAL_NEWS' | 'MUSIC_CULTURE' | 'GARDENING_ROUTINE' | 'FAMILY_NOSTALGIA' | 'WEATHER_NATURE' | 'GENERAL';
+  source: 'CAREGIVER_CURATED' | 'AUTONOMOUSLY_DISCOVERED';
+  addedBy: string;
+  enthusiasmLevel: 'HIGH' | 'MEDIUM' | 'VERY_HIGH';
+  lastDiscussed?: string;
+  sampleQuestions?: string[];
+  notes?: string;
+  isActive: boolean;
+}
+
+export interface PromptSliceStatus {
+  coreCompanion: boolean;
+  subtleAdherence: boolean;
+  clinicalDossier: boolean;
+  fiduciaryMandate: boolean;
+  acousticTripwire: boolean;
+}
+
 export interface CashWalletState {
   balanceInr: number;
   lowBalanceThresholdInr: number;

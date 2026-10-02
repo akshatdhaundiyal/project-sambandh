@@ -39,15 +39,19 @@ To deliver an undeniable technical demonstration to the judges, configure your d
 
 ---
 
-### ⏱️ 0:45 – 1:45 | Scene 2: 08:30 AM Telephony & Lane 1 (Wisdom Exchange)
+### ⏱️ 0:45 – 1:45 | Scene 2: 08:30 AM Telephony & Tier 1 (Companion Banter & Wisdom)
 - **Action on Screen:** 
   - On the Left Pane (`http://localhost:4173/`), show the 08:30 AM call connecting over Jio PSTN telephony.
   - Highlight the Recommended Prompts Table displaying Devanagari Hindi and Hinglish.
-  - Trigger **Scenario 2 (Railway Wisdom)** or let the call open with the mentorship question.
+  - Show the warm opener on Delhi weather or trigger **Scenario: Local News & Opinion (`sim-news-opinion`)**.
+  - Click `[📜 System Prompt]` in the top bar to show the **Modular JIT Prompt Inspector** with status badges (`[Companion Core: Active]`, `[Subtle Adherence: Dormant]`, `[Topics Streamed]`).
 - **Verbatim Voiceover:**
-  > *"At 08:30 AM, Sambandh initiates a scheduled carrier call to Ramesh Chandra, a 72-year-old retired railway engineer in Delhi. Instead of opening with 'Did you take your pills?', Sambandh opens **Lane 1: Wisdom & Social Utility**.*
+  > *"At 08:30 AM, Sambandh initiates a scheduled carrier call to Ramesh Chandra, a 72-year-old retired railway engineer in Delhi. Notice the fundamental difference: instead of opening with a clinical audit, Sambandh opens as a warm **Conversational Companion**.*
   > 
-  > *It asks Ramesh for advice on behalf of Aarav, a 23-year-old mentee in Pune starting his first railway job. Notice Ramesh's response in natural Hindi: he speaks with enthusiasm about his career in Northern Railway. In just two minutes, Ramesh feels respected and dignified, while our audio engine silently benchmarks his vocal vitality and cognitive lucidity."*
+  > *It opens with today's pleasant morning sunshine in Rohini and asks Ramesh Uncle for his opinion on the new walkway in Japanese Park, where he has walked for 15 years. Notice how Ramesh responds with enthusiasm and pride. Loneliness is banished, while our audio engine silently benchmarks his vocal vitality and cognitive lucidity.*
+  > 
+  > *Look at our Modular JIT Prompt Inspector: the agent runs on a lean companion core prompt without upfront clinical bloat, attaching specialized rules strictly when needed."*
+
 
 ---
 

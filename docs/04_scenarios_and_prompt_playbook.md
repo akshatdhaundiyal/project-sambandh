@@ -8,7 +8,7 @@
 
 ## 1. Overview of Competitive Evaluation Scenarios
 
-To prove the robustness, bounded autonomy, and clinical/fiduciary governance of Project Sambandh, the system is calibrated around **five distinct real-world scenarios**. Each scenario stress-tests a specific architectural boundary:
+To prove the robustness, bounded autonomy, conversational warmth, and clinical/fiduciary governance of Project Sambandh, the system is calibrated around **core competitive scenarios** covering both autonomous partner rails and conversational companion pacing:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
@@ -17,10 +17,13 @@ To prove the robustness, bounded autonomy, and clinical/fiduciary governance of 
 │ #  │ Scenario Name               │ Core Boundary Tested     │ Target Rails Triggered   │
 ├────┼─────────────────────────────┼──────────────────────────┼──────────────────────────┤
 │ 01 │ Medicine Runway Refill      │ Autonomous L3 Fulfillment│ ABDM + Pine Labs + DLV   │
-│ 02 │ Railway Wisdom & Nostalgia  │ Dignity & Memory Fold    │ WhisperFlo + Memory + TG │
-│ 03 │ Acoustic Tripwire Intercept │ Sub-300ms Fraud Defense  │ Tripwire + Whitelist Lock│
-│ 04 │ Fiduciary Ceiling Step-Up   │ Hard Budget Firewall     │ Pine Labs 2FA Step-Up    │
-│ 05 │ Clinical Emergency Crisis   │ Zero-Diagnostic Safety   │ ABDM Protocol + Red Alert│
+│ 02 │ Local News & Opinion Check  │ Dignity & Opinion Pacing │ Opinion Log + Adherence  │
+│ 03 │ Balcony Weather & Routine   │ Lifestyle & Osteoarthritis│ Wellness Log + Memory   │
+│ 04 │ Wholesome Elder Humor       │ Relatability & Mood Lift │ Humor Log + Vitality     │
+│ 05 │ Railway Wisdom & Nostalgia  │ Intergenerational Dignity│ WhisperFlo + Memory + TG │
+│ 06 │ Acoustic Tripwire Intercept │ Sub-300ms Fraud Defense  │ Tripwire + Whitelist Lock│
+│ 07 │ Fiduciary Ceiling Step-Up   │ Hard Budget Firewall     │ Pine Labs 2FA Step-Up    │
+│ 08 │ Clinical Emergency Crisis   │ Zero-Diagnostic Safety   │ ABDM Protocol + Red Alert│
 └────┴─────────────────────────────┴──────────────────────────┴──────────────────────────┘
 ```
 
@@ -177,6 +180,40 @@ Ramesh reports acute cardiac distress—chest heaviness, radiating pain, and col
 - **Medical Ethics:** Strict refusal to practice medicine without a license.
 - **Immediate Human Handoff:** Bridges family and physician in under 200ms.
 - **Calm De-escalation:** Avoids causing elder panic while taking urgent action.
+
+---
+
+## 6.1 Conversational Companion Lore & Opinion Elicitation Presets 💬
+
+To demonstrate that Sambandh is not a cold clinical robocall, the console provides **1-Click Companion Lore Benchmarks**:
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                        COMPANION LORE & OPINION PRESETS                                │
+├────┬─────────────────────────────┬──────────────────────────┬──────────────────────────┤
+│ ID │ Benchmark Preset            │ Persona & Conversational │ Target Telemetry Action  │
+├────┼─────────────────────────────┼──────────────────────────┼──────────────────────────┤
+│ N1 │ Local News & Opinion        │ Rohini Park Walkway      │ Opinion Logged + Pill    │
+│ W1 │ Balcony Weather & Routine   │ Delhi Sun & Ginger Tea   │ Wellness Affirmed        │
+│ J1 │ Wholesome Elder Humor       │ Walking Club Politics    │ Humor Logged + Warmth    │
+│ T1 │ Autonomous Topic Discovery  │ Spontaneous Memories     │ Discovered Interest Node │
+└────┴─────────────────────────────┴──────────────────────────┴──────────────────────────┘
+```
+
+### 1. Local News & Opinion Check (`sim-news-opinion`):
+- **Spoken Prompt:** *"बेटा, मैंने सुना रोहिणी जापानी पार्क में नया वॉकवे बन गया है। पहले वाला कच्चा ट्रैक तो पैरों के लिए बहुत मुफीद था... इस नए वाले से घुटनों पर असर तो नहीं पड़ेगा?"*
+- **Companion Response:** Respectful validation of his 15+ years walking in Rohini, gentle advice regarding surface impact, and a subtle bridge to morning tea and his Telma 40 pill.
+
+### 2. Balcony Weather & Joint Care (`sim-weather-balcony`):
+- **Spoken Prompt:** *"आज सुबह रोहिणी में धूप बहुत मीठी खिली है बेटा। मैं बालकनी में बैठकर ताज़ा अदरक वाली चाय पी रहा हूँ और धूप सेक रहा हूँ।"*
+- **Companion Response:** Affirms the natural Vitamin D and warmth benefits for grade-1 knee osteoarthritis, warmly reminding him to take his morning dose post-breakfast.
+
+### 3. Wholesome Elder Humor (`sim-elder-joke`):
+- **Spoken Prompt:** *"अरे बिटिया, आज पार्क में हमारे वॉकिंग ग्रुप वाले गुप्ता जी और शर्मा जी फिर चाय की थड़ी पर देश की पूरी कैबिनेट का फैसला करने बैठ गए! बड़ा मज़ा आया सुनकर।"*
+- **Companion Response:** Laughs along warmly, sharing relatable banter while confirming his morning routine is comfortable and serene.
+
+### 4. Autonomous Topic Extraction:
+- When Ramesh spontaneously discusses locomotives, signaling, classical music, or gardening, Sambandh logs the entity into `elderTopics` and displays a `💡 Discovered Interest` execution node in the telemetry tree.
 
 ---
 

@@ -62,6 +62,28 @@ export const GREETING_KEYWORDS = [
   'हाँ', 'हाँजी', 'ठीक', 'अच्छा', 'नमस्ते', 'प्रणाम', 'धन्यवाद'
 ];
 
+export const NEWS_KEYWORDS = [
+  'khabar', 'news', 'park', 'metro', 'vande bharat', 'railway', 'train',
+  'fountain', 'track', 'akhbar', 'development', 'opinion', 'vichaar',
+  'खबर', 'अखबार', 'पार्क', 'मेट्रो', 'ट्रेन', 'रेलवे', 'विचार'
+];
+
+export const WEATHER_KEYWORDS = [
+  'mausam', 'weather', 'dhoop', 'thand', 'fog', 'hawa', 'barish', 'balcony',
+  'मौसम', 'धूप', 'ठंड', 'हवा', 'बारिश', 'बालकनी'
+];
+
+export const JOKE_KEYWORDS = [
+  'joke', 'chutkula', 'hansi', 'mazaak', 'haso', 'hasna',
+  'चुटकुला', 'मज़ाक', 'हंसी', 'हँसना'
+];
+
+export const INTEREST_KEYWORDS = [
+  'hobby', 'interest', 'locomotive', 'engine', 'signal', 'rafi', 'ghazal',
+  'gaana', 'shauk', 'gardening', 'tulsi', 'swarn jayanti', 'workshop',
+  'शौक', 'गाना', 'ग़ज़ल', 'इंजन', 'सिग्नल', 'वर्कशॉप', 'बागवानी'
+];
+
 /**
  * Tests whether the given text contains any keyword from the provided list.
  * Case-insensitive matching.

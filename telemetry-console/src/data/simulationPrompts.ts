@@ -7,7 +7,7 @@ import { ToolExecutionNode, SCENARIO_NODE_REGISTRY } from './nodeMapping';
 
 export interface SimulationPreset {
   id: string;
-  category: 'refill' | 'mcp' | 'sadness' | 'crisis' | 'fiduciary' | 'wisdom';
+  category: 'refill' | 'mcp' | 'sadness' | 'crisis' | 'fiduciary' | 'wisdom' | 'companion';
   icon: string;
   buttonLabel: string;
   scenarioTitle: string;
@@ -187,5 +187,65 @@ export const SIMULATION_PRESETS: SimulationPreset[] = [
       { scenarioId: 'scenario-1', nodeType: 'caregiver', overrides: { title: 'Daughter Reassurance & Audio Snippet', actionSummary: "Priya received Papa's audio snippet: \"Listen to Papa's 1984 Railway Story\".", statusCode: 'AUDIO DELIVERED' } }
     ],
     reasoningNote: '[EMOTIONAL BONDING]: Reminiscence captured. Preserved in memory ledger. Audio snippet shared with Priya.'
+  },
+  {
+    id: 'sim-news-opinion',
+    category: 'companion',
+    icon: '📰',
+    buttonLabel: 'Local News & Opinion',
+    scenarioTitle: 'Companion Lore: Local News & Elder Opinion Elicitation',
+    badge: 'Opinion Elicitation',
+    railBadges: ['Companion Core', 'Subtle Adherence', 'Opinion Log'],
+    railSummary: 'Sambandh inquires about Rohini Japanese Park walkway ➔ Actively solicits Ramesh\'s opinion ➔ Subtly checks morning pill',
+    tagline: 'Ramesh discusses the newly constructed walkway in Japanese Park and compares it to older unpaved tracks.',
+    speaker: 'senior',
+    speakerLabel: 'Ramesh Chandra (Senior)',
+    devanagariPrompt: 'बेटा, मैंने सुना रोहिणी जापानी पार्क में नया वॉकवे बन गया है। पहले वाला कच्चा ट्रैक तो पैरों के लिए बहुत मुफीद था... इस नए वाले से घुटनों पर असर तो नहीं पड़ेगा?',
+    hinglishPrompt: '[Beta, maine suna Rohini Japanese Park me naya walkway ban gaya hai. Pehle wala kachha track pairon ke liye achha tha... isse ghutno par asar to nahi padega?]',
+    promptText: 'बेटा, मैंने सुना रोहिणी जापानी पार्क में नया वॉकवे बन गया है। पहले वाला कच्चा ट्रैक तो पैरों के लिए बहुत मुफीद था... इस नए वाले से घुटनों पर असर तो नहीं पड़ेगा? [Beta, maine suna Rohini Japanese Park me naya walkway ban gaya hai. Pehle wala kachha track pairon ke liye achha tha... isse ghutno par asar to nahi padega?]',
+    expectedNodeTypes: [
+      { scenarioId: 'scenario-1', nodeType: 'telephony', overrides: { title: 'Companion Lore & Local News Elicitation', actionSummary: 'Discussed Rohini Japanese Park development and solicited Ramesh Uncle\'s perspective.', statusCode: 'OPINION LOGGED' } }
+    ],
+    reasoningNote: '[COMPANION FIRST]: Respectful opinion check. Empathetic response to knee concerns. Subtly bridges to morning tea & BP pill.'
+  },
+  {
+    id: 'sim-weather-balcony',
+    category: 'companion',
+    icon: '☀️',
+    buttonLabel: 'Balcony Weather & Tea',
+    scenarioTitle: 'Companion Lore: Delhi Morning Weather & Balcony Routine',
+    badge: 'Weather & Routine',
+    railBadges: ['Companion Core', 'Subtle Adherence', 'Wellness Tip'],
+    railSummary: 'Ramesh enjoys balcony morning tea in the winter sun ➔ Sambandh offers gentle warmth & subtle adherence check',
+    tagline: 'Ramesh shares that he is enjoying his morning tea in the balcony sunshine.',
+    speaker: 'senior',
+    speakerLabel: 'Ramesh Chandra (Senior)',
+    devanagariPrompt: 'आज सुबह रोहिणी में धूप बहुत मीठी खिली है बेटा। मैं बालकनी में बैठकर ताज़ा अदरक वाली चाय पी रहा हूँ और धूप सेक रहा हूँ।',
+    hinglishPrompt: '[Aaj subah Rohini me dhoop bahut meethi khili hai beta. Main balcony me baithkar taaza adrak wali chai pee raha hoon aur dhoop sek raha hoon.]',
+    promptText: 'आज सुबह रोहिणी में धूप बहुत मीठी खिली है बेटा। मैं बालकनी में बैठकर ताज़ा अदरक वाली चाय पी रहा हूँ और धूप सेक रहा हूँ। [Aaj subah Rohini me dhoop bahut meethi khili hai beta. Main balcony me baithkar taaza adrak wali chai pee raha hoon aur dhoop sek raha hoon.]',
+    expectedNodeTypes: [
+      { scenarioId: 'scenario-1', nodeType: 'telephony', overrides: { title: 'Morning Weather & Balcony Wellbeing', actionSummary: 'Affirmed morning sun benefits for joint stiffness and verified tea routine.', statusCode: 'WELLNESS AFFIRMED' } }
+    ],
+    reasoningNote: '[WELLNESS ROUTINE]: Sun exposure encouraged for osteoarthritis. Affectionate reminder to take Telma 40 post-tea.'
+  },
+  {
+    id: 'sim-elder-joke',
+    category: 'companion',
+    icon: '😄',
+    buttonLabel: 'Morning Walkers Joke',
+    scenarioTitle: 'Companion Lore: Wholesome Elder Humor & Laughter',
+    badge: 'Lighthearted Humor',
+    railBadges: ['Companion Core', 'Humor Shared', 'Warm Bond'],
+    railSummary: 'Ramesh jokes about morning walking club peers debating politics over tea ➔ Sambandh shares a warm chuckle',
+    tagline: 'Ramesh shares a humorous observation about his morning walking group friends.',
+    speaker: 'senior',
+    speakerLabel: 'Ramesh Chandra (Senior)',
+    devanagariPrompt: 'अरे बिटिया, आज पार्क में हमारे वॉकिंग ग्रुप वाले गुप्ता जी और शर्मा जी फिर चाय की थड़ी पर देश की पूरी कैबिनेट का फैसला करने बैठ गए! बड़ा मज़ा आया सुनकर।',
+    hinglishPrompt: '[Are bitiya, aaj park me hamare walking group wale Gupta ji aur Sharma ji fir chai par desh ki cabinet ka faisla karne baith gaye!]',
+    promptText: 'अरे बिटिया, आज पार्क में हमारे वॉकिंग ग्रुप वाले गुप्ता जी और शर्मा जी फिर चाय की थड़ी पर देश की पूरी कैबिनेट का फैसला करने बैठ गए! बड़ा मज़ा आया सुनकर। [Are bitiya, aaj park me hamare walking group wale Gupta ji aur Sharma ji fir chai par desh ki cabinet ka faisla karne baith gaye!]',
+    expectedNodeTypes: [
+      { scenarioId: 'scenario-1', nodeType: 'telephony', overrides: { title: 'Wholesome Elder Humor & Banter', actionSummary: 'Shared laugh with Ramesh regarding neighborhood tea stall political debates.', statusCode: 'HUMOR LOGGED' } }
+    ],
+    reasoningNote: '[WARMTH & BANTER]: Lighthearted laughter reinforces emotional connection and safety.'
   }
 ];

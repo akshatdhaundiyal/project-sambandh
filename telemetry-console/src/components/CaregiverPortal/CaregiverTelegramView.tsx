@@ -1,11 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTelemetry } from '../../context/TelemetryContext';
 import { TelegramReceptor } from '../Column3Rails/TelegramReceptor';
-import { Send, ShieldCheck, Heart, User, Clock, Bell, Sparkles } from 'lucide-react';
+import { Send, ShieldCheck, Heart, User, Clock, Bell, Sparkles, Plus, Trash2, CheckCircle2, MessageSquare } from 'lucide-react';
 
 export const CaregiverTelegramView: React.FC = () => {
-  const { activeScenario, currentStep, caregiverConfig } = useTelemetry();
+  const {
+    activeScenario,
+    caregiverConfig,
+    elderTopics,
+    addElderTopic,
+    removeElderTopic,
+    toggleElderTopic
+  } = useTelemetry();
   const profile = activeScenario.initialSeniorProfile;
+
+  const [newTopicText, setNewTopicText] = useState('');
+  const [topicCategory, setTopicCategory] = useState<'RAILWAYS_CAREER' | 'LOCAL_NEWS' | 'MUSIC_CULTURE' | 'GARDENING_ROUTINE' | 'GENERAL'>('GENERAL');
+  const [addedNotice, setAddedNotice] = useState(false);
+
+  const handleAddTopic = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTopicText.trim()) return;
+
+    addElderTopic({
+      topic: newTopicText.trim(),
+      category: topicCategory,
+      source: 'CAREGIVER_CURATED',
+      addedBy: 'Priya Sharma (Daughter)',
+      enthusiasmLevel: 'HIGH',
+      notes: 'Added via Priya\'s Caregiver Telegram portal for upcoming morning call.'
+    });
+
+    setNewTopicText('');
+    setAddedNotice(true);
+    setTimeout(() => setAddedNotice(false), 2500);
+  };
 
   return (
     <div className="max-w-5xl mx-auto p-4 flex flex-col gap-5 py-6">
@@ -83,6 +112,104 @@ export const CaregiverTelegramView: React.FC = () => {
                 </span>
               </div>
             </div>
+          </div>
+
+          {/* Papa's Topics of Interest & Conversation Starters Hub */}
+          <div className="bg-white border border-stone-200/90 rounded-3xl p-5 shadow-xs space-y-3.5">
+            <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+              <span className="text-xs font-bold text-indigo-900 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200 flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-indigo-600" />
+                <span>PAPA'S TOPICS & INTERESTS</span>
+              </span>
+              <span className="text-[10px] text-stone-500 font-mono">Curated + Discovered</span>
+            </div>
+
+            <p className="text-[11px] text-stone-600 leading-relaxed">
+              Sambandh chats like a genuine companion. Below are topics discovered during calls or added by you for Sambandh to bring up.
+            </p>
+
+            {/* Topic List */}
+            <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+              {elderTopics.map((topic) => (
+                <div
+                  key={topic.id}
+                  className={`p-2.5 rounded-xl border transition-all text-xs flex items-start justify-between gap-2 ${
+                    topic.isActive
+                      ? 'bg-stone-50 border-stone-200'
+                      : 'bg-stone-100/50 border-stone-200/60 opacity-50'
+                  }`}
+                >
+                  <div className="space-y-1 flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-extrabold text-stone-900 truncate block">
+                        {topic.topic}
+                      </span>
+                      <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full border ${
+                        topic.source === 'CAREGIVER_CURATED'
+                          ? 'bg-amber-50 text-amber-800 border-amber-200'
+                          : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                      }`}>
+                        {topic.source === 'CAREGIVER_CURATED' ? 'By Priya' : 'Discovered'}
+                      </span>
+                    </div>
+                    {topic.notes && (
+                      <p className="text-[10px] text-stone-500 line-clamp-1">{topic.notes}</p>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-1 shrink-0 pt-0.5">
+                    <button
+                      onClick={() => toggleElderTopic(topic.id)}
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border transition-colors cursor-pointer ${
+                        topic.isActive
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                          : 'bg-stone-200 text-stone-600 border-stone-300'
+                      }`}
+                      title={topic.isActive ? 'Active in upcoming calls' : 'Paused'}
+                    >
+                      {topic.isActive ? 'Active' : 'Paused'}
+                    </button>
+                    <button
+                      onClick={() => removeElderTopic(topic.id)}
+                      className="p-1 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
+                      title="Remove Topic"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Add New Topic Input */}
+            <form onSubmit={handleAddTopic} className="space-y-2 pt-2 border-t border-stone-100">
+              <span className="text-[10px] font-extrabold text-stone-700 block uppercase">
+                + Suggest a Topic for Sambandh to Chat About
+              </span>
+              <div className="flex gap-1.5">
+                <input
+                  type="text"
+                  value={newTopicText}
+                  onChange={(e) => setNewTopicText(e.target.value)}
+                  placeholder="e.g. Ask Papa about his 1980s workshop memories..."
+                  className="flex-1 px-3 py-1.5 rounded-xl border border-stone-300 bg-white text-xs text-stone-900 placeholder-stone-400 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
+                />
+                <button
+                  type="submit"
+                  disabled={!newTopicText.trim()}
+                  className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white font-bold text-xs transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add</span>
+                </button>
+              </div>
+              {addedNotice && (
+                <div className="text-[10px] text-emerald-700 font-bold flex items-center gap-1 animate-fadeIn">
+                  <CheckCircle2 className="w-3 h-3" />
+                  <span>Topic added! Sambandh will bring this up naturally on Papa's next call.</span>
+                </div>
+              )}
+            </form>
           </div>
 
           <div className="bg-white border border-stone-200/90 rounded-3xl p-5 shadow-xs space-y-3">

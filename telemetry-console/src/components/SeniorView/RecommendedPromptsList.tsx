@@ -20,6 +20,7 @@ export const RecommendedPromptsList: React.FC = () => {
 
   const categories = [
     { id: 'all', label: 'All', icon: '✨' },
+    { id: 'companion', label: 'Companion & News', icon: '💬' },
     { id: 'refill', label: 'Refill', icon: '💊' },
     { id: 'mcp', label: 'MCP Orders', icon: '🌸' },
     { id: 'sadness', label: 'Sad Mood', icon: '🌧️' },

@@ -15,10 +15,11 @@
 
 ## 📌 Executive Summary
 
-**Project Sambandh** is an autonomous care platform engineered for India's digital health landscape. Rather than acting as an intrusive medical monitor or clinical overseer ("nanny-ware"), Sambandh operates across two synchronized conversational lanes:
+**Project Sambandh** is an autonomous care platform engineered for India's digital health landscape. Rather than acting as an intrusive medical monitor or clinical overseer ("nanny-ware"), Sambandh operates across a unified, 3-tier architecture:
 
-1. **Lane 1 (Wisdom & Social Utility):** Daily morning calls open with curated intergenerational mentorship prompts from young aspiring professionals suited to the elder's lifetime vocation (e.g., asking a retired railway engineer for workshop leadership advice). This preserves elder dignity and passively monitors cognitive lucidity.
-2. **Lane 2 (Adherence & Autonomous Replenishment):** Transitions contextually to oral medication recall, verifies adherence against national **ABDM FHIR** prescriptions, and autonomously executes auto-debit payments via **Pine Labs Plural** and express courier dispatch via **Delhivery CMU** when medicine runway falls $\le 20\%$ (<5 days remaining), strictly respecting the family's pre-authorized spending ceiling.
+1. **Tier 1 — Conversational Companion & Wisdom Bond (Lane 1):** Operates **companion-first, health-monitor-second**. Morning calls open with randomized, authentic vernacular sparks (Delhi weather, local Rohini park/metro developments, wholesome elder humor, and intergenerational mentorship). Sambandh actively asks for Ramesh Uncle's opinions and reminisces about his career as Northern Railway Chief Signal Inspector, validating elder dignity and banishing loneliness.
+2. **Tier 2 — Subtle Adherence & Autonomous Execution (Lane 2):** After establishing warm rapport over 2 to 3 natural turns of banter, Sambandh casually and subtly checks on breakfast and morning medication (Telma 40 / Glycomet). If prescription runway falls $\le 20\%$ (<5 days remaining), it autonomously executes auto-debit payments via **Pine Labs Plural** and express courier dispatch via **Delhivery CMU** under valid **ABDM FHIR** prescriptions, strictly respecting the family's pre-authorized spending ceiling.
+3. **Tier 3 — Just-In-Time (JIT) Modular Prompt & Hybrid Topic Engine:** Prevents prompt bloat and early escalation through a lean companion core prompt that conditionally attaches specialized instructions (`Subtle Adherence`, `Clinical Dossier`, `Fiduciary Refill`, `Acoustic Tripwire`) **only as and when required**. Features a **Hybrid Topic Pool** that combines topics curating by daughter Priya in the Caregiver Telegram Portal with real-time autonomous topic extraction during voice calls.
 
 ---
 
@@ -99,11 +100,14 @@ uv run python simulate_sambandh.py
 
 ---
 
-## 🎯 The 5 Competition Evaluation Scenarios
+## 🎯 Competition Evaluation Scenarios (Conversational Companion & Autonomous Rails)
 
 | Preset ID | Scenario Name | Spoken Prompt (Hindi & Hinglish) | Autonomous Rails Triggered | Key SLA / Status |
 | :--- | :--- | :--- | :--- | :--- |
 | `sim-refill` | **Medicine Runway Refill** | *"बेटा, मेरी लाल वाली बीपी की गोली सिर्फ 3 बची हैं..."* <br> `[Beta, meri laal wali BP ki goli Telma 40 sirf 3 bachi hain...]` | ABDM Inventory + Pine Labs (₹840) + Netmeds DarkStore + Delhivery CMU + Telegram Brief | **215ms** Netmeds B2B <br> `200 ORDER PACKED` |
+| `sim-news-opinion` | **Local News & Opinion Elicitation** | *"बेटा, मैंने सुना रोहिणी जापानी पार्क में नया वॉकवे बन गया है..."* | Opinion Elicitation + Subtle Adherence Bridge + Knee Care Guidance | **140ms** reasoning <br> `OPINION LOGGED` |
+| `sim-weather-balcony` | **Delhi Weather & Balcony Wellbeing** | *"आज सुबह रोहिणी में धूप बहुत मीठी खिली है बेटा, बालकनी में बैठा हूँ..."* | Morning Sun for Osteoarthritis + Routine Affirmation + Telma 40 Bridge | **130ms** reasoning <br> `WELLNESS AFFIRMED` |
+| `sim-elder-joke` | **Wholesome Elder Humor & Banter** | *"अरे बिटिया, आज पार्क में हमारे वॉकिंग ग्रुप वाले गुप्ता जी और शर्मा जी..."* | Relatable Morning Walkers Banter + Mood Lift + Emotional Safety | **125ms** reasoning <br> `HUMOR LOGGED` |
 | `sim-mcp-pooja` | **Generic MCP Local Orders** | *"बेटा, आज शाम को मंदिर में सुंदरकांड का पाठ है, ताजे गेंदे के फूल मंगवा सकती हो?..."* | Generic Model Context Protocol + In-Memory Wallet Debit (₹210) | **165ms** local dispatch <br> `ORDERED_NOT_RECEIVED` |
 | `sim-mentorship` | **Intermediary Mentorship & Safety Gate** | *"Ramesh Uncle, signal interlocking fail hone par mechanical override ka SOP kya tha?..."* | LLM Safety Gate + Asynchronous Wisdom Relay + Silent Family Advisory | **180ms** intent check <br> `SAFE TO RELAY` |
 | `sim-fiduciary` | **Fiduciary Ceiling Step-Up** | *"डॉक्टर साहब ने 3 महीने की विशेष दवाइयां ₹5,200 की लिखी हैं..."* <br> `[Doctor ne 3 mahine ki vishesh dawaiyan ₹5,200 ki likhi hain...]` | Pine Labs Fiduciary Firewall + Telegram 2FA Approval Card | **165ms** mandate hold <br> `402 LIMIT EXCEEDED` |

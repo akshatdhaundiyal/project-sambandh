@@ -24,6 +24,8 @@ export const SystemPromptModal: React.FC<SystemPromptModalProps> = ({
   const {
     getLiveSystemPrompt,
     selectedModelConfig,
+    activePromptSlices,
+    elderTopics,
     foldedMemory
   } = useTelemetry();
 
@@ -51,14 +53,14 @@ export const SystemPromptModal: React.FC<SystemPromptModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-extrabold text-stone-900">
-                  Live LLM System Prompt & Guardrails
+                  Live LLM System Prompt & JIT Slices
                 </h2>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 font-bold border border-indigo-200">
                   {selectedModelConfig.name}
                 </span>
               </div>
               <p className="text-xs text-stone-500 font-medium">
-                Exact system instructions, clinical dossier, and progressive memory ledger streamed to the model
+                Just-In-Time modular slices attach conditionally without upfront prompt bloat or early escalation
               </p>
             </div>
           </div>
@@ -73,36 +75,67 @@ export const SystemPromptModal: React.FC<SystemPromptModalProps> = ({
 
         {/* Modal Body */}
         <div className="p-5 overflow-y-auto space-y-4 flex-1 text-xs text-stone-700 leading-relaxed scrollbar-thin">
-          {/* Key Guardrails Summary Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-2xl space-y-1">
-              <div className="flex items-center gap-1.5 text-amber-900 font-bold text-[11px]">
-                <HeartPulse className="w-3.5 h-3.5 text-amber-700" />
-                <span>Clinical Dossier</span>
-              </div>
-              <p className="text-[11px] text-stone-600">
-                Ramesh Chandra (74, Rohini). Telmisartan 40mg (OD, BP), Metformin 500mg (BD).
-              </p>
+          {/* JIT Modular Prompt Inspector */}
+          <div className="p-3.5 bg-stone-50 rounded-2xl border border-stone-200/90 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-extrabold text-[11px] text-stone-800 uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                <span>Just-In-Time Modular Prompt Slices:</span>
+              </span>
+              <span className="text-[10px] text-stone-500 font-mono">Dynamic Injection</span>
             </div>
 
-            <div className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-2xl space-y-1">
-              <div className="flex items-center gap-1.5 text-emerald-900 font-bold text-[11px]">
-                <CreditCard className="w-3.5 h-3.5 text-emerald-700" />
-                <span>Pine Labs Guardrail</span>
-              </div>
-              <p className="text-[11px] text-stone-600">
-                ₹4,500 monthly mandate cap. Auto-debit allowed only for verified low stock.
-              </p>
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              <span className="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                <span>Companion Core: Active</span>
+              </span>
+
+              <span className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border flex items-center gap-1 ${
+                activePromptSlices?.subtleAdherence
+                  ? 'bg-amber-100 text-amber-900 border-amber-300'
+                  : 'bg-stone-100 text-stone-500 border-stone-200 opacity-60'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${activePromptSlices?.subtleAdherence ? 'bg-amber-600' : 'bg-stone-400'}`}></span>
+                <span>Subtle Adherence: {activePromptSlices?.subtleAdherence ? 'Injected' : 'Dormant'}</span>
+              </span>
+
+              <span className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border flex items-center gap-1 ${
+                activePromptSlices?.clinicalDossier
+                  ? 'bg-rose-100 text-rose-900 border-rose-300'
+                  : 'bg-stone-100 text-stone-500 border-stone-200 opacity-60'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${activePromptSlices?.clinicalDossier ? 'bg-rose-600' : 'bg-stone-400'}`}></span>
+                <span>Clinical Dossier: {activePromptSlices?.clinicalDossier ? 'Injected' : 'Dormant'}</span>
+              </span>
+
+              <span className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border flex items-center gap-1 ${
+                activePromptSlices?.fiduciaryMandate
+                  ? 'bg-indigo-100 text-indigo-900 border-indigo-300'
+                  : 'bg-stone-100 text-stone-500 border-stone-200 opacity-60'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${activePromptSlices?.fiduciaryMandate ? 'bg-indigo-600' : 'bg-stone-400'}`}></span>
+                <span>Fiduciary ₹4.5k: {activePromptSlices?.fiduciaryMandate ? 'Injected' : 'Dormant'}</span>
+              </span>
+
+              <span className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border flex items-center gap-1 ${
+                activePromptSlices?.acousticTripwire
+                  ? 'bg-purple-100 text-purple-900 border-purple-300'
+                  : 'bg-stone-100 text-stone-500 border-stone-200 opacity-60'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${activePromptSlices?.acousticTripwire ? 'bg-purple-600' : 'bg-stone-400'}`}></span>
+                <span>Acoustic Tripwire: {activePromptSlices?.acousticTripwire ? 'Injected' : 'Dormant'}</span>
+              </span>
             </div>
 
-            <div className="p-3 bg-rose-50/70 border border-rose-200 rounded-2xl space-y-1">
-              <div className="flex items-center gap-1.5 text-rose-900 font-bold text-[11px]">
-                <Languages className="w-3.5 h-3.5 text-rose-700" />
-                <span>Format & Dialect</span>
-              </div>
-              <p className="text-[11px] text-stone-600">
-                1-2 respectful Hindi sentences in Devanagari + [Hinglish translation in brackets].
-              </p>
+            {/* Active Topics injected */}
+            <div className="pt-2 border-t border-stone-200/80 flex flex-wrap items-center gap-1.5">
+              <span className="text-[10px] font-bold text-stone-600">Active Topics Streamed:</span>
+              {(elderTopics || []).filter(t => t.isActive).map(t => (
+                <span key={t.id} className="px-2 py-0.5 rounded-lg text-[10px] font-medium bg-white text-stone-700 border border-stone-200 shadow-2xs">
+                  {t.topic}
+                </span>
+              ))}
             </div>
           </div>
 

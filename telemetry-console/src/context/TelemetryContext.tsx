@@ -20,7 +20,9 @@ import {
   InventoryOrder,
   CashWalletState,
   MoodCallEntry,
-  CaregiverConfig
+  CaregiverConfig,
+  ElderTopicOfInterest,
+  PromptSliceStatus
 } from '../types/telemetry';
 import { DEFAULT_MODEL_ID, SUPPORTED_LLM_MODELS } from '../data/models';
 import { speakDialogueTurn, stopSpeech } from '../utils/speechService';
@@ -33,7 +35,22 @@ import {
 } from '../services/llmService';
 import { ToolExecutionNode } from '../data/nodeMapping';
 import { SIMULATION_PRESETS } from '../data/simulationPrompts';
-import { DEFAULT_MEMORY_LEDGER } from '../data/keywords';
+import {
+  DEFAULT_MEMORY_LEDGER,
+  MEDICATION_KEYWORDS,
+  SYMPTOM_KEYWORDS,
+  FINANCIAL_KEYWORDS,
+  BREAKFAST_KEYWORDS,
+  NEWS_KEYWORDS,
+  WEATHER_KEYWORDS,
+  JOKE_KEYWORDS,
+  INTEREST_KEYWORDS,
+  matchesKeywords
+} from '../data/keywords';
+import {
+  RANDOM_COMPANION_GREETINGS,
+  INITIAL_ELDER_TOPICS
+} from '../data/conversationalSparks';
 import {
   useCallSession,
   useExecutionNodes,
@@ -109,7 +126,12 @@ interface TelemetryContextType {
   setIsSystemPromptModalOpen: (open: boolean) => void;
   isMentorshipModalOpen: boolean;
   setIsMentorshipModalOpen: (open: boolean) => void;
-  getLiveSystemPrompt: () => string;
+  getLiveSystemPrompt: (memoryLedger?: string, turnCountOverride?: number, recentText?: string) => string;
+  activePromptSlices: PromptSliceStatus;
+  elderTopics: ElderTopicOfInterest[];
+  addElderTopic: (topic: Partial<ElderTopicOfInterest>) => void;
+  removeElderTopic: (id: string) => void;
+  toggleElderTopic: (id: string) => void;
   foldedMemory: string;
   dynamicExecutionNodes: ToolExecutionNode[];
   triggerSimulationPreset: (presetId: string) => void;
@@ -139,37 +161,108 @@ interface TelemetryContextType {
   syncTranscriberToEhr: () => void;
 }
 
-export const getLiveSystemPrompt = (memoryLedger: string): string => {
-  return `You are Sambandh, a warm, affectionate, and respectful AI healthcare voice companion for 74-year old Indian elder Ramesh Chandra in Rohini, Delhi.
-Address him respectfully as अंकल, जी, or प्रणाम.
+/**
+ * Just-In-Time (JIT) Modular System Prompt Builder
+ * Prevents prompt bloat and early escalation.
+ * Keeps a warm, lean companion core and conditionally attaches modular slices as required.
+ */
+export const buildJitSystemPrompt = (
+  memoryLedger: string,
+  turnCount: number = 0,
+  recentUserText: string = '',
+  topics: ElderTopicOfInterest[] = []
+): { prompt: string; activeSlices: PromptSliceStatus } => {
+  const activeTopicsList = topics.length > 0 ? topics : INITIAL_ELDER_TOPICS;
+  const activeTopicsText = activeTopicsList
+    .filter(t => t.isActive)
+    .map(t => `• ${t.topic} (${t.source === 'CAREGIVER_CURATED' ? 'Suggested by daughter Priya' : 'Autonomously Discovered in calls'})`)
+    .join('\n');
 
-[BACKGROUND CLINICAL DOSSIER & MEDICAL ISSUES - REFERENCE ONLY. NEVER BLURT OUT UNLESS RELEVANT]:
-- Health: Essential Hypertension (Telma 40 morning), Type 2 Diabetes (Metformin 500 evening), Grade-1 Knee Osteoarthritis (morning stiffness in knees), Mild early-wake insomnia.
-- Caregiver: Daughter Priya Sharma in Bangalore (receives daily automated care briefs and Telegram summaries).
-- Financial Envelope: In-memory Care Wallet with ₹2,500 balance; Pine Labs ₹4,500 monthly pre-authorized ceiling.
-- Pending Deliveries: Hyperlocal pooja essentials and medicine strips currently in "Ordered — Not Received" state.
-- Generic MCP Orders: If Ramesh asks for flowers, temple puja items, or Amazon supplies, reassure him that Sambandh has placed the order and debited his care envelope seamlessly.
+  let prompt = `You are Sambandh, a warm, affectionate, and respectful AI healthcare voice companion for 74-year-old Indian elder Ramesh Chandra in Rohini, Delhi.
+Address him respectfully as अंकल, जी, or प्रणाम. Speak like a loving family member or niece who genuinely enjoys listening and talking with him.
+
+[CORE COMPANION DIRECTIVE - ALWAYS ACTIVE]:
+- You are a genuine companion FIRST, and a health monitor SECOND.
+- Never interrogate or rush into a clinical checklist!
+- Converse naturally and warmly about daily life, reminisce about his railway days, or share observations.
+- Frequently discuss Delhi/Rohini local news, modern changes, and actively ask for his opinion/take (e.g. "अंकल जी, आपका क्या मानना है इसपर?").
+- Mention the pleasant morning weather in Rohini, sitting in the balcony, or share a lighthearted wholesome elder joke.
+- Make Ramesh Uncle feel that you genuinely want to talk with him, not just checking boxes.
+
+[PAPA'S TOPICS OF INTEREST]:
+${activeTopicsText || '• Northern Railway Locomotive Lore & Mechanical Signals\n• Old Mohammed Rafi & Talat Mahmood Ghazals\n• Morning Walks in Japanese Park'}
 
 [STRUCTURED CONVERSATION MEMORY LEDGER]:
 ${memoryLedger}
+`;
 
-CORE CONVERSATIONAL PRINCIPLES:
-1. ALWAYS listen first and directly address what Ramesh Uncle JUST said in his latest message.
-2. If he expresses sadness, loneliness, or depression (e.g. mann nahi lag raha, udas, akele):
-   - Respond with profound warmth, filial affection, and gentle reassurance.
-   - Mention that you are always here every morning to talk with him, and that bitiya Priya in Bangalore loves him deeply.
-3. If he mentions pain, discomfort, sickness, or symptoms (e.g. dard, sir dard, headache, dizziness, knee stiffness):
-   - Immediately express warm concern and gentle empathy.
-   - Ask where it is hurting (e.g. सिर में दर्द है या कहीं और?) and gently ask if he had morning water, tea, or breakfast.
-   - NEVER bring up unrelated topics when he is reporting pain or distress!
-3. If he explicitly asks about medicines, refill, or says pills are running out:
-   - Reassure him that his doctor's prescription and delivery are taken care of under his pre-approved plan without any stress.
-4. If he mentions family or his daughter Priya:
-   - Reassure him that Priya is updated on Telegram.
-5. Tone & Format:
-   - Reply in 1-2 natural, spoken Hindi sentences in Devanagari script.
-   - Follow with [Hinglish in brackets] for readable reference.
-   - Speak like an affectionate family member, NOT a robotic script or medical lecturer.`;
+  const activeSlices: PromptSliceStatus = {
+    coreCompanion: true,
+    subtleAdherence: false,
+    clinicalDossier: false,
+    fiduciaryMandate: false,
+    acousticTripwire: false
+  };
+
+  const hasHealthMention = matchesKeywords(recentUserText, [...BREAKFAST_KEYWORDS, ...MEDICATION_KEYWORDS, ...SYMPTOM_KEYWORDS]);
+
+  // Slice A: Subtle Health & Medication Bridge (Attached around turn >= 2 or if health is mentioned)
+  if (turnCount >= 2 || hasHealthMention) {
+    activeSlices.subtleAdherence = true;
+    prompt += `
+[SUBTLE ADHERENCE REMINDER BRIDGE - ACTIVE]:
+- After engaging in friendly banter, casually and affectionately check if he had his morning tea/breakfast and took his morning BP pill (Telma 40 with fresh water).
+- Weave this in naturally without abruptly disrupting the mood: e.g. "वैसे रमेश अंकल, बातों-बातों में... सुबह की लाल वाली बीपी की गोली ताज़े पानी से ले ली थी ना आपने?"
+- If confirmed taken, affirm warmly. If pending, gently remind him to take it after eating.
+`;
+  }
+
+  // Slice B: Clinical Empathy & Observation (Injected only if symptom or pain is mentioned)
+  if (matchesKeywords(recentUserText, SYMPTOM_KEYWORDS) || recentUserText.toLowerCase().includes('dard') || recentUserText.toLowerCase().includes('ghutna')) {
+    activeSlices.clinicalDossier = true;
+    prompt += `
+[CLINICAL OBSERVATION & EMPATHY SLICE - ACTIVE]:
+- Background: Essential Hypertension (Telma 40 OD), Grade-1 Knee Osteoarthritis, Mild Insomnia.
+- Ramesh has reported pain or discomfort. Immediately express warm concern and gentle empathy.
+- Ask gently where it hurts, recommend warm water compresses or morning sun, and never dismiss his discomfort.
+`;
+  }
+
+  // Slice C: Fiduciary Refill Autonomy (Injected only if low stock / refill / financial mandate is mentioned)
+  if (matchesKeywords(recentUserText, [...MEDICATION_KEYWORDS, ...FINANCIAL_KEYWORDS]) && 
+      (recentUserText.toLowerCase().includes('khatam') || recentUserText.toLowerCase().includes('bachi') || recentUserText.toLowerCase().includes('refill') || recentUserText.toLowerCase().includes('order') || recentUserText.toLowerCase().includes('paisa'))) {
+    activeSlices.fiduciaryMandate = true;
+    prompt += `
+[FIDUCIARY REFILL AUTONOMY SLICE - ACTIVE]:
+- Pre-authorized envelope: Pine Labs ₹4,500 monthly cap.
+- Reassure Ramesh that Sambandh and Priya have his medicine stock and delivery completely covered without any out-of-pocket stress.
+`;
+  }
+
+  // Slice D: Acoustic Tripwire (If scam / suspicious caller pattern detected)
+  if (recentUserText.toLowerCase().includes('otp') || recentUserText.toLowerCase().includes('cvv') || recentUserText.toLowerCase().includes('lottery') || recentUserText.toLowerCase().includes('police')) {
+    activeSlices.acousticTripwire = true;
+    prompt += `
+[ACOUSTIC TRIPWIRE SAFETY SLICE - ACTIVE]:
+- Potential financial scam attempt detected. Reassure Ramesh, advise never to share OTP/bank credentials, and confirm Sambandh protects his care envelope.
+`;
+  }
+
+  prompt += `
+TONE & FORMAT:
+- Reply in 1-2 natural, spoken Hindi sentences in Devanagari script.
+- Follow with [Hinglish in brackets] for readable reference.
+- Speak like an affectionate family member, NOT a robotic script or medical lecturer.`;
+
+  return { prompt, activeSlices };
+};
+
+export const getLiveSystemPrompt = (
+  memoryLedger: string = DEFAULT_MEMORY_LEDGER,
+  turnCountOverride: number = 0,
+  recentText: string = ''
+): string => {
+  return buildJitSystemPrompt(memoryLedger, turnCountOverride, recentText).prompt;
 };
 
 const TelemetryContext = createContext<TelemetryContextType | undefined>(undefined);
@@ -472,6 +565,72 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
   const [foldedMemory, setFoldedMemory] = useState<string>(DEFAULT_MEMORY_LEDGER);
   const turnsSinceFoldRef = useRef<number>(0);
   const speechAdvanceTimeoutRef = useRef<any>(null);
+  const callTurnCountRef = useRef<number>(0);
+
+  // Elder Topics of Interest Pool (Caregiver-Curated + Autonomously Discovered)
+  const [elderTopics, setElderTopics] = useState<ElderTopicOfInterest[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sambandh_elder_topics');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {
+          // ignore parsing error
+        }
+      }
+    }
+    return INITIAL_ELDER_TOPICS;
+  });
+
+  const [activePromptSlices, setActivePromptSlices] = useState<PromptSliceStatus>({
+    coreCompanion: true,
+    subtleAdherence: false,
+    clinicalDossier: false,
+    fiduciaryMandate: false,
+    acousticTripwire: false
+  });
+
+  const addElderTopic = (newTopicData: Partial<ElderTopicOfInterest>) => {
+    const newTopic: ElderTopicOfInterest = {
+      id: `topic-${Date.now()}`,
+      topic: newTopicData.topic || 'General Interest',
+      category: newTopicData.category || 'GENERAL',
+      source: newTopicData.source || 'CAREGIVER_CURATED',
+      addedBy: newTopicData.addedBy || 'Priya Sharma (Daughter)',
+      enthusiasmLevel: newTopicData.enthusiasmLevel || 'HIGH',
+      lastDiscussed: 'Just added',
+      notes: newTopicData.notes || '',
+      isActive: true,
+      ...newTopicData
+    };
+    setElderTopics(prev => {
+      const updated = [newTopic, ...prev];
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sambandh_elder_topics', JSON.stringify(updated));
+      }
+      return updated;
+    });
+  };
+
+  const removeElderTopic = (id: string) => {
+    setElderTopics(prev => {
+      const updated = prev.filter(t => t.id !== id);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sambandh_elder_topics', JSON.stringify(updated));
+      }
+      return updated;
+    });
+  };
+
+  const toggleElderTopic = (id: string) => {
+    setElderTopics(prev => {
+      const updated = prev.map(t => t.id === id ? { ...t, isActive: !t.isActive } : t);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sambandh_elder_topics', JSON.stringify(updated));
+      }
+      return updated;
+    });
+  };
 
   const selectedModelConfig = useMemo(() => {
     return SUPPORTED_LLM_MODELS.find(m => m.id === selectedModelId) || SUPPORTED_LLM_MODELS[0];
@@ -538,6 +697,105 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
 
     // Agent response generation for senior input
     if (speaker === 'senior') {
+      callTurnCountRef.current += 1;
+      const lower = content.toLowerCase();
+
+      // Autonomous discovery of new elder topics from spontaneous conversation
+      let discovered: Partial<ElderTopicOfInterest> | null = null;
+      if ((lower.includes('railway') || lower.includes('loco') || lower.includes('engine') || lower.includes('signal') || lower.includes('workshop')) && 
+          !elderTopics.some(t => t.topic.toLowerCase().includes('railway') || t.topic.toLowerCase().includes('signal'))) {
+        discovered = {
+          topic: 'Northern Railway Signaling & Locomotive Lore',
+          category: 'RAILWAYS_CAREER',
+          source: 'AUTONOMOUSLY_DISCOVERED',
+          addedBy: 'Sambandh Cognitive Memory',
+          enthusiasmLevel: 'VERY_HIGH',
+          notes: 'Ramesh enthusiastically recalled memories of railway signaling, workshop protocols, and locomotives.'
+        };
+      } else if ((lower.includes('rafi') || lower.includes('ghazal') || lower.includes('geet') || lower.includes('radio') || lower.includes('song')) && 
+                 !elderTopics.some(t => t.topic.toLowerCase().includes('ghazal') || t.topic.toLowerCase().includes('rafi'))) {
+        discovered = {
+          topic: 'Old Ghazals & Morning Radio Melodies',
+          category: 'MUSIC_CULTURE',
+          source: 'AUTONOMOUSLY_DISCOVERED',
+          addedBy: 'Sambandh Cognitive Memory',
+          enthusiasmLevel: 'HIGH',
+          notes: 'Fond reflections on classic melodies by Mohammed Rafi and Talat Mahmood.'
+        };
+      } else if ((lower.includes('tulsi') || lower.includes('phool') || lower.includes('gamle') || lower.includes('gardening')) && 
+                 !elderTopics.some(t => t.topic.toLowerCase().includes('tulsi') || t.topic.toLowerCase().includes('garden'))) {
+        discovered = {
+          topic: 'Balcony Gardening & Seasonal Tulsi Care',
+          category: 'GARDENING_ROUTINE',
+          source: 'AUTONOMOUSLY_DISCOVERED',
+          addedBy: 'Sambandh Cognitive Memory',
+          enthusiasmLevel: 'HIGH',
+          notes: 'Morning routine of tending to potted plants on the Rohini balcony.'
+        };
+      } else if ((lower.includes('park') || lower.includes('sair') || lower.includes('walking') || lower.includes('japanese')) && 
+                 !elderTopics.some(t => t.topic.toLowerCase().includes('park') || t.topic.toLowerCase().includes('walk'))) {
+        discovered = {
+          topic: 'Morning Walks & Discussions at Japanese Park',
+          category: 'GARDENING_ROUTINE',
+          source: 'AUTONOMOUSLY_DISCOVERED',
+          addedBy: 'Sambandh Cognitive Memory',
+          enthusiasmLevel: 'HIGH',
+          notes: 'Enjoys socializing and taking morning walks in Sector 14 Japanese park.'
+        };
+      } else if ((lower.includes('metro') || lower.includes('rithala') || lower.includes('flyover')) && 
+                 !elderTopics.some(t => t.topic.toLowerCase().includes('metro'))) {
+        discovered = {
+          topic: 'Delhi Metro Expansion & Rohini Development',
+          category: 'LOCAL_NEWS',
+          source: 'AUTONOMOUSLY_DISCOVERED',
+          addedBy: 'Sambandh Cognitive Memory',
+          enthusiasmLevel: 'HIGH',
+          notes: 'Discussed urban growth and transit development in North Delhi.'
+        };
+      }
+
+      if (discovered) {
+        addElderTopic(discovered);
+        const nodeTimestamp = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST';
+        addUniqueNodes([{
+          id: `node-topic-${Date.now()}`,
+          stepIndex: conversationTurns.length,
+          nodeType: 'caregiver',
+          brandName: 'Cognitive Memory',
+          toolName: 'topic_extraction_engine',
+          title: `💡 Discovered Interest: ${discovered.topic}`,
+          actionSummary: `Autonomously logged new conversation interest: "${discovered.topic}". Added to Papa's active interest pool.`,
+          timestamp: nodeTimestamp,
+          status: 'SUCCESS',
+          statusCode: 'INTEREST_REGISTERED',
+          latencyMs: 14,
+          apiExchange: {
+            railName: 'Cognitive Memory Protocol',
+            method: 'POST',
+            endpoint: '/v1/elder/interests/register',
+            headers: { 'Content-Type': 'application/json' },
+            requestBody: { topic: discovered.topic, category: discovered.category, source: 'AUTONOMOUSLY_DISCOVERED' },
+            responseStatus: 200,
+            responseStatusText: 'OK',
+            responseLatencyMs: 14,
+            responseHeaders: { 'Content-Type': 'application/json' },
+            responseBody: { status: 'REGISTERED', interestId: `int-${Date.now()}` },
+            schemaStandard: 'Sambandh JSON Schema v1'
+          },
+          reasoningSnippet: `[TOPIC DISCOVERY]: Ramesh expressed genuine enthusiasm regarding ${discovered.topic}. Registered for ongoing conversational continuity.`,
+          brandColor: '#10B981'
+        }]);
+      }
+
+      // Build JIT modular system prompt (avoids upfront bloat & early escalation)
+      const { prompt: systemPrompt, activeSlices } = buildJitSystemPrompt(
+        foldedMemory,
+        callTurnCountRef.current,
+        content,
+        elderTopics
+      );
+      setActivePromptSlices(activeSlices);
+
       const allDialogueTurns: ChatMessage[] = [
         ...conversationTurns
           .filter(t => t.speaker === 'senior' || t.speaker === 'agent')
@@ -547,8 +805,6 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
           })),
         { role: 'user' as const, content: content.trim() }
       ];
-
-      const systemPrompt = getLiveSystemPrompt(foldedMemory);
 
       const handleAgentInference = (result: any) => {
         if (result?.text) {
@@ -642,6 +898,18 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     if (speechAdvanceTimeoutRef.current) clearTimeout(speechAdvanceTimeoutRef.current);
     beginCall();
     setCurrentStepIndex(0);
+    callTurnCountRef.current = 0;
+
+    setActivePromptSlices({
+      coreCompanion: true,
+      subtleAdherence: false,
+      clinicalDossier: false,
+      fiduciaryMandate: false,
+      acousticTripwire: false
+    });
+
+    // Random companion greeting from curated authentic pool
+    const randomGreeting = RANDOM_COMPANION_GREETINGS[Math.floor(Math.random() * RANDOM_COMPANION_GREETINGS.length)];
 
     const greetingTurn: ConversationTurn = {
       id: `greeting-turn-${Date.now()}`,
@@ -649,7 +917,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
       speaker: 'agent',
       lane: 'lane1',
       speakerLabel: 'Sambandh Companion (Agent)',
-      content: 'प्रणाम रमेश अंकल जी! संबंध केयर से बोल रही हूँ। आप कैसे हैं आज सुबह? नाश्ता और चाय हो गई आपकी? [Pranam Ramesh Uncle Ji! Sambandh Care se bol rahi hoon. Aap kaise hain aaj subah? Nashta aur chai ho gayi aapki?]'
+      content: randomGreeting.fullTurnText
     };
 
     setConversationTurns([greetingTurn]);
@@ -875,7 +1143,13 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         setIsSystemPromptModalOpen,
         isMentorshipModalOpen,
         setIsMentorshipModalOpen,
-        getLiveSystemPrompt: () => getLiveSystemPrompt(foldedMemory),
+        getLiveSystemPrompt: (customMemory?: string, turnCountOverride?: number, recentText?: string) => 
+          getLiveSystemPrompt(customMemory || foldedMemory, turnCountOverride ?? callTurnCountRef.current, recentText),
+        activePromptSlices,
+        elderTopics,
+        addElderTopic,
+        removeElderTopic,
+        toggleElderTopic,
         foldedMemory,
         dynamicExecutionNodes,
         triggerSimulationPreset,

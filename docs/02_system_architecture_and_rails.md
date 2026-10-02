@@ -24,13 +24,23 @@ Project Sambandh operates as an event-driven, microservices-orchestrated autonom
         │ Bidirectional Dialogue Stream (Audio + ASR Transcripts)
         ▼
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                       CENTRAL REASONING BRAIN & MEMORY LEDGER                          │
+│                 CENTRAL REASONING BRAIN, JIT PROMPTS & MEMORY LEDGER                   │
 ├────────────────────────────────────────────────────────────────────────────────────────┤
 │  Gemini 1.5 Pro / Flash Orchestrator                                                  │
-│  ├── Structured Context Ledger (~210 Tokens, Zero-Loss Multi-Turn Memory)             │
-│  ├── Intent & Entity Extraction (Colloquial Indic Pill Names ➔ Generic INN Salts)     │
-│  ├── Inventory Math & Runway Calculator: (DeliveredUnits - DaysElapsed * DailyDose)    │
-│  └── Acoustic Semantic Tripwire Engine (Parallel 182ms N-Gram Fraud Intercept)        │
+│  ├── 💬 CONVERSATIONAL COMPANION LAYER (Tier 1)                                       │
+│  │   ├── Randomized Morning Spoken Sparks (Delhi Weather, Rohini Park/Metro News)     │
+│  │   ├── Wholesome Elder Humor & Walking Club Banter (Laughs With Elder, Not At)       │
+│  │   └── Opinion Elicitation Engine ("Uncle Ji, what is your view on this?")           │
+│  ├── 🧩 JUST-IN-TIME (JIT) MODULAR PROMPT ENGINE (Tier 3)                             │
+│  │   ├── Lean Companion Core Prompt (~180 tokens, strictly avoids upfront bloat)       │
+│  │   ├── Conditional Slices: [+Subtle Adherence] [+Clinical Dossier] [+Refill]        │
+│  │   └── Hybrid Topic Knowledge Pool (Priya's Portal Starters + Voice Entity Mining)   │
+│  ├── 🌉 SUBTLE ADHERENCE BRIDGE & RUNWAY ENGINE (Tier 2)                               │
+│  │   ├── Casual Weaving at Turn >= 2 ("Baaton-baaton mein... did you take Telma 40?") │
+│  │   ├── Indic Salt Mapping (Colloquial "laal goli" ➔ Telmisartan 40mg FHIR Rx)       │
+│  │   └── Deterministic Runway Math: (DeliveredUnits - DaysElapsed * DailyDose) <= 5D  │
+│  ├── 🧠 STRUCTURED CONTEXT LEDGER (~210 Tokens, Zero-Loss Memory Fold)                │
+│  └── 🛡️ ACOUSTIC SEMANTIC TRIPWIRE ENGINE (Parallel 182ms N-Gram Fraud Intercept)     │
 └───────┼────────────────────────────────────────────────────────────────────────────────┘
         │ Structured Tool Calls (JSON Function Calling)
         ▼
@@ -47,14 +57,15 @@ Project Sambandh operates as an event-driven, microservices-orchestrated autonom
 │ • Waybill Manifest (DLV-98234-DEL)│ • Hard Line Sever in 182ms on Fraud/Impersonation  │
 │ • Priority 4h Doorstep SLA        │ • Automatic Whitelist Lock & Caller Blacklisting   │
 └───────────────────────────────────┴────────────────────────────────────────────────────┘
-        │ Asynchronous Status Webhooks & Push Notifications
+        │ Asynchronous Status Webhooks & Bidirectional Topic Sync
         ▼
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                         CAREGIVER TRANSPARENCY RECEPTOR                                │
+│                   CAREGIVER TRANSPARENCY & CONVERSATION CONTROL RECEPTOR               │
 ├────────────────────────────────────────────────────────────────────────────────────────┤
 │  Telegram MTProto Bot API / WhatsApp Cloud API                                         │
 │  ├── Daily Morning Reassurance Card (Delivered <60s post-call with Mood & Adherence)   │
 │  ├── Clickable Inline Action Buttons ([🎧 Audio Clip] [📦 Track] [⚡ 2FA Approve])     │
+│  ├── 💡 Papa's Topics Hub: Add/Toggle conversation starters (Gardening, Northern Rly)  │
 │  └── Weekly Sunday 7:00 PM Longitudinal Family Digest (Vitals, Trends, Refill Status) │
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -75,6 +86,44 @@ To ensure universal accessibility across India's diverse demographic landscape, 
    - **Primary Engine:** WhisperFlo Cloud Neural TTS (high naturalness, authentic Indian elder cadence, respectful honorifics like *"Ji"*, *"Uncle"*).
    - **Local SAPI5 Fallback:** Microsoft Windows Local Speech API (`hi-IN` voices: Hemant, Kalpana, Swara) providing 0-latency offline synthesis.
    - **Browser Web Speech API Fallback:** Native Google Chrome / Edge `hi-IN` speech synthesis.
+
+---
+
+## 2.1 Just-In-Time (JIT) Modular Prompt Architecture & Conversational Pacing 💬
+
+Traditional voice bots fail elderly care by getting down to business too quickly—interrogating seniors with rapid clinical checklists (*"Did you take your pills? What are your vitals?"*) that cause defensiveness, anxiety, and robotic fatigue.
+
+Sambandh implements a **Companion-First, JIT Modular Architecture**:
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                         JUST-IN-TIME (JIT) PROMPT ENGINE                               │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  [1. LEAN COMPANION CORE - ALWAYS ACTIVE]                                              │
+│  • Respectful niece persona (अंकल, जी, प्रणाम); warm family warmth                     │
+│  • Natural conversational sparks (weather, local Delhi/Rohini news, wholesome jokes)    │
+│  • Papa's Active Topics of Interest (Hybrid: Priya's list + Autonomously Discovered)   │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  [2. CONDITIONAL MODULAR SLICES - INJECTED JUST-IN-TIME]                               │
+│  ├─ Turn Count >= 2 OR Routine Mention: + [SUBTLE HEALTH & ADHERENCE BRIDGE]          │
+│  │   • Casually weaves in Telma 40 reminder without disrupting conversational flow     │
+│  ├─ Physical Symptom / Pain Mention: + [CLINICAL CARE & OBSERVATION SLICE]             │
+│  │   • Tender concern for knee osteoarthritis, warm compresses, avoid steep stairs     │
+│  ├─ Low Stock / Refill / Payment Mention: + [FIDUCIARY AUTONOMY & REFILL SLICE]        │
+│  │   • Pine Labs ₹4,500 mandate bounds, ABDM repeat validity, Delhivery tracking       │
+│  └─ Suspicious Caller / Impersonation: + [ACOUSTIC TRIPWIRE DEFENSE SLICE]             │
+│      • 182ms phoneme match, line isolation, caregiver alert                            │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Key Principles of the Conversational Companion:
+1. **Unscripted & Randomized Openers:** Every morning call opens with a fresh, natural spark (e.g. today's pleasant morning sunshine in Rohini, a local park development update, or a gentle laugh about morning walkers), actively asking for Ramesh Uncle's perspective (*"अंकल जी, आपका क्या मानना है इसपर?"*).
+2. **Subtle Health Weaving:** The agent does not open with a clinical checklist. After establishing rapport over 2–3 turns of natural banter, it casually checks in on breakfast and medications:
+   > *"वैसे रमेश अंकल, आपसे बातों-बातों में ध्यान आया... सुबह की ताज़ा चाय तो बढ़िया हो गई, लाल वाली बीपी की गोली (Telma 40) भी ले ली थी ना आपने?"*
+3. **Hybrid Interest Knowledge Pool:**
+   - **Autonomously Discovered:** Inferences from natural speech (e.g., mentions of Northern Railway signaling, WDM-2 locos, old Mohammed Rafi songs, gardening) are automatically extracted, logged to persistent state, and emitted as execution tree nodes.
+   - **Caregiver-Curated:** Daughter Priya can pre-populate and toggle conversation starters directly via the Caregiver Telegram Portal.
+4. **Telemetry Visibility:** The System Prompt Modal exposes a live **Modular Prompt Inspector** with status badges (`[Companion Core: Active]`, `[Subtle Adherence: Injected]`, `[Clinical Dossier: Dormant]`), proving to judges that prompt size and cognitive load are dynamically bounded.
 
 ---
 

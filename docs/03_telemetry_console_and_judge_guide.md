@@ -102,6 +102,17 @@ Instead of stuffing unlimited raw dialogue history into the LLM context window�
 - **Per-Turn Audio Playback:** Click the `[🔊]` icon beside any message to replay the Hindi voice synthesis on demand.
 - **Colloquial Transliterator Bar:** Allows judges to type unscripted Hinglish phrases (e.g., *"aaj sugar ki goli bhool gaya tha"*); the built-in transliterator converts it to authentic Devanagari in real time.
 
+### 2.6 Live Modular JIT Prompt Inspector (`SystemPromptModal.tsx`)
+Clicking the `[📜 System Prompt]` button in the top navigation bar opens the **Modular JIT Prompt Inspector**:
+- **Real-Time Module Status Badges:**
+  - `[Companion Core: Active]` (Always active: warm persona, Awadhi respect, unscripted sparks)
+  - `[Subtle Adherence: Injected / Dormant]` (Injected dynamically at turn $\ge 2$ or routine mentions)
+  - `[Clinical Dossier: Injected / Dormant]` (Injected only on joint pain or symptom mentions)
+  - `[Fiduciary Refill: Injected / Dormant]` (Injected only on stock, refill, or payment topics)
+  - `[Acoustic Tripwire: Injected / Dormant]` (Injected only on fraud or impersonation detection)
+- **Papa's Streamed Interest Topics:** Live pill badges showing active topics (e.g., *Northern Railway WDM-2 locos*, *Rohini Japanese Park morning walk*, *Knee care*, *Gardening*) injected into the companion core prompt.
+- **Prompt Size Proof:** Demonstrates to judges that the system prompt strictly avoids upfront bloat or clinical escalation, keeping inference latency sub-150ms and token costs minimal.
+
 ---
 
 ## 3. Right Pane: Judge & Step API Inspector
@@ -124,6 +135,7 @@ Every autonomous action taken by Sambandh manifests as a chronological **Tool Ex
   - `200 MANIFESTED` (Delhivery waybill generated)
   - `182ms SEVERED` (Acoustic tripwire line severed)
   - `403 MANDATE HELD` (Fiduciary spending cap enforced)
+  - `TOPIC DISCOVERED` (Autonomous interest extraction logged)
 - **Microsecond Latency Metrics:** Proves production-readiness with real-world latencies ($84\text{ms}$ for ABDM inventory, $182\text{ms}$ for tripwire sever, $310\text{ms}$ for UPI debit).
 - **Collapsible HTTP Request / Response Inspector:** Click any node to expand the full, valid HTTP payload including request headers, JSON bodies, and response payloads.
 - **Clinical & Fiduciary Reasoning Snippets:** Explains *why* the agent triggered the rail (e.g., *"[ABDM EVAL]: Pill runway 3 days < 5-day threshold. Pine Labs auto-debit ₹840 approved. Delhivery manifested."*).
@@ -141,9 +153,14 @@ Every autonomous action taken by Sambandh manifests as a chronological **Tool Ex
 
 At the top right of the console, tabs allow judges to switch between the inspector and caregiver communication channels:
 
-1. **`caregiver-telegram` (Live Telegram Reassurance Card):**
-   - Displays the exact MTProto message delivered to Priya's phone.
-   - Interactive buttons: `[🎧 Listen to Papa's Story]`, `[📦 Track Delhivery Delivery]`, `[💳 View Pine Labs Receipt]`, `[📞 Call Papa Directly]`.
+1. **`caregiver-telegram` (Live Telegram Reassurance & Topic Control Hub):**
+   - **Daily Morning Reassurance Card:** Displays the exact MTProto message delivered to Priya's phone with mood sentiment, adherence status, and active delivery tracking.
+   - **Interactive Buttons:** `[🎧 Listen to Papa's Story]`, `[📦 Track Delhivery Delivery]`, `[💳 View Pine Labs Receipt]`, `[📞 Call Papa Directly]`.
+   - **Papa's Topics of Interest & Conversation Starters:** An interactive caregiver management card where daughter Priya can:
+     - Review topics discovered autonomously during voice calls.
+     - Add new personal topics (e.g., family events, grandchildren updates, nostalgic memories).
+     - Toggle individual topics active/inactive to steer upcoming morning companion calls.
+     - Remove obsolete topics with 1 click.
 2. **`weekly-digest` (Sunday 7:00 PM Family Digest):**
    - Renders longitudinal health adherence graphs (98.4% weekly compliance).
    - Medication runway projection bar chart (showing 28 days of secure buffer).
@@ -157,7 +174,11 @@ At the top right of the console, tabs allow judges to switch between the inspect
 
 When evaluating Project Sambandh during the competition, look for these specific proof points:
 
-- [ ] **Dignity vs Surveillance:** Does the call open with an engaging mentorship question (Lane 1) rather than an interrogative pill audit?
+- [ ] **Companion-First Pacing:** Does the call open with an unscripted, warm spark (weather, local Rohini park/news, gentle humor) rather than an abrupt clinical audit?
+- [ ] **Opinion Elicitation:** Does the agent actively solicit Ramesh Uncle's perspective on local topics, reinforcing elder dignity?
+- [ ] **Subtle Adherence Weaving:** Does the agent naturally bridge into morning medication reminders after 2–3 turns without breaking conversational rapport?
+- [ ] **Modular JIT Prompting:** Inspect the `[📜 System Prompt]` modal to confirm prompt slices are attached conditionally rather than bloating upfront.
+- [ ] **Hybrid Topic Hub:** Check the Caregiver Portal to verify Priya can add conversation topics and inspect autonomously extracted interests.
 - [ ] **Authentic Vernacular Fluency:** Does the agent comprehend natural Indic speech (e.g., *"laal wali goli"* $\rightarrow$ *Telmisartan 40mg*)?
 - [ ] **Deterministic L3 Limits:** Does the system auto-debit ₹840 without asking, but strictly halt and request 2FA when an order is ₹5,200?
 - [ ] **Acoustic Safety SLA:** Does the tripwire sever the telephony carrier line in under 300ms when financial solicitation occurs?
