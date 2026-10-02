@@ -1,0 +1,365 @@
+import React, { useState } from 'react';
+import { useTelemetry } from '../../context/TelemetryContext';
+import {
+  Bell,
+  Search,
+  Heart,
+  Activity,
+  Calendar,
+  Phone,
+  PhoneOff,
+  Mic,
+  MicOff,
+  Volume2,
+  Video,
+  Home,
+  MessageCircle,
+  Settings,
+  Sparkles,
+  ShieldCheck,
+  MapPin,
+  Clock,
+  ArrowRight
+} from 'lucide-react';
+
+export const ElderMobilePhone: React.FC = () => {
+  const { currentStep, activeScenario, allTurnsSoFar } = useTelemetry();
+  const profile = activeScenario.initialSeniorProfile;
+  const [activeScreen, setActiveScreen] = useState<'dashboard' | 'call'>('dashboard');
+  const [isMuted, setIsMuted] = useState(false);
+  const [speakerOn, setSpeakerOn] = useState(true);
+
+  const formatTime = (totalSeconds: number) => {
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const daysOfWeek = [
+    { day: 'Thu', date: '01', status: 'done', isToday: false },
+    { day: 'Fri', date: '02', status: 'active', isToday: true },
+    { day: 'Sat', date: '03', status: 'upcoming', isToday: false },
+    { day: 'Sun', date: '04', status: 'upcoming', isToday: false },
+    { day: 'Mon', date: '05', status: 'upcoming', isToday: false }
+  ];
+
+  const conversationTurns = allTurnsSoFar.filter(t => t.speaker !== 'system');
+  const latestTurn = conversationTurns[conversationTurns.length - 1];
+
+  return (
+    <div className="flex flex-col lg:flex-row items-center justify-center gap-6 py-4 px-2 max-w-6xl mx-auto">
+      {/* Mobile Device Frame (iPhone 16 Pro Style) */}
+      <div className="w-full max-w-[390px] h-[844px] bg-stone-900 rounded-[52px] p-3.5 shadow-2xl ring-1 ring-stone-800 relative flex flex-col shrink-0 select-none">
+        {/* Dynamic Island / Earpiece */}
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-full z-50 flex items-center justify-between px-2.5">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span className="text-[10px] font-mono text-emerald-400 font-bold">08:30</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-stone-800"></span>
+        </div>
+
+        {/* Screen Bezel Content */}
+        <div className="w-full h-full bg-[#F5F7F2] rounded-[44px] overflow-hidden flex flex-col relative text-stone-900">
+          {/* iOS Status Bar */}
+          <div className="pt-3 px-7 pb-2 flex items-center justify-between text-xs font-semibold text-stone-800">
+            <span>9:41</span>
+            <div className="flex items-center gap-1.5 text-stone-800 text-[11px]">
+              <span>5G</span>
+              <span>100%</span>
+            </div>
+          </div>
+
+          {/* Screen Content Switcher: Dashboard vs Call View */}
+          {activeScreen === 'dashboard' ? (
+            <div className="flex-1 overflow-y-auto px-5 pt-3 pb-24 space-y-4">
+              {/* Header Greeting */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-full bg-amber-200 border-2 border-white flex items-center justify-center text-xl shadow-xs">
+                    👴
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-stone-500 block leading-tight font-medium">
+                      Namaste, Welcome Back!
+                    </span>
+                    <span className="text-sm font-extrabold text-stone-900 block leading-tight">
+                      Ramesh Chandra Ji
+                    </span>
+                  </div>
+                </div>
+
+                <div className="w-9 h-9 rounded-full bg-white border border-stone-200/80 flex items-center justify-center text-stone-700 shadow-xs relative">
+                  <Bell className="w-4 h-4" />
+                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
+                </div>
+              </div>
+
+              {/* Main Question Header from reference image */}
+              <div className="pt-1">
+                <h1 className="text-2xl font-black text-stone-900 leading-snug tracking-tight">
+                  How are you feeling right now today?
+                </h1>
+              </div>
+
+              {/* Search Bar */}
+              <div className="bg-white rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 border border-stone-200/80 shadow-xs text-stone-400 text-xs">
+                <Search className="w-4 h-4 text-stone-400" />
+                <span>Search daily vitals, medicines, advice...</span>
+              </div>
+
+              {/* Row 1: Vitals Widgets (Blood Pressure & Blood Glucose) */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Blood Pressure Card */}
+                <div className="bg-stone-900 text-white rounded-3xl p-4 shadow-sm flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-stone-300 text-xs font-semibold">
+                      <Heart className="w-3.5 h-3.5 text-rose-400 fill-rose-400" />
+                      <span>Blood Pressure</span>
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      Good
+                    </span>
+                  </div>
+                  <div className="mt-3">
+                    <span className="text-2xl font-black tracking-tight block">112/80</span>
+                    <span className="text-[10px] text-stone-400">Normal healthy range</span>
+                  </div>
+                </div>
+
+                {/* Blood Glucose Card */}
+                <div className="bg-white text-stone-900 rounded-3xl p-4 shadow-xs border border-stone-200/80 flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-stone-600 text-xs font-semibold">
+                      <Activity className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Blood Glucose</span>
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                      Good
+                    </span>
+                  </div>
+                  <div className="mt-3">
+                    <span className="text-2xl font-black tracking-tight block">90-120</span>
+                    <span className="text-[10px] text-stone-500">Post-breakfast normal</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Weekly Pill Routine Card with Bars */}
+              <div className="bg-white rounded-3xl p-4 border border-stone-200/80 shadow-xs">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-stone-700">Daily Pill Adherence</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    Good
+                  </span>
+                </div>
+
+                <div className="flex items-end justify-between gap-1 pt-2">
+                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, i) => (
+                    <div key={day} className="flex flex-col items-center gap-1.5 flex-1">
+                      <div
+                        className={`w-4 rounded-full transition-all ${
+                          i < 4
+                            ? 'h-9 bg-emerald-100'
+                            : i === 4
+                            ? 'h-14 bg-rose-500 shadow-xs ring-2 ring-rose-200'
+                            : 'h-6 bg-stone-100'
+                        }`}
+                      />
+                      <span className={`text-[10px] font-bold ${i === 4 ? 'text-rose-600' : 'text-stone-400'}`}>
+                        {day}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Active Morning Call Card Banner */}
+              <div className="bg-gradient-to-tr from-emerald-800 to-emerald-950 text-white rounded-3xl p-4 shadow-md">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Live Morning Companion Call
+                  </span>
+                  <span className="text-xs font-mono font-bold text-emerald-200">
+                    {formatTime(currentStep.callDurationSeconds)}
+                  </span>
+                </div>
+
+                <p className="text-xs text-emerald-100 line-clamp-2 italic mb-3">
+                  "{latestTurn ? latestTurn.content : 'Namaste Ramesh Uncle, aaj subah ka chai-nashta ho gaya?'}"
+                </p>
+
+                <button
+                  onClick={() => setActiveScreen('call')}
+                  className="w-full py-2 bg-emerald-500 hover:bg-emerald-400 text-stone-950 text-xs font-extrabold rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-1.5"
+                >
+                  <Phone className="w-3.5 h-3.5 fill-current" />
+                  <span>Switch to Full Call View</span>
+                </button>
+              </div>
+
+              {/* Connected Specialists Row */}
+              <div className="space-y-2">
+                <span className="text-xs font-extrabold text-stone-900 block">
+                  Your Primary Care Circle
+                </span>
+
+                <div className="bg-white rounded-2xl p-3 border border-stone-200/80 shadow-xs flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-full bg-cyan-100 flex items-center justify-center text-base">
+                      👨‍⚕️
+                    </div>
+                    <div>
+                      <span className="text-xs font-extrabold text-stone-900 block leading-tight">
+                        Dr. Arvind Saxena
+                      </span>
+                      <span className="text-[10px] text-stone-500">Cardiology Specialist</span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    Online
+                  </span>
+                </div>
+
+                <div className="bg-white rounded-2xl p-3 border border-stone-200/80 shadow-xs flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center text-base">
+                      👩‍💼
+                    </div>
+                    <div>
+                      <span className="text-xs font-extrabold text-stone-900 block leading-tight">
+                        Priya Sharma
+                      </span>
+                      <span className="text-[10px] text-stone-500">Daughter (Bengaluru)</span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    Connected
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Live Call View (Right screen in reference image) */
+            <div className="flex-1 bg-stone-950 text-white flex flex-col justify-between p-6 relative overflow-hidden">
+              {/* Top Call Info */}
+              <div className="flex items-center justify-between z-10 pt-4">
+                <button
+                  onClick={() => setActiveScreen('dashboard')}
+                  className="w-10 h-10 rounded-full bg-stone-900/80 border border-stone-700 flex items-center justify-center text-stone-300"
+                >
+                  ←
+                </button>
+                <div className="text-center">
+                  <span className="text-xs font-mono text-emerald-400 font-bold block">
+                    ● {formatTime(currentStep.callDurationSeconds)}
+                  </span>
+                  <span className="text-xs text-stone-400">Awadhi-Hindi Call</span>
+                </div>
+                <div className="w-10 h-10"></div>
+              </div>
+
+              {/* Center Voice Avatar & Waveform */}
+              <div className="flex flex-col items-center justify-center z-10 space-y-4 my-auto">
+                <div className="w-28 h-28 rounded-full bg-gradient-to-tr from-emerald-600 to-cyan-500 p-1 shadow-2xl animate-pulse">
+                  <div className="w-full h-full rounded-full bg-stone-900 flex items-center justify-center text-5xl">
+                    👴
+                  </div>
+                </div>
+
+                <div className="text-center space-y-1">
+                  <h2 className="text-xl font-black text-white">Ramesh Chandra Ji</h2>
+                  <p className="text-xs text-emerald-400 font-medium">WhisperFlo Neural Telephony Active</p>
+                </div>
+
+                {/* Subtitle of active turn */}
+                <div className="bg-stone-900/90 border border-stone-800 p-4 rounded-3xl max-w-xs text-center text-xs text-stone-200 leading-relaxed shadow-lg">
+                  {latestTurn ? latestTurn.content : 'Listening to Papa...'}
+                </div>
+              </div>
+
+              {/* Bottom Call Action Buttons (Directly from reference image) */}
+              <div className="flex items-center justify-center gap-4 pb-8 z-10">
+                {/* Mute Button */}
+                <button
+                  onClick={() => setIsMuted(!isMuted)}
+                  className={`w-13 h-13 rounded-full flex items-center justify-center text-stone-900 transition-all ${
+                    isMuted ? 'bg-amber-400' : 'bg-white'
+                  }`}
+                >
+                  {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                </button>
+
+                {/* Video Button */}
+                <button
+                  className="w-13 h-13 rounded-full bg-white flex items-center justify-center text-stone-900"
+                >
+                  <Video className="w-5 h-5" />
+                </button>
+
+                {/* Speaker Button */}
+                <button
+                  onClick={() => setSpeakerOn(!speakerOn)}
+                  className={`w-13 h-13 rounded-full flex items-center justify-center text-stone-900 transition-all ${
+                    speakerOn ? 'bg-emerald-400' : 'bg-white'
+                  }`}
+                >
+                  <Volume2 className="w-5 h-5" />
+                </button>
+
+                {/* End Call Button in Soft Coral/Red */}
+                <button
+                  onClick={() => setActiveScreen('dashboard')}
+                  className="w-13 h-13 rounded-full bg-rose-600 hover:bg-rose-700 flex items-center justify-center text-white shadow-lg transition-colors"
+                >
+                  <PhoneOff className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Floating Bottom Navigation Dock (Inspired directly by reference image) */}
+          {activeScreen === 'dashboard' && (
+            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md px-5 py-2.5 rounded-full border border-stone-200/90 shadow-lg flex items-center gap-6 text-stone-400">
+              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-stone-900 text-white text-xs font-bold shadow-xs">
+                <Home className="w-3.5 h-3.5" />
+                <span>Home</span>
+              </button>
+              <button className="hover:text-stone-900 transition-colors">
+                <Calendar className="w-4 h-4" />
+              </button>
+              <button className="hover:text-stone-900 transition-colors">
+                <MessageCircle className="w-4 h-4" />
+              </button>
+              <button className="hover:text-stone-900 transition-colors">
+                <Settings className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Explanatory Sidebar for Evaluators */}
+      <div className="max-w-md space-y-4 text-stone-800">
+        <div className="bg-white border border-stone-200/90 rounded-3xl p-6 shadow-xs space-y-3">
+          <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 inline-block">
+            AUTHENTIC SENIOR DESIGN LANGUAGE
+          </span>
+          <h2 className="text-2xl font-black text-stone-900 tracking-tight">
+            Elder-Friendly Visual Architecture
+          </h2>
+          <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+            Directly translating the warm, serene, luminous healthcare design from your reference image:
+          </p>
+          <ul className="text-xs text-stone-700 space-y-2 list-disc list-inside">
+            <li><strong>Luminous Palette:</strong> Gentle sage/cream tint (`#F5F7F2`) with organic rounded-3xl cards.</li>
+            <li><strong>Dignified Daily Question:</strong> Warm prompt replacing complex menus.</li>
+            <li><strong>Accessible Vitals:</strong> High-contrast BP (112/80) & Glucose cards with soft green `Good` pills.</li>
+            <li><strong>Weekly Pill Routine:</strong> Visual bar chart with current day in vibrant rose/emerald.</li>
+            <li><strong>Care Circle:</strong> Fast access to cardiologist Dr. Arvind Saxena & daughter Priya.</li>
+            <li><strong>One-Tap Call Screen:</strong> Big circular tactile buttons with high visibility.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+};

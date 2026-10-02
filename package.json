@@ -1,0 +1,11 @@
+{
+  "name": "project-sambandh",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Project Sambandh: L3 Autonomous Telemetry & State Inspector Console",
+  "scripts": {
+    "dev": "npm --prefix telemetry-console run dev",
+    "build": "npm --prefix telemetry-console run build",
+    "preview": "npm --prefix telemetry-console run preview"
+  }
+}
