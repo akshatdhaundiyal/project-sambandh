@@ -161,7 +161,7 @@ Because ₹840.00 is strictly $\le$ ₹3,660.00 headroom, the settlement execute
 ```http
 POST /v1/mandates/PINE_MANDATE_DL_98102/execute_debit HTTP/1.1
 Host: api.pluralonline.com
-Authorization: Bearer sec_live_pine_9981203912
+Authorization: Bearer [MOCK_PINE_MANDATE_AUTH_TOKEN]
 Content-Type: application/json
 
 {
@@ -210,7 +210,7 @@ Once payment is settled, Sambandh dispatches prescription delivery through **Del
 ```http
 POST /cmu/v3/consignments/manifest HTTP/1.1
 Host: express.delhivery.com
-Authorization: Token dlv_live_care_token_9812
+Authorization: Token [MOCK_DELHIVERY_PARTNER_TOKEN]
 Content-Type: application/json
 
 {

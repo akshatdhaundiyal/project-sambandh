@@ -58,7 +58,7 @@ export const ElderMobilePhone: React.FC = () => {
         </div>
 
         {/* Screen Bezel Content */}
-        <div className="w-full h-full bg-[#F5F7F2] rounded-[44px] overflow-hidden flex flex-col relative text-stone-900">
+        <div className="w-full h-full bg-[#FAF8F5] rounded-[44px] overflow-hidden flex flex-col relative text-stone-900">
           {/* iOS Status Bar */}
           <div className="pt-3 px-7 pb-2 flex items-center justify-between text-xs font-semibold text-stone-800">
             <span>9:41</span>
@@ -70,32 +70,32 @@ export const ElderMobilePhone: React.FC = () => {
 
           {/* Screen Content Switcher: Dashboard vs Call View */}
           {activeScreen === 'dashboard' ? (
-            <div className="flex-1 overflow-y-auto px-5 pt-3 pb-24 space-y-4">
+            <div className="flex-1 overflow-y-auto px-5 pt-3 pb-24 space-y-4 scrollbar-thin">
               {/* Header Greeting */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-10 h-10 rounded-full bg-amber-200 border-2 border-white flex items-center justify-center text-xl shadow-xs">
-                    👴
+                  <div className="w-10 h-10 rounded-full bg-[#F5EFE6] border border-[#E2D7C5] flex items-center justify-center text-xl shadow-2xs">
+                    👴🏼
                   </div>
                   <div>
                     <span className="text-[11px] text-stone-500 block leading-tight font-medium">
                       Namaste, Welcome Back!
                     </span>
-                    <span className="text-sm font-extrabold text-stone-900 block leading-tight">
+                    <span className="text-sm font-serif font-bold text-stone-900 block leading-tight mt-0.5">
                       Ramesh Chandra Ji
                     </span>
                   </div>
                 </div>
 
-                <div className="w-9 h-9 rounded-full bg-white border border-stone-200/80 flex items-center justify-center text-stone-700 shadow-xs relative">
+                <div className="w-9 h-9 rounded-full bg-white border border-[#DFDAD1] flex items-center justify-center text-stone-700 shadow-2xs relative">
                   <Bell className="w-4 h-4" />
                   <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
                 </div>
               </div>
 
-              {/* Main Question Header from reference image */}
+              {/* Main Question Header */}
               <div className="pt-1">
-                <h1 className="text-2xl font-black text-stone-900 leading-snug tracking-tight">
+                <h1 className="text-2xl font-serif font-bold text-stone-900 leading-snug tracking-tight">
                   How are you feeling right now today?
                 </h1>
               </div>
@@ -338,26 +338,77 @@ export const ElderMobilePhone: React.FC = () => {
         </div>
       </div>
 
-      {/* Explanatory Sidebar for Evaluators */}
-      <div className="max-w-md space-y-4 text-stone-800">
-        <div className="bg-white border border-stone-200/90 rounded-3xl p-6 shadow-xs space-y-3">
-          <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 inline-block">
-            AUTHENTIC SENIOR DESIGN LANGUAGE
-          </span>
-          <h2 className="text-2xl font-black text-stone-900 tracking-tight">
-            Elder-Friendly Visual Architecture
-          </h2>
-          <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-            Directly translating the warm, serene, luminous healthcare design from your reference image:
-          </p>
-          <ul className="text-xs text-stone-700 space-y-2 list-disc list-inside">
-            <li><strong>Luminous Palette:</strong> Gentle sage/cream tint (`#F5F7F2`) with organic rounded-3xl cards.</li>
-            <li><strong>Dignified Daily Question:</strong> Warm prompt replacing complex menus.</li>
-            <li><strong>Accessible Vitals:</strong> High-contrast BP (112/80) & Glucose cards with soft green `Good` pills.</li>
-            <li><strong>Weekly Pill Routine:</strong> Visual bar chart with current day in vibrant rose/emerald.</li>
-            <li><strong>Care Circle:</strong> Fast access to cardiologist Dr. Arvind Saxena & daughter Priya.</li>
-            <li><strong>One-Tap Call Screen:</strong> Big circular tactile buttons with high visibility.</li>
-          </ul>
+      {/* Live Peripheral Telemetry & Caregiver Sync Bridge */}
+      <div className="max-w-md w-full space-y-4 text-stone-800">
+        <div className="bg-white border border-[#E7E2DB] rounded-3xl p-6 shadow-xs space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-[#E7E2DB]">
+            <div>
+              <span className="text-[10px] font-mono font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                LIVE TELEMETRY BRIDGE
+              </span>
+              <h2 className="font-serif font-bold text-lg text-stone-900 mt-1">
+                Elder State & Peripheral Sync
+              </h2>
+            </div>
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" title="Telemetry sync active"></span>
+          </div>
+
+          <div className="space-y-3 text-xs">
+            {/* BLE Hardware Devices */}
+            <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#E7E2DB] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-stone-900 flex items-center gap-1.5">
+                  <Activity className="w-4 h-4 text-emerald-700" />
+                  <span>Paired Health Peripherals</span>
+                </span>
+                <span className="text-[10px] font-mono font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                  BLE Active
+                </span>
+              </div>
+              <div className="space-y-1 text-stone-600 text-[11px]">
+                <div className="flex justify-between">
+                  <span>Omron HEM-7120 BP Monitor:</span>
+                  <strong className="text-stone-800 font-mono">112/80 mmHg</strong>
+                </div>
+                <div className="flex justify-between">
+                  <span>Accu-Chek Active Glucose:</span>
+                  <strong className="text-stone-800 font-mono">104 mg/dL</strong>
+                </div>
+              </div>
+            </div>
+
+            {/* National Stack Bridge */}
+            <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#E7E2DB] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-stone-900 flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                  <span>National Health Stack (ABDM)</span>
+                </span>
+                <span className="text-[10px] font-mono font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                  M2/M3 Synced
+                </span>
+              </div>
+              <p className="text-[11px] text-stone-600 leading-relaxed">
+                Health Locker ID: <strong className="font-mono text-stone-800">ramesh.chandra@abdm</strong>. Encrypted consent artifacts are automatically maintained for Dr. Saxena.
+              </p>
+            </div>
+
+            {/* Caregiver Link */}
+            <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#E7E2DB] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-stone-900 flex items-center gap-1.5">
+                  <Heart className="w-4 h-4 text-amber-700" />
+                  <span>Caregiver Tunnel (Priya)</span>
+                </span>
+                <span className="text-[10px] font-mono font-medium text-stone-600 bg-white px-1.5 py-0.2 rounded border border-stone-200">
+                  Telegram Verified
+                </span>
+              </div>
+              <p className="text-[11px] text-stone-600 leading-relaxed">
+                Fiduciary auto-refills below ₹4,500 execute autonomously. Any unusual requests trigger step-up authorization cards directly to Bengaluru.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

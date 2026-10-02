@@ -7,27 +7,29 @@
     box-sizing: border-box;
   }
   body {
-    background-color: #020617;
-    color: #f8fafc;
-    font-family: 'Inter', system-ui, sans-serif;
+    background-color: #FAF8F5;
+    color: #1c1917;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-/* Custom scrollbars for telemetry cards */
+/* Custom scrollbars matching warm parchment surface */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 3px;
+  background: #d6d3d1;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #a8a29e;
 }
 
 /* Glassmorphism and glow utilities */

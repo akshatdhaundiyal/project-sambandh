@@ -78,58 +78,57 @@ export const SeniorCallCard: React.FC = () => {
   };
 
   return (
-    <div className="bg-white border border-stone-200/90 rounded-3xl p-5 shadow-xs text-stone-900 transition-all space-y-4">
+    <div className="bg-white border border-[#E7E2DB] rounded-3xl p-5 shadow-xs text-stone-900 transition-all space-y-4">
       {/* Top Profile Banner: Elder Identity */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-3xl shadow-xs shrink-0">
-            👴
+          <div className="w-13 h-13 rounded-2xl bg-[#F5EFE6] border border-[#E2D7C5] flex items-center justify-center text-2xl shadow-2xs shrink-0">
+            👴🏼
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
-                Morning Care Routine
+              <span className="text-[11px] font-semibold text-stone-700 bg-stone-100 px-2.5 py-0.5 rounded-full border border-stone-200">
+                Morning Routine · 08:30 IST
               </span>
-              <span className="text-xs text-stone-400 font-medium">08:30 IST</span>
             </div>
-            <h2 className="text-lg sm:text-xl font-extrabold text-stone-900 leading-snug">
-              Namaste Ramesh Chandra Ji
+            <h2 className="text-xl sm:text-2xl font-serif font-bold text-stone-900 leading-snug mt-0.5">
+              Ramesh Chandra Ji
             </h2>
             <p className="text-xs sm:text-sm text-stone-600 flex items-center gap-1.5 mt-0.5">
               <MapPin className="w-3.5 h-3.5 text-stone-400" />
-              <span>Age {profile.age} · Rohini Sector 8, Delhi 110085</span>
+              <span>Age {profile.age} · Rohini Sector 8, Delhi</span>
             </p>
           </div>
         </div>
 
-        {/* Call State Indicator Pill */}
+        {/* Call State Indicator */}
         {callStatus === 'idle' ? (
-          <div className="bg-stone-50 px-4 py-2 rounded-2xl border border-stone-200 text-right shrink-0">
-            <div className="text-[10px] font-bold text-stone-500 uppercase tracking-wider flex items-center justify-end gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-              <span>Ready for Call</span>
+          <div className="bg-[#FAF8F5] px-3.5 py-2 rounded-2xl border border-[#E7E2DB] text-right shrink-0">
+            <div className="text-[11px] font-semibold text-stone-500 flex items-center justify-end gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span>Awaiting Call</span>
             </div>
-            <span className="text-sm font-bold text-stone-700 mt-0.5 block">
-              Waiting for Initiation
+            <span className="text-xs font-medium text-stone-700 mt-0.5 block">
+              Jio Trunk Standby
             </span>
           </div>
         ) : callStatus === 'active' ? (
-          <div className="bg-emerald-50/90 px-4 py-2 rounded-2xl border border-emerald-200 text-right shrink-0 shadow-2xs">
-            <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider flex items-center justify-end gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-              <span>Live Call Connected</span>
+          <div className="bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-300 text-right shrink-0 shadow-2xs">
+            <div className="text-[11px] font-bold text-emerald-800 flex items-center justify-end gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+              <span>Call in Progress</span>
             </div>
             <div className="flex items-center gap-1.5 mt-0.5 justify-end">
               <Clock className="w-4 h-4 text-emerald-700" />
-              <span className="text-base sm:text-lg font-mono font-extrabold text-emerald-900">
+              <span className="text-base sm:text-lg font-mono font-bold text-emerald-950">
                 {formatTime(callDurationSeconds)}
               </span>
             </div>
           </div>
         ) : (
           <div className="bg-stone-100 px-4 py-2 rounded-2xl border border-stone-200 text-right shrink-0">
-            <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">
-              Call Concluded
+            <span className="text-[11px] font-semibold text-stone-500 block">
+              Call Completed
             </span>
             <span className="text-sm font-mono font-bold text-stone-700 mt-0.5 block">
               {formatTime(callDurationSeconds)}
@@ -138,44 +137,44 @@ export const SeniorCallCard: React.FC = () => {
         )}
       </div>
 
-      {/* CALL INITIATION / ONGOING CALL ANIMATION SECTION */}
+      {/* CALL INITIATION / ONGOING CALL SECTION */}
       {callStatus === 'idle' ? (
-        /* IDLE STATE: Large Call Start Action Card */
-        <div className="bg-gradient-to-r from-emerald-50/70 via-stone-50 to-stone-50 border border-emerald-200/90 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+        /* IDLE STATE: Dignified Call Start Action Card */
+        <div className="bg-[#FAF8F5] border border-[#E7E2DB] rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-1 max-w-md">
-            <h3 className="font-extrabold text-sm text-stone-900 flex items-center gap-2">
-              <span>Initiate 08:30 AM Morning Check-in Call</span>
-              <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
-                Jio PSTN
+            <h3 className="font-serif font-bold text-sm sm:text-base text-stone-900 flex items-center gap-2">
+              <span>Initiate Morning Check-in Call</span>
+              <span className="text-[10px] font-medium text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                Jio PSTN Trunk
               </span>
             </h3>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Connects with Ramesh Chandra over telecom trunk. The autonomous agent will inquire about morning vitals and medication runway while executing clinical guardrails.
+              Connects with Ramesh Ji over telecom trunk. The autonomous agent will inquire about morning vitals and medication runway while executing clinical guardrails.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2.5 flex-wrap">
             {/* Auto-Speak Toggle Pill */}
             <button
               onClick={() => setAutoSpeak(!autoSpeak)}
-              className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer flex items-center gap-1.5 ${
                 autoSpeak
-                  ? 'bg-emerald-100/80 text-emerald-900 border-emerald-300 shadow-2xs'
-                  : 'bg-stone-100 text-stone-500 border-stone-200'
+                  ? 'bg-emerald-50 text-emerald-900 border-emerald-300 shadow-2xs'
+                  : 'bg-white text-stone-600 border-[#DFDAD1]'
               }`}
               title="Automatically speaks dialogue turns aloud like a real telephone call"
             >
               <Volume2 className="w-3.5 h-3.5" />
-              <span>Auto-Speak: {autoSpeak ? 'ON' : 'OFF'}</span>
+              <span>Voice: {autoSpeak ? 'On' : 'Muted'}</span>
             </button>
 
             {/* Start Call Primary Button */}
             <button
               onClick={startCall}
-              className="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-extrabold text-xs sm:text-sm shadow-md transition-all flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
+              className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold text-xs sm:text-sm shadow-xs transition-all flex items-center gap-2 cursor-pointer"
             >
-              <PhoneCall className="w-4 h-4 fill-current animate-bounce" />
-              <span>Start Morning Call</span>
+              <PhoneCall className="w-4 h-4 fill-current" />
+              <span>Connect Call</span>
             </button>
           </div>
         </div>
@@ -447,19 +446,19 @@ export const SeniorCallCard: React.FC = () => {
       )}
 
       {/* Senior Details Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs bg-stone-50 p-3.5 rounded-2xl border border-stone-200/70 text-stone-700">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs bg-[#FAF8F5] p-3.5 rounded-2xl border border-[#E7E2DB] text-stone-700">
         <div>
           <span className="text-stone-400 text-[11px] block font-medium">Spoken Dialect</span>
-          <span className="font-bold text-stone-800">Awadhi-Hindi (Native)</span>
+          <span className="font-semibold text-stone-800">Awadhi-Hindi (Native)</span>
         </div>
         <div>
           <span className="text-stone-400 text-[11px] block font-medium">Caregiver on Record</span>
-          <span className="font-bold text-stone-800">Priya Sharma (Daughter)</span>
+          <span className="font-semibold text-stone-800">Priya Sharma (Daughter)</span>
         </div>
         <div className="col-span-2 sm:col-span-1">
           <span className="text-stone-400 text-[11px] block font-medium">Life Vocation</span>
-          <span className="font-bold text-stone-800 truncate block" title={profile.vocation}>
-            Chief Signal Inspector (Retd.)
+          <span className="font-semibold text-stone-800 truncate block" title={profile.vocation}>
+            Chief Signal Inspector (Northern Rly Retd.)
           </span>
         </div>
       </div>

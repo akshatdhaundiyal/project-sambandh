@@ -21,7 +21,7 @@ export const AppContent: React.FC = () => {
   const { activeTab } = useTelemetry();
 
   return (
-    <div className="min-h-screen bg-[#F5F7F2] text-stone-900 flex flex-col font-sans selection:bg-emerald-500 selection:text-white antialiased transition-colors">
+    <div className="min-h-screen bg-[#FAF8F5] text-stone-900 flex flex-col font-sans selection:bg-emerald-600 selection:text-white antialiased transition-colors">
       {/* Top Clean Senior-Friendly Header */}
       <Header />
 
@@ -31,13 +31,15 @@ export const AppContent: React.FC = () => {
         {activeTab === 'dual-pane' && (
           <div className="flex-1 p-3 sm:p-4 max-w-[1920px] w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden">
             {/* Left Side (50%): Senior Care Experience (Warm, Human, Calm) */}
-            <section className="flex flex-col gap-3.5 h-full overflow-y-auto pr-1">
-              <div className="flex items-center justify-between px-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
-                  <span>👴</span>
-                  <span>Papa's Morning Care Experience (Human Dignity)</span>
-                </span>
-                <span className="text-xs text-stone-500 font-medium">Accessible, Calm & Unscripted</span>
+            <section className="flex flex-col gap-3.5 h-full overflow-y-auto pr-1 scrollbar-thin">
+              <div className="flex items-baseline justify-between px-1">
+                <div className="flex items-center gap-2">
+                  <h2 className="font-serif text-base font-semibold text-stone-900 tracking-tight">
+                    Ramesh Ji's Morning Companion
+                  </h2>
+                  <span className="text-[11px] font-medium text-stone-500">Live Voice & Dialogue</span>
+                </div>
+                <span className="text-xs text-stone-400">Rohini Sector 8, Delhi</span>
               </div>
 
               <SeniorCallCard />
@@ -48,14 +50,16 @@ export const AppContent: React.FC = () => {
 
             {/* Right Side (50%): Live Current Step API / JSON Inspector (For Judges) */}
             <section className="flex flex-col gap-3.5 h-full min-h-[600px] overflow-hidden">
-              <div className="flex items-center justify-between px-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-stone-800 flex items-center gap-1.5">
-                  <span>⚡</span>
-                  <span>Active Step Rails & API Payload Inspector (Judges Console)</span>
-                </span>
-                <span className="text-xs font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                  100% Transparent
-                </span>
+              <div className="flex items-baseline justify-between px-1">
+                <div className="flex items-center gap-2">
+                  <h2 className="font-serif text-base font-semibold text-stone-900 tracking-tight">
+                    Fiduciary Rail Telemetry & API Inspector
+                  </h2>
+                  <span className="text-[11px] font-mono font-medium text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                    L3 Autonomous
+                  </span>
+                </div>
+                <span className="text-xs text-stone-400 font-mono">ABDM · Pine Labs · Delhivery</span>
               </div>
 
               <JudgeStepApiPane />

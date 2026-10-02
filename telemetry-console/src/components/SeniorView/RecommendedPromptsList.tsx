@@ -62,21 +62,17 @@ export const RecommendedPromptsList: React.FC = () => {
   };
 
   return (
-    <div className="bg-white border border-stone-200/90 rounded-3xl p-3.5 shadow-xs text-stone-900 transition-all space-y-2.5">
+    <div className="bg-white border border-[#E7E2DB] rounded-3xl p-4 shadow-xs text-stone-900 transition-all space-y-3">
       {/* Header: Title + Category Pills */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-stone-100">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center text-xs shrink-0">
-            <Sparkles className="w-3.5 h-3.5" />
-          </div>
-          <div>
-            <h3 className="font-extrabold text-xs sm:text-sm text-stone-900 flex items-center gap-1.5">
-              <span>Simulation Presets & Autonomous Rails</span>
-              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">
-                1-CLICK
-              </span>
-            </h3>
-          </div>
+      <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#E7E2DB]">
+        <div>
+          <h3 className="font-serif font-bold text-sm sm:text-base text-stone-900 flex items-center gap-2">
+            <span>Autonomous Rail Benchmarks</span>
+            <span className="text-[10px] font-mono font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+              1-Click
+            </span>
+          </h3>
+          <p className="text-xs text-stone-500">Trigger test scenarios and inspect fiduciary actions</p>
         </div>
 
         {/* Category Filter Pills */}
@@ -85,10 +81,10 @@ export const RecommendedPromptsList: React.FC = () => {
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-2 py-0.5 rounded-lg text-[10px] font-bold shrink-0 transition-all cursor-pointer border flex items-center gap-1 ${
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold shrink-0 transition-all cursor-pointer border flex items-center gap-1 ${
                 selectedCategory === cat.id
-                  ? 'bg-stone-900 text-white border-stone-900 shadow-2xs'
-                  : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100 hover:text-stone-900'
+                  ? 'bg-stone-900 text-white border-stone-900 shadow-2xs font-bold'
+                  : 'bg-white text-stone-600 border-[#DFDAD1] hover:bg-stone-50 hover:text-stone-900'
               }`}
             >
               <span>{cat.icon}</span>
@@ -101,23 +97,23 @@ export const RecommendedPromptsList: React.FC = () => {
       {/* Featured Card: Intermediary Mentorship & Wisdom Archiving Gate */}
       <div
         onClick={() => setIsMentorshipModalOpen(true)}
-        className="p-2.5 rounded-2xl bg-gradient-to-r from-amber-50/90 via-stone-50 to-emerald-50/70 border border-amber-200/90 hover:border-amber-300 hover:shadow-xs transition-all cursor-pointer flex items-center justify-between gap-3 group"
+        className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#E2D7C5] hover:border-amber-400 hover:shadow-xs transition-all cursor-pointer flex items-center justify-between gap-3 group"
       >
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-amber-100 border border-amber-200 text-amber-900 flex items-center justify-center text-base shrink-0 group-hover:scale-105 transition-transform">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-9 h-9 rounded-xl bg-[#F5EFE6] border border-[#DFDAD1] text-amber-900 flex items-center justify-center text-lg shrink-0">
             🎓
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-xs text-stone-900">
+              <span className="font-serif font-bold text-xs sm:text-sm text-stone-900">
                 Intermediary Mentorship & Wisdom Bridge
               </span>
-              <span className="text-[9px] font-mono font-bold bg-amber-200/80 text-amber-950 px-1.5 py-0.2 rounded-full border border-amber-300">
-                LLM SAFETY GATE
+              <span className="text-[9px] font-mono font-semibold bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded-md border border-amber-200">
+                LLM Safety Gate
               </span>
             </div>
-            <p className="text-[10px] text-stone-500 truncate">
-              Test questions from young engineers: LLM classifies genuine vocational advice vs. predatory asks.
+            <p className="text-xs text-stone-500 truncate mt-0.5">
+              Curates questions from junior railway engineers, filtering extractive asks before reaching Ramesh Ji.
             </p>
           </div>
         </div>
@@ -127,40 +123,37 @@ export const RecommendedPromptsList: React.FC = () => {
             e.stopPropagation();
             setIsMentorshipModalOpen(true);
           }}
-          className="px-2.5 py-1 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-[10px] font-bold shadow-2xs transition-colors flex items-center gap-1 shrink-0 cursor-pointer"
+          className="px-3 py-1.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-semibold shadow-2xs transition-colors flex items-center gap-1 shrink-0 cursor-pointer"
         >
-          <span>Open Safety Gate</span>
-          <ChevronRight className="w-3 h-3 text-amber-400" />
+          <span>Evaluate Prompt</span>
+          <ChevronRight className="w-3.5 h-3.5 text-amber-400" />
         </button>
       </div>
 
-      {/* Compact Scrollable Presets Viewport (max-h-[280px]) */}
-      <div className="max-h-[280px] overflow-y-auto space-y-1.5 pr-1.5 scrollbar-thin">
+      {/* Compact Scrollable Presets Viewport (max-h-[300px]) */}
+      <div className="max-h-[300px] overflow-y-auto space-y-2 pr-1 scrollbar-thin">
         {filteredPresets.map((preset) => {
           return (
             <div
               key={preset.id}
               onClick={() => triggerSimulationPreset(preset.id)}
-              className="p-2 rounded-xl border border-stone-200/80 bg-stone-50/60 hover:bg-amber-50/40 hover:border-amber-300 shadow-2xs hover:shadow-xs transition-all cursor-pointer group space-y-1"
+              className="p-3 rounded-xl border border-[#E7E2DB] bg-white hover:bg-[#FAF8F5] hover:border-emerald-600/60 shadow-2xs hover:shadow-xs transition-all cursor-pointer group space-y-1.5"
             >
               {/* Row 1: Icon, Title, Target Rails, Action Buttons */}
-              <div className="flex items-center justify-between gap-1.5">
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="text-sm shrink-0 p-0.5 bg-white rounded-md border border-stone-200/80">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-sm shrink-0">
                     {preset.icon}
                   </span>
-                  <span className="font-extrabold text-xs text-stone-900 truncate">
-                    {preset.buttonLabel}
-                  </span>
-                  <span className="text-[9px] text-stone-400 font-sans hidden sm:inline truncate max-w-[120px]">
-                    {preset.badge}
+                  <span className="font-semibold text-xs sm:text-sm text-stone-900 truncate">
+                    {preset.scenarioTitle}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1 shrink-0 ml-auto">
+                <div className="flex items-center gap-1.5 shrink-0 ml-auto">
                   <button
                     onClick={(e) => handleCopyPrompt(preset, e)}
-                    className="p-1 rounded-md border border-stone-200 bg-white hover:bg-stone-100 text-stone-600 transition-colors shadow-2xs"
+                    className="p-1 rounded-md border border-[#DFDAD1] bg-white hover:bg-stone-50 text-stone-500 transition-colors"
                     title="Copy prompt text"
                   >
                     {copiedId === preset.id ? (
@@ -175,49 +168,38 @@ export const RecommendedPromptsList: React.FC = () => {
                       e.stopPropagation();
                       triggerSimulationPreset(preset.id);
                     }}
-                    className="px-2 py-1 rounded-lg font-bold text-[10px] shadow-2xs transition-all flex items-center gap-1 cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white"
+                    className="px-2.5 py-1 rounded-lg font-bold text-[10px] transition-all flex items-center gap-1 cursor-pointer bg-emerald-700 hover:bg-emerald-800 text-white"
                   >
                     <Play className="w-2.5 h-2.5 fill-current" />
-                    <span>Fire</span>
+                    <span>Run</span>
                   </button>
                 </div>
               </div>
 
-              {/* Row 2: Compact 1-Line Text Preview */}
-              <p className="text-[11px] text-stone-700 font-medium truncate font-sans pl-1">
-                {preset.devanagariPrompt}
+              {/* Row 2: Prompt Text Preview */}
+              <p className="text-xs text-stone-800 font-medium leading-relaxed font-sans line-clamp-2">
+                "{preset.devanagariPrompt}"
               </p>
 
-              {/* Row 3: Micro Rail Badges */}
-              <div className="flex items-center justify-between gap-1 text-[9px] pl-1">
-                <div className="flex items-center gap-1 flex-wrap">
+              {/* Row 3: Rail Outcome */}
+              <div className="flex items-center justify-between gap-2 pt-1 border-t border-stone-100 text-[10px]">
+                <div className="flex items-center gap-1.5 flex-wrap">
                   {preset.railBadges.map((badge, bIdx) => (
                     <span
                       key={bIdx}
-                      className={`px-1 py-0.2 rounded font-mono font-bold border ${getRailBadgeStyle(badge)}`}
+                      className="px-1.5 py-0.2 rounded-md font-mono text-[9px] font-semibold bg-stone-100 text-stone-700 border border-stone-200"
                     >
                       {badge}
                     </span>
                   ))}
                 </div>
-                <span className="text-stone-400 font-sans truncate max-w-[180px] hidden md:inline">
+                <span className="text-stone-500 font-sans truncate max-w-[200px]">
                   {preset.railSummary}
                 </span>
               </div>
             </div>
           );
         })}
-      </div>
-
-      {/* Footer Info Strip */}
-      <div className="pt-1.5 border-t border-stone-100 flex items-center justify-between text-[10px] text-stone-500">
-        <span className="flex items-center gap-1">
-          <Volume2 className="w-3 h-3 text-stone-400" />
-          <span>Auto-Speak: <strong className="text-stone-700 font-bold">{autoSpeak ? 'ENABLED' : 'MUTED'}</strong></span>
-        </span>
-        <span className="font-mono text-stone-400 text-[9px]">
-          {filteredPresets.length} Presets Available · Scrollable
-        </span>
       </div>
     </div>
   );

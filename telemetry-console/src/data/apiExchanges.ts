@@ -6,7 +6,7 @@ export const PINE_LABS_SUCCESS_EXCHANGE: HttpApiExchange = {
   endpoint: "https://api.pluralonline.com/api/v2/recurring/mandates/execute",
   schemaStandard: "Pine Labs Plural Recurring Payments v2.4 (HMAC-SHA256 Authenticated)",
   headers: {
-    "Authorization": "Bearer pl_live_token_77a98210492bb1c",
+    "Authorization": "Bearer [MOCK_PINE_MANDATE_AUTH_TOKEN]",
     "X-Verify-Signature": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "X-Merchant-Id": "PINE_MERCHANT_SAMBANDH_01",
     "Content-Type": "application/json",
@@ -59,7 +59,7 @@ export const PINE_LABS_LIMIT_EXCEEDED_EXCHANGE: HttpApiExchange = {
   endpoint: "https://api.pluralonline.com/api/v2/recurring/mandates/execute",
   schemaStandard: "Pine Labs Plural Recurring Payments v2.4 (Fiduciary Boundary Exception)",
   headers: {
-    "Authorization": "Bearer pl_live_token_77a98210492bb1c",
+    "Authorization": "Bearer [MOCK_PINE_MANDATE_AUTH_TOKEN]",
     "X-Verify-Signature": "c71d6046e30eb498762590eb79b360249767c9c2288079a29580459c5d19a4e2",
     "X-Merchant-Id": "PINE_MERCHANT_SAMBANDH_01",
     "Content-Type": "application/json"
@@ -170,7 +170,7 @@ export const WHISPERFLO_DIAL_EXCHANGE: HttpApiExchange = {
   endpoint: "https://api.whisperflo.ai/v1/telephony/sip/dial",
   schemaStandard: "WhisperFlo SIP Trunking & Voiceprint Engine v4.2",
   headers: {
-    "Authorization": "Bearer wf_live_key_9918230",
+    "Authorization": "Bearer [MOCK_WHISPERFLO_API_KEY]",
     "Content-Type": "application/json"
   },
   requestBody: {
@@ -205,7 +205,7 @@ export const ABDM_RUNWAY_EXCHANGE: HttpApiExchange = {
   endpoint: "https://abdm.gov.in/api/v1/fhir/OPConsultNote/2026-0814/eval",
   schemaStandard: "ABDM HL7 FHIR R4 Bundle Validation Specification",
   headers: {
-    "Authorization": "Bearer abdm_sandbox_token_881290",
+    "Authorization": "Bearer [MOCK_ABDM_SANDBOX_TOKEN]",
     "Content-Type": "application/fhir+json"
   },
   requestBody: {
@@ -359,7 +359,7 @@ export const AMAZON_MCP_ORDER_EXCHANGE: HttpApiExchange = {
   endpoint: "https://mcp.sambandh.internal/v1/connectors/amazon/orders",
   schemaStandard: "Model Context Protocol (MCP) Standard JSON-RPC Tool Call / Amazon SP-API",
   headers: {
-    "Authorization": "Bearer mcp_sec_token_99182a",
+    "Authorization": "Bearer [MOCK_MCP_AUTH_TOKEN]",
     "Content-Type": "application/json",
     "X-MCP-Tool": "amazon_place_order"
   },
@@ -399,7 +399,7 @@ export const FLOWERS_POOJA_ORDER_EXCHANGE: HttpApiExchange = {
   endpoint: "https://mcp.sambandh.internal/v1/connectors/quick-commerce/orders",
   schemaStandard: "Model Context Protocol (MCP) Quick Commerce Hyperlocal Manifest v1.2",
   headers: {
-    "Authorization": "Bearer mcp_sec_token_99182a",
+    "Authorization": "Bearer [MOCK_MCP_AUTH_TOKEN]",
     "Content-Type": "application/json",
     "X-MCP-Tool": "quick_commerce_order_pooja_essentials"
   },
@@ -439,7 +439,7 @@ export const TRANSCRIBER_MODE_EXCHANGE: HttpApiExchange = {
   endpoint: "https://abdm.gov.in/api/v1/clinical/ambient-transcriber/sync",
   schemaStandard: "ABDM FHIR R4 Ambient Consultation Extract & OPConsultNote",
   headers: {
-    "Authorization": "Bearer abdm_sandbox_token_881290",
+    "Authorization": "Bearer [MOCK_ABDM_SANDBOX_TOKEN]",
     "Content-Type": "application/json",
     "X-Diarization-Speakers": "DOCTOR,PATIENT"
   },
@@ -476,7 +476,7 @@ export const NETMEDS_PHARMACY_ORDER_EXCHANGE: HttpApiExchange = {
   endpoint: "https://partner-api.netmeds.com/v2/orders/prescription-fulfillment",
   schemaStandard: "Netmeds B2B REST v2.2 + SMTP Multi-Channel Dispatch (Schedule H)",
   headers: {
-    "Authorization": "Bearer nmd_live_partner_key_88921a",
+    "Authorization": "Bearer [MOCK_NETMEDS_PARTNER_KEY]",
     "X-Partner-Id": "SAMBANDH_HEALTH_L3",
     "Content-Type": "application/json",
     "Accept": "application/json"

@@ -20,8 +20,9 @@ export default {
         }
       },
       fontFamily: {
-        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
-        sans: ['"Inter"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        sans: ['"Plus Jakarta Sans"', '"Inter"', 'system-ui', 'sans-serif'],
+        serif: ['"Fraunces"', 'Georgia', 'serif'],
       },
       animation: {
         'pulse-fast': 'pulse 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite',

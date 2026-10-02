@@ -33,7 +33,8 @@ export const SeniorConversationStream: React.FC = () => {
   const [isListening, setIsListening] = useState(false);
   const [wasVoiceInput, setWasVoiceInput] = useState(false);
   const [speechError, setSpeechError] = useState<string | null>(null);
-  const streamEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const initialLoadRef = useRef(true);
   const recognizerRef = useRef<HindiSpeechRecognizer | null>(null);
 
   useEffect(() => {
@@ -103,8 +104,14 @@ export const SeniorConversationStream: React.FC = () => {
   };
 
   useEffect(() => {
-    streamEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [allTurnsSoFar]);
+    if (initialLoadRef.current) {
+      initialLoadRef.current = false;
+      return;
+    }
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+    }
+  }, [allTurnsSoFar.length]);
 
   // Filter out system diagnostic messages from the senior conversation view
   const conversationTurns = allTurnsSoFar.filter(t => t.speaker !== 'system');
@@ -156,18 +163,18 @@ export const SeniorConversationStream: React.FC = () => {
 
   return (
     <>
-      <div className="bg-white border border-stone-200/90 rounded-3xl p-4 sm:p-5 shadow-xs h-[460px] sm:h-[490px] flex flex-col min-h-0 overflow-hidden text-stone-900 transition-all">
-        {/* Title, Dialect Badge & Engine Status */}
-        <div className="flex items-center justify-between pb-3.5 border-b border-stone-200/80 mb-3 flex-wrap gap-2">
+      <div className="bg-white border border-[#E7E2DB] rounded-3xl p-4 sm:p-5 shadow-xs h-[460px] sm:h-[490px] flex flex-col min-h-0 overflow-hidden text-stone-900 transition-all">
+        {/* Title & Engine Status */}
+        <div className="flex items-center justify-between pb-3.5 border-b border-[#E7E2DB] mb-3 flex-wrap gap-2">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600">
-              <Heart className="w-4 h-4 fill-rose-500/20 stroke-[2.2]" />
+            <div className="w-8 h-8 rounded-xl bg-[#F5EFE6] border border-[#E2D7C5] flex items-center justify-center text-amber-800">
+              <Heart className="w-4 h-4 fill-amber-700/20 stroke-[2.2]" />
             </div>
             <div>
-              <h3 className="font-extrabold text-sm sm:text-base text-stone-900">
-                Live Morning Conversation
+              <h3 className="font-serif font-bold text-sm sm:text-base text-stone-900">
+                Morning Dialogue Stream
               </h3>
-              <p className="text-xs text-stone-500">Speaking clearly in native Awadhi-Hindi</p>
+              <p className="text-xs text-stone-500">Awadhi-Hindi Companion Telephony</p>
             </div>
           </div>
 
@@ -175,96 +182,72 @@ export const SeniorConversationStream: React.FC = () => {
             {/* Auto-Speak Toggle */}
             <button
               onClick={() => setAutoSpeak(!autoSpeak)}
-              className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all cursor-pointer flex items-center gap-1 ${
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold border transition-all cursor-pointer flex items-center gap-1 ${
                 autoSpeak
-                  ? 'bg-emerald-100 text-emerald-900 border-emerald-300 shadow-2xs'
-                  : 'bg-stone-100 text-stone-500 border-stone-200'
+                  ? 'bg-emerald-50 text-emerald-900 border-emerald-300 shadow-2xs'
+                  : 'bg-stone-50 text-stone-600 border-[#DFDAD1]'
               }`}
               title="Toggle automatic speech on new incoming turns"
             >
               <Volume2 className="w-3 h-3 text-emerald-700" />
-              <span>Auto-Speak: {autoSpeak ? 'ON' : 'OFF'}</span>
+              <span>Voice: {autoSpeak ? 'On' : 'Muted'}</span>
             </button>
 
-            {/* Senior Voice Read-out Toggle */}
-            <button
-              onClick={() => setSpeakSeniorTurns(!speakSeniorTurns)}
-              className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all cursor-pointer flex items-center gap-1 ${
-                speakSeniorTurns
-                  ? 'bg-amber-100 text-amber-900 border-amber-300 shadow-2xs'
-                  : 'bg-stone-100 text-stone-500 border-stone-200'
-              }`}
-              title="When ON, Papa's typed messages are read aloud. (Spoken mic voice is never echoed)"
-            >
-              <span>👴</span>
-              <span>Senior Voice: {speakSeniorTurns ? 'ON' : 'OFF'}</span>
-            </button>
-
-            {/* Engine Selector Pill (2 Clean Options: Chrome OS-Independent & WhisperFlo) */}
-            <div className="flex items-center bg-stone-100 p-0.5 rounded-full border border-stone-200 text-xs">
+            {/* Engine Selector */}
+            <div className="flex items-center bg-[#EFECE6] p-0.5 rounded-lg border border-[#DFDAD1] text-xs">
               <button
                 onClick={() => setActiveTtsEngine('chrome')}
-                className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
+                className={`px-2.5 py-0.5 rounded-md text-[10px] font-semibold transition-all cursor-pointer ${
                   activeTtsEngine === 'chrome'
-                    ? 'bg-white text-emerald-800 shadow-2xs border border-stone-200/80'
-                    : 'text-stone-500 hover:text-stone-800'
+                    ? 'bg-white text-stone-900 shadow-2xs font-bold'
+                    : 'text-stone-600 hover:text-stone-900'
                 }`}
-                title="Chrome Web Speech API (OS-Independent, works on Mac/Linux/Windows/Android)"
+                title="Chrome Web Speech API (OS-Independent)"
               >
-                🌐 Chrome (OS-Free)
+                Browser STT/TTS
               </button>
               <button
                 onClick={() => setActiveTtsEngine('whisperflo')}
-                className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
+                className={`px-2.5 py-0.5 rounded-md text-[10px] font-semibold transition-all cursor-pointer ${
                   activeTtsEngine === 'whisperflo'
-                    ? 'bg-white text-indigo-800 shadow-2xs border border-stone-200/80'
-                    : 'text-stone-500 hover:text-stone-800'
+                    ? 'bg-white text-stone-900 shadow-2xs font-bold'
+                    : 'text-stone-600 hover:text-stone-900'
                 }`}
-                title="WhisperFlo Neural Telephony API (or fallback if offline)"
+                title="WhisperFlo Neural Telephony API"
               >
-                ☁️ WhisperFlo API
+                WhisperFlo API
               </button>
             </div>
-
-            {/* Voice & Audio Guide Button */}
-            <button
-              onClick={() => setIsVoiceModalOpen(true)}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-stone-100 hover:bg-stone-200/80 text-stone-700 border border-stone-200 shadow-2xs transition-colors cursor-pointer"
-              title="Click to view setup and diagnostics for audio options"
-            >
-              <Settings2 className="w-3 h-3 text-stone-500" />
-              <span className="hidden sm:inline">Voice Setup</span>
-            </button>
 
             {/* System Prompt Inspector Button */}
             <button
               onClick={() => setIsSystemPromptModalOpen(true)}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 shadow-2xs transition-colors cursor-pointer"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-white hover:bg-stone-50 text-stone-700 border border-[#DFDAD1] shadow-2xs transition-colors cursor-pointer"
               title="View live LLM system prompt, clinical dossier, and progressive memory ledger"
             >
-              <FileCode className="w-3 h-3 text-indigo-600" />
+              <FileCode className="w-3 h-3 text-stone-500" />
               <span className="hidden sm:inline">System Prompt</span>
             </button>
 
             <span
-              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1 shadow-2xs ${
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold border flex items-center gap-1 shadow-2xs ${
                 callStatus === 'active'
-                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                  : 'bg-stone-100 text-stone-500 border-stone-200'
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                  : 'bg-stone-50 text-stone-500 border-[#DFDAD1]'
               }`}
             >
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
-                  callStatus === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-stone-400'
+                  callStatus === 'active' ? 'bg-emerald-600 animate-pulse' : 'bg-stone-400'
                 }`}
               ></span>
-              {callStatus === 'active' ? 'LIVE CALL' : 'READY'}
+              {callStatus === 'active' ? 'LIVE' : 'IDLE'}
             </span>
           </div>
         </div>
 
-        {/* Conversation Bubbles Stream with Dual-Layer Layout */}
-        <div className="flex-1 min-h-0 overflow-y-auto space-y-3.5 pr-1.5 scrollbar-thin">
+        {/* Conversation Bubbles Stream */}
+        <div ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-auto space-y-3.5 pr-1.5 scrollbar-thin">
           {conversationTurns.length === 0 ? (
             <div className="h-44 flex flex-col items-center justify-center text-stone-400 text-sm space-y-2 text-center p-4">
               <div className="w-12 h-12 rounded-2xl bg-stone-100 flex items-center justify-center text-2xl">
@@ -305,56 +288,49 @@ export const SeniorConversationStream: React.FC = () => {
                         : 'bg-rose-100 border border-rose-300 text-rose-900'
                     }`}
                   >
-                    {isPapa ? '👴' : isAgent ? '🌿' : '⚠️'}
+                    {isPapa ? '👴🏼' : isAgent ? '🌿' : '⚠️'}
                   </div>
 
                   {/* Speech Bubble */}
                   <div
-                    className={`max-w-[85%] rounded-2xl p-2.5 sm:p-3 shadow-2xs text-xs leading-relaxed transition-all ${
+                    className={`max-w-[85%] rounded-2xl p-3 shadow-2xs text-xs leading-relaxed transition-all ${
                       isSpeakingThis
-                        ? 'ring-2 ring-emerald-500 shadow-md'
+                        ? 'ring-2 ring-emerald-600 shadow-sm'
                         : ''
                     } ${
                       isPapa
-                        ? 'bg-amber-50/90 border border-amber-200/90 text-stone-900'
+                        ? 'bg-[#FCFAF7] border border-[#E8E2D7] text-stone-900'
                         : isAgent
-                        ? 'bg-emerald-50/70 border border-emerald-200/90 text-stone-900'
+                        ? 'bg-[#F4F9F6] border border-[#D5EADB] text-stone-900'
                         : 'bg-rose-50 border border-rose-200 text-rose-950'
                     }`}
                   >
-                    <div className="flex items-center justify-between gap-2.5 mb-1">
+                    <div className="flex items-center justify-between gap-2.5 mb-1.5">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span
-                          className={`text-[11px] font-bold uppercase tracking-wider ${
+                          className={`text-xs font-semibold ${
                             isPapa
-                              ? 'text-amber-800'
+                              ? 'text-amber-900 font-serif'
                               : isAgent
-                              ? 'text-emerald-800'
-                              : 'text-rose-800'
+                              ? 'text-emerald-900 font-serif'
+                              : 'text-rose-900'
                           }`}
                         >
                           {turn.speakerLabel}
                         </span>
-                        {turn.providerBadge ? (
+                        {turn.providerBadge && (
                           <span
-                            className="px-1.5 py-0.2 rounded-full text-[8px] font-bold bg-indigo-100 text-indigo-900 border border-indigo-300 shadow-2xs flex items-center gap-0.5"
+                            className="px-1.5 py-0.2 rounded-md text-[9px] font-mono font-medium bg-stone-100 text-stone-700 border border-stone-200"
                             title="Cross-Provider Resilience: Served via Google AI Studio API"
                           >
-                            <span>{turn.providerBadge}</span>
+                            {turn.providerBadge}
                           </span>
-                        ) : turn.isFailover ? (
-                          <span
-                            className="px-1.5 py-0.2 rounded-full text-[8px] font-bold bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs flex items-center gap-0.5"
-                            title="Resilient Cascade: Auto-failover triggered to ensure 100% demo uptime"
-                          >
-                            <span>⚡ Failover</span>
-                          </span>
-                        ) : null}
+                        )}
                       </div>
 
                       {/* Listen Aloud Button & Timestamp */}
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[9px] font-medium text-stone-400">{turn.timestamp}</span>
+                        <span className="text-[10px] text-stone-400 font-mono">{turn.timestamp}</span>
 
                         <button
                           onClick={() => {
@@ -364,10 +340,10 @@ export const SeniorConversationStream: React.FC = () => {
                               speakTurn(turn);
                             }
                           }}
-                          className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold transition-all shadow-2xs cursor-pointer ${
+                          className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold transition-all cursor-pointer ${
                             isSpeakingThis
-                              ? 'bg-emerald-600 text-white animate-pulse'
-                              : 'bg-white hover:bg-stone-100 text-stone-700 border border-stone-200/80'
+                              ? 'bg-emerald-700 text-white'
+                              : 'bg-white hover:bg-stone-50 text-stone-700 border border-stone-200'
                           }`}
                           title={isSpeakingThis ? "Stop speech" : `Read aloud via ${activeTtsEngine === 'chrome' ? 'Chrome Web Speech' : 'WhisperFlo'}`}
                         >
@@ -378,7 +354,7 @@ export const SeniorConversationStream: React.FC = () => {
                             </>
                           ) : (
                             <>
-                              <Volume2 className="w-2.5 h-2.5 text-emerald-600" />
+                              <Volume2 className="w-2.5 h-2.5 text-stone-600" />
                               <span>Listen</span>
                             </>
                           )}
@@ -386,69 +362,62 @@ export const SeniorConversationStream: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Primary Devanagari Hindi Text (Reduced to clean, comfortable, compact font size) */}
-                    <p className="font-semibold text-stone-900 text-xs sm:text-[13px] leading-relaxed">
+                    {/* Primary Devanagari Hindi Text */}
+                    <p className="font-medium text-stone-900 text-sm leading-relaxed">
                       {parsed.hindi}
                     </p>
 
-                    {/* Bracketed Hinglish Reference Pill */}
+                    {/* Hinglish Reference Translation */}
                     {parsed.hinglish && (
-                      <div className="mt-1.5 pt-1.5 border-t border-stone-200/70 flex items-start gap-1 text-[10px] text-stone-500 font-sans italic bg-white/60 px-2 py-0.5 rounded-lg">
-                        <span className="text-[9px] font-bold uppercase text-stone-400 shrink-0 not-italic">
-                          [🔤 Ref]:
-                        </span>
-                        <span className="leading-snug">
-                          {parsed.hinglish}
-                        </span>
-                      </div>
+                      <p className="mt-1.5 pt-1.5 border-t border-stone-200/60 text-[11px] text-stone-500 font-sans italic">
+                        {parsed.hinglish}
+                      </p>
                     )}
                   </div>
                 </div>
               );
             })
           )}
-          <div ref={streamEndRef} />
         </div>
 
         {/* Quick Suggestion Chips for 1-Click Competition Audio Testing */}
         <div className="pt-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0 text-[10px]">
-          <span className="text-stone-400 font-bold shrink-0">Trigger Rails:</span>
+          <span className="text-stone-500 font-semibold shrink-0">Quick Rail Triggers:</span>
           {SIMULATION_PRESETS.map((preset) => (
             <button
               key={preset.id}
               onClick={() => triggerSimulationPreset(preset.id)}
-              className="px-2.5 py-1 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300/80 shrink-0 font-medium transition-colors cursor-pointer flex items-center gap-1 shadow-2xs hover:border-emerald-400"
+              className="px-2.5 py-1 rounded-lg bg-[#FAF8F5] hover:bg-white text-stone-800 border border-[#E7E2DB] shrink-0 font-medium transition-colors cursor-pointer flex items-center gap-1 shadow-2xs hover:border-emerald-500"
               title={`${preset.scenarioTitle}: ${preset.devanagariPrompt}`}
             >
               <span>{preset.icon}</span>
               <span className="font-semibold">{preset.buttonLabel}</span>
-              <span className="text-[9px] text-stone-500 font-mono">({preset.badge})</span>
             </button>
           ))}
         </div>
 
-        {/* Interactive Speech & Text Injection Bar (Option 3) */}
-        <div className="pt-2 border-t border-stone-200/80 mt-1.5 space-y-1.5 shrink-0">
+        {/* Interactive Speech & Text Injection Bar */}
+        <div className="pt-2.5 border-t border-[#E7E2DB] mt-1.5 space-y-1.5 shrink-0">
           <form onSubmit={handleCustomSubmit} className="flex items-center gap-2">
             {/* Speaker Toggle */}
-            <div className="flex items-center bg-stone-100 p-0.5 rounded-xl border border-stone-200 text-xs shrink-0">
+            <div className="flex items-center bg-[#EFECE6] p-0.5 rounded-xl border border-[#DFDAD1] text-xs shrink-0">
               <button
                 type="button"
                 onClick={() => setCustomSpeaker('senior')}
-                className={`px-2 py-1 rounded-lg text-xs font-bold transition-all ${
-                  customSpeaker === 'senior' ? 'bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs' : 'text-stone-500'
+                className={`px-2 py-1 rounded-lg text-xs font-semibold transition-all ${
+                  customSpeaker === 'senior' ? 'bg-white text-stone-900 font-bold shadow-2xs' : 'text-stone-600'
                 }`}
               >
-                👴 Papa
+                👴🏼 Ramesh Ji
               </button>
               <button
                 type="button"
                 onClick={() => setCustomSpeaker('agent')}
-                className={`px-2 py-1 rounded-lg text-xs font-bold transition-all ${
-                  customSpeaker === 'agent' ? 'bg-emerald-100 text-emerald-900 border border-emerald-300 shadow-2xs' : 'text-stone-500'
+                className={`px-2 py-1 rounded-lg text-xs font-semibold transition-all ${
+                  customSpeaker === 'agent' ? 'bg-white text-stone-900 font-bold shadow-2xs' : 'text-stone-600'
                 }`}
               >
-                🌿 Agent
+                🌿 Companion
               </button>
             </div>
 
@@ -463,19 +432,19 @@ export const SeniorConversationStream: React.FC = () => {
               placeholder={
                 customSpeaker === 'senior'
                   ? "Type Papa's speech (e.g. 'Haan beta, laal wali BP ki goli le li...')..."
-                  : "Type Agent's speech (e.g. 'Uncle, subah ka nashta ho gaya?')..."
+                  : "Type Companion speech (e.g. 'Uncle, subah ka nashta ho gaya?')..."
               }
-              className="flex-1 bg-stone-50 border border-stone-300 rounded-xl px-3 py-1.5 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-emerald-400 font-sans"
+              className="flex-1 bg-[#FAF8F5] border border-[#DFDAD1] rounded-xl px-3 py-1.5 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 font-sans"
             />
 
             {/* Live Hindi Voice Input Mic Button */}
             <button
               type="button"
               onClick={handleToggleListen}
-              className={`p-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center shrink-0 cursor-pointer shadow-2xs ${
+              className={`p-2 rounded-xl border text-xs font-semibold transition-all flex items-center justify-center shrink-0 cursor-pointer shadow-2xs ${
                 isListening
-                  ? 'bg-rose-600 text-white border-rose-700 animate-pulse ring-2 ring-rose-400'
-                  : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border-stone-300'
+                  ? 'bg-rose-600 text-white border-rose-700 animate-pulse'
+                  : 'bg-white hover:bg-stone-50 text-stone-700 border-[#DFDAD1]'
               }`}
               title={
                 isListening
@@ -483,22 +452,18 @@ export const SeniorConversationStream: React.FC = () => {
                   : 'Click to speak in Hindi (Web Speech STT)'
               }
             >
-              {isListening ? (
-                <Mic className="w-4 h-4 fill-current animate-bounce text-white" />
-              ) : (
-                <Mic className="w-4 h-4 text-stone-600" />
-              )}
+              <Mic className={`w-4 h-4 ${isListening ? 'text-white' : 'text-stone-600'}`} />
             </button>
 
             {/* Speak & Inject Button */}
             <button
               type="submit"
               disabled={!customInputText.trim()}
-              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer"
-              title="Option 3: Inject custom dialogue turn and speak aloud"
+              className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-40 text-white text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer"
+              title="Inject dialogue turn and speak aloud"
             >
               <Volume2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Speak & Inject</span>
+              <span className="hidden sm:inline">Send & Speak</span>
             </button>
           </form>
 

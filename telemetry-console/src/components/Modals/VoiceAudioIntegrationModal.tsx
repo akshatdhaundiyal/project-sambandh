@@ -440,7 +440,7 @@ rec.start();`}
                   <button
                     onClick={() =>
                       handleCopy(
-                        `VITE_WHISPERFLO_API_KEY=wh_live_your_key_here\nVITE_WHISPERFLO_ENDPOINT=https://api.whisperflo.ai/v1/audio/speech`,
+                        `VITE_WHISPERFLO_API_KEY=your_whisperflo_api_key_here\nVITE_WHISPERFLO_ENDPOINT=https://api.whisperflo.ai/v1/audio/speech`,
                         'code-env'
                       )
                     }
@@ -457,7 +457,7 @@ rec.start();`}
 
                 <pre className="bg-stone-900 text-stone-100 p-3 rounded-xl font-mono text-[11px] overflow-x-auto">
 {`# Add this to telemetry-console/.env
-VITE_WHISPERFLO_API_KEY="wh_live_sambandh_telephony_secret"
+VITE_WHISPERFLO_API_KEY="your_whisperflo_api_key_here"
 VITE_WHISPERFLO_ENDPOINT="https://api.whisperflo.ai/v1/audio/speech"`}
                 </pre>
               </div>
