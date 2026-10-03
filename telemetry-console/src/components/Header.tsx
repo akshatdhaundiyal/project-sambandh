@@ -3,6 +3,7 @@ import { useTelemetry } from '../context/TelemetryContext';
 import {
   Columns2,
   Smartphone,
+  ShieldCheck,
   Settings,
   Radio
 } from 'lucide-react';
@@ -68,43 +69,48 @@ export const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Center Section: Primary Navigation View Tabs (Grid on Mobile, Row on Desktop) */}
+        {/* Center Section: Primary Navigation View Tabs (Strict 3-Tab Architecture) */}
         <div className="grid grid-cols-3 md:flex md:items-center bg-[#EFECE6] p-1 rounded-xl border border-[#DFDAD1] shadow-2xs w-full md:w-auto shrink-0 gap-1">
+          {/* Tab 1: Elder Companion */}
           <button
-            onClick={() => setActiveTab('dual-pane')}
+            onClick={() => setActiveTab('elder')}
             className={`flex items-center justify-center gap-1.5 px-2.5 md:px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'dual-pane'
-                ? 'bg-white text-stone-900 shadow-2xs font-bold border border-stone-200/80'
-                : 'text-stone-600 hover:text-stone-900'
-            }`}
-          >
-            <Columns2 className="w-3.5 h-3.5 text-stone-700 shrink-0" />
-            <span className="hidden lg:inline">Dual Pane (Judges)</span>
-            <span className="lg:hidden">Dual Pane</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('elder-app')}
-            className={`flex items-center justify-center gap-1.5 px-2.5 md:px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'elder-app'
+              activeTab === 'elder' || activeTab === 'elder-app'
                 ? 'bg-white text-stone-900 shadow-2xs font-bold border border-stone-200/80'
                 : 'text-stone-600 hover:text-stone-900'
             }`}
           >
             <Smartphone className="w-3.5 h-3.5 text-stone-700 shrink-0" />
-            <span className="hidden lg:inline">Elder Mobile View</span>
-            <span className="lg:hidden">Elder App</span>
+            <span className="hidden lg:inline">Elder Companion</span>
+            <span className="lg:hidden">Elder</span>
           </button>
+
+          {/* Tab 2: Caregiver Hub */}
           <button
-            onClick={() => setActiveTab('medical-records')}
+            onClick={() => setActiveTab('caregiver')}
             className={`flex items-center justify-center gap-1.5 px-2.5 md:px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'medical-records'
+              activeTab === 'caregiver' || activeTab === 'caregiver-telegram' || activeTab === 'medical-records'
                 ? 'bg-white text-stone-900 shadow-2xs font-bold border border-stone-200/80'
                 : 'text-stone-600 hover:text-stone-900'
             }`}
           >
-            <span className="text-xs">📋</span>
-            <span className="hidden lg:inline">Clinical Health Dossier</span>
-            <span className="lg:hidden">Dossier</span>
+            <ShieldCheck className="w-3.5 h-3.5 text-teal-700 shrink-0" />
+            <span className="hidden lg:inline">Caregiver Hub</span>
+            <span className="lg:hidden">Caregiver</span>
+          </button>
+
+          {/* Tab 3: Judge Telemetry & Rails */}
+          <button
+            onClick={() => setActiveTab('judge')}
+            className={`flex items-center justify-center gap-1.5 px-2.5 md:px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+              activeTab === 'judge' || activeTab === 'judge-tree' || activeTab === 'dual-pane'
+                ? 'bg-white text-stone-900 shadow-2xs font-bold border border-stone-200/80'
+                : 'text-stone-600 hover:text-stone-900'
+            }`}
+          >
+            <Columns2 className="w-3.5 h-3.5 text-stone-700 shrink-0" />
+            <span className="hidden lg:inline">Judge Telemetry & Rails</span>
+            <span className="lg:hidden">Judges</span>
           </button>
         </div>
 

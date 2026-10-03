@@ -15,7 +15,9 @@ import {
 import {
   createLlmExchange,
   CHROME_SPEECH_EXCHANGE,
-  WHISPERFLO_DIAL_EXCHANGE
+  WHISPERFLO_DIAL_EXCHANGE,
+  HEALTH_LOCKER_QUERY_EXCHANGE,
+  MEDGEMMA_ANALYSIS_EXCHANGE
 } from '../data/apiExchanges';
 
 export const useExecutionNodes = () => {
@@ -199,6 +201,52 @@ export const useExecutionNodes = () => {
     addUniqueNodes(freshNodes);
   }, [addUniqueNodes]);
 
+  /**
+   * Creates Execution Nodes for an ABDM Health Locker & MedGemma RAG query.
+   */
+  const createHealthLockerNodes = useCallback((
+    query: string,
+    latencyMs: number,
+    analysisSnippet: string
+  ): ToolExecutionNode[] => {
+    const timestamp = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST';
+    const now = Date.now();
+    return [
+      {
+        id: `node-hl-${now}`,
+        stepIndex: 1,
+        nodeType: 'health_locker_query',
+        brandName: 'ABDM Health Locker & Pinecone RAG',
+        toolName: 'pinecone_vector_search',
+        title: 'ABDM Health Locker Semantic Retrieval',
+        actionSummary: `Retrieved top-3 clinical chunks from ABDM dossier matching: "${query}".`,
+        timestamp,
+        status: 'SUCCESS',
+        statusCode: `200 OK (${latencyMs}ms)`,
+        latencyMs: Math.round(latencyMs * 0.4),
+        apiExchange: HEALTH_LOCKER_QUERY_EXCHANGE,
+        reasoningSnippet: 'Senior query matched active FHIR medication records and metropolis renal panel.',
+        brandColor: '#0D9488'
+      },
+      {
+        id: `node-mg-${now}`,
+        stepIndex: 1,
+        nodeType: 'medgemma_analysis',
+        brandName: 'Google MedGemma 4B',
+        toolName: 'medgemma_clinical_copilot',
+        title: 'MedGemma 4B Clinical Co-Pilot Reasoning',
+        actionSummary: `Synthesized clinical guidance in ${latencyMs}ms. Zero-Diagnosis & Non-Prescriptive rules verified.`,
+        timestamp,
+        status: 'SUCCESS',
+        statusCode: `200 OK (${latencyMs}ms)`,
+        latencyMs: Math.round(latencyMs * 0.6),
+        apiExchange: MEDGEMMA_ANALYSIS_EXCHANGE,
+        reasoningSnippet: analysisSnippet.slice(0, 120) + '...',
+        brandColor: '#7E22CE'
+      }
+    ];
+  }, []);
+
   return {
     dynamicExecutionNodes,
     setDynamicExecutionNodes,
@@ -206,7 +254,9 @@ export const useExecutionNodes = () => {
     addUniqueNodes,
     seedInitialCallNode,
     createLlmNode,
+    createHealthLockerNodes,
     detectDomainNodes,
     triggerPresetNodes
   };
 };
+

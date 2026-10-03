@@ -41,8 +41,11 @@ export const RecommendedPromptsList: React.FC = () => {
 
   const getRailBadgeStyle = (badgeName: string) => {
     const lower = badgeName.toLowerCase();
-    if (lower.includes('abdm') || lower.includes('fhir')) {
+    if (lower.includes('health locker') || lower.includes('abdm') || lower.includes('fhir')) {
       return 'bg-teal-50 text-teal-800 border-teal-200/80';
+    }
+    if (lower.includes('medgemma')) {
+      return 'bg-purple-50 text-purple-800 border-purple-200 font-bold';
     }
     if (lower.includes('pine') || lower.includes('₹') || lower.includes('fiduciary')) {
       return 'bg-emerald-50 text-emerald-800 border-emerald-200/80';

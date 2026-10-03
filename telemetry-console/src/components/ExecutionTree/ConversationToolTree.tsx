@@ -7,7 +7,9 @@ import {
   WHISPERFLO_DIAL_EXCHANGE,
   ABDM_RUNWAY_EXCHANGE,
   TELEGRAM_DISPATCH_EXCHANGE,
-  NETMEDS_PHARMACY_ORDER_EXCHANGE
+  NETMEDS_PHARMACY_ORDER_EXCHANGE,
+  HEALTH_LOCKER_QUERY_EXCHANGE,
+  MEDGEMMA_ANALYSIS_EXCHANGE
 } from '../../data/apiExchanges';
 import { HttpApiExchange } from '../../types/telemetry';
 import {
@@ -26,7 +28,8 @@ import {
   HelpCircle,
   Eye,
   Check,
-  X
+  X,
+  Database
 } from 'lucide-react';
 
 interface BranchTreeNode {
@@ -165,6 +168,39 @@ export const ConversationToolTree: React.FC = () => {
       scenarioStepMap: {
         'scenario-1': 3,
         'scenario-2': 1,
+        'scenario-4': 0
+      }
+    },
+
+    // 04B. HEALTH LOCKER & MEDGEMMA RAG PIPELINE
+    {
+      id: 'health-locker-query-node',
+      title: 'Health Locker RAG: Active Prescriptions & Lab Recall',
+      category: 'tool',
+      branchLabel: 'BRANCH: CLINICAL RECALL ➔ POSTGRESQL / VECTOR RAG',
+      branchGroup: 'Clinical Guardrail Rail',
+      toolName: 'health_locker_query',
+      description: 'Recalls structured dosage, renal trajectory (Creatinine 1.10 mg/dL), and salt rules from PostgreSQL / Pinecone.',
+      apiExchange: HEALTH_LOCKER_QUERY_EXCHANGE,
+      hitInScenarios: ['scenario-1', 'scenario-2', 'scenario-4'],
+      scenarioStepMap: {
+        'scenario-1': 3,
+        'scenario-2': 1,
+        'scenario-4': 0
+      }
+    },
+    {
+      id: 'medgemma-analysis-node',
+      title: 'MedGemma 4B Clinical Verification & Guardrail Check',
+      category: 'decision',
+      branchLabel: 'BRANCH: ZERO-DIAGNOSIS GUARDRAIL EVALUATION',
+      branchGroup: 'Clinical Guardrail Rail',
+      toolName: 'medgemma_analysis',
+      description: 'Validates Zero-Diagnosis and Zero-Titration rules over extracted clinical chunks before synthesized response.',
+      apiExchange: MEDGEMMA_ANALYSIS_EXCHANGE,
+      hitInScenarios: ['scenario-1', 'scenario-4'],
+      scenarioStepMap: {
+        'scenario-1': 3,
         'scenario-4': 0
       }
     },
@@ -477,6 +513,10 @@ export const ConversationToolTree: React.FC = () => {
                           className={`ml-2 text-[10px] font-mono px-2 py-0.5 rounded border inline-block ${
                             isUnhit
                               ? 'bg-slate-900 border-slate-800 text-slate-600'
+                              : node.toolName === 'health_locker_query'
+                              ? 'bg-teal-950 text-teal-300 border-teal-800'
+                              : node.toolName === 'medgemma_analysis'
+                              ? 'bg-purple-950 text-purple-300 border-purple-800'
                               : isTripwire || isEscalation
                               ? 'bg-rose-950/80 text-rose-300 border-rose-800'
                               : isTool

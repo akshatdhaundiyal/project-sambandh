@@ -534,5 +534,103 @@ export const NETMEDS_PHARMACY_ORDER_EXCHANGE: HttpApiExchange = {
   }
 };
 
+export const HEALTH_LOCKER_QUERY_EXCHANGE: HttpApiExchange = {
+  railName: "ABDM Health Locker & Pinecone RAG Rail",
+  method: "POST",
+  endpoint: "https://modal.run/sambandh-health-locker/query_health_locker",
+  schemaStandard: "ABDM FHIR M3 & LangChain PineconeVectorStore v1.0",
+  headers: {
+    "Authorization": "Bearer [MODAL_OR_LOCAL_AUTH_TOKEN]",
+    "Content-Type": "application/json",
+    "X-Senior-ABHA": "91-8273-1928-4491",
+    "X-Caller-Role": "caregiver"
+  },
+  requestBody: {
+    "query": "Creatinine trajectory and active BP medications",
+    "senior_id": "SENIOR_RAMESH_001",
+    "caller_role": "caregiver",
+    "mode": "auto",
+    "top_k": 3
+  },
+  responseStatus: 200,
+  responseStatusText: "OK",
+  responseLatencyMs: 142,
+  responseHeaders: {
+    "Content-Type": "application/json",
+    "X-Engine": "PostgreSQL-LangChain-Pinecone",
+    "X-Similarity-Metric": "Cosine-Distance-384"
+  },
+  responseBody: {
+    "status": "SUCCESS",
+    "retrieved_chunks": [
+      {
+        "document_id": "DOC_LAB_2026_0905",
+        "category": "lab_report",
+        "title": "Comprehensive Metabolic & Renal Profile",
+        "score": 0.892,
+        "content_snippet": "Serum Creatinine: 1.10 mg/dL (Ref: 0.70 - 1.30 mg/dL) - NORMAL. eGFR: >75 mL/min."
+      },
+      {
+        "document_id": "DOC_RX_2026_0910",
+        "category": "prescription",
+        "title": "Cardiology Follow-Up Prescription",
+        "score": 0.865,
+        "content_snippet": "Continue Telmisartan 40mg (1 OD morning post breakfast). Salt restriction advised."
+      }
+    ],
+    "sources": [
+      "Metropolis Metabolic Lab Report (05 Sep 2026)",
+      "Dr. V. K. Sharma Cardiology Prescription (10 Sep 2026)"
+    ],
+    "structured_vitals": [
+      { "vitalType": "creatinine", "valueNumeric": 1.10, "unit": "mg/dL", "trend": "STABLE" }
+    ],
+    "latency_ms": 142
+  }
+};
+
+export const MEDGEMMA_ANALYSIS_EXCHANGE: HttpApiExchange = {
+  railName: "Google MedGemma 4B Clinical Co-Pilot Rail",
+  method: "POST",
+  endpoint: "https://modal.run/sambandh-health-locker/medgemma_worker",
+  schemaStandard: "MedGemma-4B-IT Guardrailed Inference Protocol",
+  headers: {
+    "Authorization": "Bearer [MODAL_A10G_GPU_TOKEN]",
+    "Content-Type": "application/json",
+    "X-Model-Id": "google/medgemma-4b-it",
+    "X-Temperature": "0.15"
+  },
+  requestBody: {
+    "prompt": "Evaluate Ramesh Ji's creatinine trajectory and active BP medications.",
+    "context": "Serum Creatinine: 1.10 mg/dL. Active: Telmisartan 40mg 1 tab OD morning post breakfast. Low sodium diet.",
+    "caller_role": "caregiver",
+    "guardrails": {
+      "zero_diagnosis_rule": true,
+      "zero_titration_rule": true,
+      "strict_ehr_grounding": true
+    }
+  },
+  responseStatus: 200,
+  responseStatusText: "OK",
+  responseLatencyMs: 184,
+  responseHeaders: {
+    "Content-Type": "application/json",
+    "X-Tokens-Evaluated": "342",
+    "X-GPU-Device": "NVIDIA A10G"
+  },
+  responseBody: {
+    "analysis": "Ramesh Ji's serum creatinine is stable at 1.10 mg/dL (Reference: 0.70 – 1.30 mg/dL), indicating well-maintained renal filtration (eGFR >75 mL/min). This profile remains safe for his ongoing Telmisartan 40mg daily morning regimen. Dr. Sharma's dietary salt restriction remains an active recommendation.",
+    "tokens_evaluated": 342,
+    "latency_ms": 184,
+    "model": "google/medgemma-4b-it",
+    "guardrail_status": {
+      "is_non_prescriptive": true,
+      "zero_diagnosis_passed": true,
+      "tripwire_triggered": false
+    }
+  }
+};
+
+
 
 

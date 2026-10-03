@@ -22,7 +22,11 @@ import {
   ArrowRight
 } from 'lucide-react';
 
-export const ElderMobilePhone: React.FC = () => {
+interface ElderMobilePhoneProps {
+  standalonePhoneOnly?: boolean;
+}
+
+export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePhoneOnly = false }) => {
   const { currentStep, activeScenario, allTurnsSoFar } = useTelemetry();
   const profile = activeScenario.initialSeniorProfile;
   const [activeScreen, setActiveScreen] = useState<'dashboard' | 'call'>('dashboard');
@@ -47,7 +51,7 @@ export const ElderMobilePhone: React.FC = () => {
   const latestTurn = conversationTurns[conversationTurns.length - 1];
 
   return (
-    <div className="flex flex-col lg:flex-row items-center justify-center gap-6 py-2 sm:py-4 px-1 sm:px-2 max-w-6xl mx-auto">
+    <div className={standalonePhoneOnly ? "flex justify-center w-full py-2 sm:py-4 px-1 sm:px-2" : "flex flex-col lg:flex-row items-center justify-center gap-6 py-2 sm:py-4 px-1 sm:px-2 max-w-6xl mx-auto"}>
       {/* Mobile Device Frame (iPhone 16 Pro Style) */}
       <div className="w-full max-w-[390px] h-[780px] sm:h-[844px] max-h-[88vh] bg-stone-900 rounded-[40px] sm:rounded-[52px] p-2.5 sm:p-3.5 shadow-2xl ring-1 ring-stone-800 relative flex flex-col shrink-0 select-none">
         {/* Dynamic Island / Earpiece */}
@@ -338,79 +342,81 @@ export const ElderMobilePhone: React.FC = () => {
         </div>
       </div>
 
-      {/* Live Peripheral Telemetry & Caregiver Sync Bridge */}
-      <div className="max-w-md w-full space-y-4 text-stone-800">
-        <div className="bg-white border border-[#E7E2DB] rounded-3xl p-6 shadow-xs space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-[#E7E2DB]">
-            <div>
-              <span className="text-[10px] font-mono font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                LIVE TELEMETRY BRIDGE
-              </span>
-              <h2 className="font-serif font-bold text-lg text-stone-900 mt-1">
-                Elder State & Peripheral Sync
-              </h2>
-            </div>
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" title="Telemetry sync active"></span>
-          </div>
-
-          <div className="space-y-3 text-xs">
-            {/* BLE Hardware Devices */}
-            <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#E7E2DB] space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-stone-900 flex items-center gap-1.5">
-                  <Activity className="w-4 h-4 text-emerald-700" />
-                  <span>Paired Health Peripherals</span>
+      {/* Live Peripheral Telemetry & Caregiver Sync Bridge (Only in full view) */}
+      {!standalonePhoneOnly && (
+        <div className="max-w-md w-full space-y-4 text-stone-800">
+          <div className="bg-white border border-[#E7E2DB] rounded-3xl p-6 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E7E2DB]">
+              <div>
+                <span className="text-[10px] font-mono font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  LIVE TELEMETRY BRIDGE
                 </span>
-                <span className="text-[10px] font-mono font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
-                  BLE Active
-                </span>
+                <h2 className="font-serif font-bold text-lg text-stone-900 mt-1">
+                  Elder State & Peripheral Sync
+                </h2>
               </div>
-              <div className="space-y-1 text-stone-600 text-[11px]">
-                <div className="flex justify-between">
-                  <span>Omron HEM-7120 BP Monitor:</span>
-                  <strong className="text-stone-800 font-mono">112/80 mmHg</strong>
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" title="Telemetry sync active"></span>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              {/* BLE Hardware Devices */}
+              <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#E7E2DB] space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-stone-900 flex items-center gap-1.5">
+                    <Activity className="w-4 h-4 text-emerald-700" />
+                    <span>Paired Health Peripherals</span>
+                  </span>
+                  <span className="text-[10px] font-mono font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                    BLE Active
+                  </span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Accu-Chek Active Glucose:</span>
-                  <strong className="text-stone-800 font-mono">104 mg/dL</strong>
+                <div className="space-y-1 text-stone-600 text-[11px]">
+                  <div className="flex justify-between">
+                    <span>Omron HEM-7120 BP Monitor:</span>
+                    <strong className="text-stone-800 font-mono">112/80 mmHg</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Accu-Chek Active Glucose:</span>
+                    <strong className="text-stone-800 font-mono">104 mg/dL</strong>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* National Stack Bridge */}
-            <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#E7E2DB] space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-stone-900 flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-700" />
-                  <span>National Health Stack (ABDM)</span>
-                </span>
-                <span className="text-[10px] font-mono font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
-                  M2/M3 Synced
-                </span>
+              {/* National Stack Bridge */}
+              <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#E7E2DB] space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-stone-900 flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                    <span>National Health Stack (ABDM)</span>
+                  </span>
+                  <span className="text-[10px] font-mono font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                    M2/M3 Synced
+                  </span>
+                </div>
+                <p className="text-[11px] text-stone-600 leading-relaxed">
+                  Health Locker ID: <strong className="font-mono text-stone-800">ramesh.chandra@abdm</strong>. Encrypted consent artifacts are automatically maintained for Dr. Saxena.
+                </p>
               </div>
-              <p className="text-[11px] text-stone-600 leading-relaxed">
-                Health Locker ID: <strong className="font-mono text-stone-800">ramesh.chandra@abdm</strong>. Encrypted consent artifacts are automatically maintained for Dr. Saxena.
-              </p>
-            </div>
 
-            {/* Caregiver Link */}
-            <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#E7E2DB] space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-stone-900 flex items-center gap-1.5">
-                  <Heart className="w-4 h-4 text-amber-700" />
-                  <span>Caregiver Tunnel (Priya)</span>
-                </span>
-                <span className="text-[10px] font-mono font-medium text-stone-600 bg-white px-1.5 py-0.2 rounded border border-stone-200">
-                  Telegram Verified
-                </span>
+              {/* Caregiver Link */}
+              <div className="p-3 rounded-2xl bg-[#FAF8F5] border border-[#E7E2DB] space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-stone-900 flex items-center gap-1.5">
+                    <Heart className="w-4 h-4 text-amber-700" />
+                    <span>Caregiver Tunnel (Priya)</span>
+                  </span>
+                  <span className="text-[10px] font-mono font-medium text-stone-600 bg-white px-1.5 py-0.2 rounded border border-stone-200">
+                    Telegram Verified
+                  </span>
+                </div>
+                <p className="text-[11px] text-stone-600 leading-relaxed">
+                  Fiduciary auto-refills below ₹4,500 execute autonomously. Any unusual requests trigger step-up authorization cards directly to Bengaluru.
+                </p>
               </div>
-              <p className="text-[11px] text-stone-600 leading-relaxed">
-                Fiduciary auto-refills below ₹4,500 execute autonomously. Any unusual requests trigger step-up authorization cards directly to Bengaluru.
-              </p>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

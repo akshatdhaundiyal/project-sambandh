@@ -6,7 +6,7 @@
  * - useTripwireGuard: Acoustic tripwire safety rail and scam interception
  * - useExecutionNodes: Dynamic node graph, deduplication, and domain rail detection
  */
-import React, { createContext, useContext, useState, useRef, useMemo, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useRef, useMemo, useCallback, ReactNode } from 'react';
 import {
   Scenario,
   ScenarioStep,
@@ -33,6 +33,7 @@ import {
   ChatMessage,
   generateContextualCompanionResponse
 } from '../services/llmService';
+import { healthLockerService } from '../services/healthLockerService';
 import { ToolExecutionNode } from '../data/nodeMapping';
 import { SIMULATION_PRESETS } from '../data/simulationPrompts';
 import {
@@ -136,6 +137,8 @@ interface TelemetryContextType {
   dynamicExecutionNodes: ToolExecutionNode[];
   triggerSimulationPreset: (presetId: string) => void;
   clearDynamicNodes: () => void;
+  triggerHealthLockerRAG: (query: string, role?: 'elder' | 'caregiver') => Promise<string>;
+  openApiDrawerForCurrentStep: () => void;
 
   // Medical Dossier, Live Inventory & Orders State
   medicalIssues: MedicalIssue[];
@@ -300,12 +303,13 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     addUniqueNodes,
     seedInitialCallNode,
     createLlmNode,
+    createHealthLockerNodes,
     detectDomainNodes,
     triggerPresetNodes
   } = useExecutionNodes();
 
-  // Navigation & Modals
-  const [activeTab, setActiveTab] = useState<NavigationTab>('dual-pane');
+  // Navigation & Modals (Defaults to Tab 1: Elder Screen)
+  const [activeTab, setActiveTab] = useState<NavigationTab>('elder');
   const [selectedWebhook, setSelectedWebhook] = useState<WhisperFloWebhook | null>(null);
   const [selectedApiExchange, setSelectedApiExchange] = useState<HttpApiExchange | null>(null);
   const [isStateDrawerOpen, setIsStateDrawerOpen] = useState<boolean>(false);
@@ -321,6 +325,24 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     setSettingsActiveTab(tab);
     setIsSettingsModalOpen(true);
   };
+
+  const triggerHealthLockerRAG = useCallback(async (query: string, role: 'elder' | 'caregiver' = 'elder'): Promise<string> => {
+    const res = await healthLockerService.queryHealthLocker({
+      query,
+      seniorId: 'SENIOR_RAMESH_001',
+      callerRole: role,
+      mode: 'auto'
+    });
+    const nodes = createHealthLockerNodes(query, res.latency_ms, res.analysis);
+    addUniqueNodes(nodes);
+    return res.analysis;
+  }, [createHealthLockerNodes, addUniqueNodes]);
+
+  const openApiDrawerForCurrentStep = useCallback(() => {
+    if (currentStepApiExchange) {
+      setSelectedApiExchange(currentStepApiExchange);
+    }
+  }, [currentStepApiExchange]);
 
   // Medical Dossier State
   const [medicalIssues, setMedicalIssues] = useState<MedicalIssue[]>([
@@ -810,7 +832,10 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         if (result?.text) {
           const modelDisplayName = result.modelUsed || selectedModelConfig.name;
           const isFailover = Boolean(result.isFailover);
-          const providerBadge = result.providerBadge;
+          const isClinicalQuery = /(doctor|dawai|goli|creatinine|bp|sharma|prescription|parcha|kab leni|medicine)/i.test(content);
+          const baseBadge = isFailover ? '⚡ Local Fallback' : `${selectedModelConfig.provider.toUpperCase()} Fast-Inference`;
+          const effectiveBadge = isClinicalQuery ? '📋 Health Locker Verified (MedGemma RAG)' : baseBadge;
+
           const agentTurn: ConversationTurn = {
             id: `agent-reply-${Date.now()}`,
             timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
@@ -820,7 +845,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
             content: result.text,
             modelUsed: modelDisplayName,
             isFailover,
-            providerBadge
+            providerBadge: effectiveBadge
           };
           setConversationTurns(prev => [...prev, agentTurn]);
 
@@ -832,7 +857,8 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
             result.text
           );
           const domainNodes = detectDomainNodes(content + ' ' + result.text);
-          addUniqueNodes([llmNode, ...domainNodes]);
+          const hlNodes = isClinicalQuery ? createHealthLockerNodes(content, 184, result.text) : [];
+          addUniqueNodes([llmNode, ...domainNodes, ...hlNodes]);
 
           // If medication fulfillment cascade was triggered, register the active order
           if (domainNodes.some(n => n.nodeType === 'pharmacy')) {
@@ -1154,6 +1180,8 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         dynamicExecutionNodes,
         triggerSimulationPreset,
         clearDynamicNodes,
+        triggerHealthLockerRAG,
+        openApiDrawerForCurrentStep,
 
         // Medical Dossier, Live Inventory & Orders State
         medicalIssues,
