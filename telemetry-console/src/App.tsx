@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { TelemetryProvider, useTelemetry } from './context/TelemetryContext';
 import { Header } from './components/Header';
-import { SeniorCallCard } from './components/SeniorView/SeniorCallCard';
 import { SeniorConversationStream } from './components/SeniorView/SeniorConversationStream';
 import { ElderMobilePhone } from './components/ElderAppView/ElderMobilePhone';
 import { CaregiverMobilePhone } from './components/CaregiverPortal/CaregiverMobilePhone';
@@ -101,10 +100,7 @@ export const AppContent: React.FC = () => {
                 <span className="text-xs text-stone-400 font-medium">Rohini Sector 8, Delhi</span>
               </div>
 
-              {/* Call Overview Card */}
-              <SeniorCallCard />
-
-              {/* Live Morning Dialogue Stream with 1-Click Simulation Popup */}
+              {/* Live Morning Dialogue Stream with 1-Click Simulation Popup (Hero Element) */}
               <SeniorConversationStream />
 
               {/* Judge Telemetry & Fiduciary Rails (Live API Flow & Contract Payloads) */}
