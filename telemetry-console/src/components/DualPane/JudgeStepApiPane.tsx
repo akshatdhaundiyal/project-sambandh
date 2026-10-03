@@ -59,20 +59,25 @@ export const JudgeStepApiPane: React.FC<JudgeStepApiPaneProps> = ({
   const scenarioAllNodes = getAllNodesForScenario(activeScenario.id);
 
   // Authoritative real-time execution chain:
-  // In a live call session, dynamicExecutionNodes truthfully logs the actual tool and model nodes executed.
-  // In idle/standby state, displays the scenario's planned node chain so judges can inspect API payloads immediately.
+  // - In idle/standby: returns [] so no premature dummy messages or API executions are shown before call connects.
+  // - During active call/calling: dynamically displays executed nodes up to current progress step.
+  // - When call has ended: displays the complete chronological audit chain (dynamicExecutionNodes or scenarioAllNodes)
+  //   for comprehensive post-call review.
   const executedNodes = React.useMemo(() => {
+    if (callStatus === 'idle') {
+      return [];
+    }
+
     if (dynamicExecutionNodes.length > 0) {
       return [...dynamicExecutionNodes];
     }
 
-    if (baseNodes.length > 0) {
-      return baseNodes;
+    if (callStatus === 'ended') {
+      return scenarioAllNodes;
     }
 
-    // Fall back to the scenario's complete node chain so all partner API contracts are inspectable
-    return scenarioAllNodes;
-  }, [baseNodes, dynamicExecutionNodes, scenarioAllNodes]);
+    return baseNodes;
+  }, [baseNodes, dynamicExecutionNodes, scenarioAllNodes, callStatus]);
 
   // Selected node for inline API inspection
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -164,7 +169,7 @@ export const JudgeStepApiPane: React.FC<JudgeStepApiPaneProps> = ({
             {executedNodes.length} Node{executedNodes.length !== 1 ? 's' : ''} Fired
           </span>
           <span className="text-[10px] text-stone-400 font-mono">
-            Phase: {currentStep.phase}
+            Phase: {callStatus === 'idle' ? 'Standby' : callStatus === 'ended' ? 'Call Completed (Audit Ready)' : currentStep.phase}
           </span>
         </div>
       </div>

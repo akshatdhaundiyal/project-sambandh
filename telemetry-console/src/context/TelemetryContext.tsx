@@ -1212,12 +1212,14 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     return turns;
   }, [activeScenario, currentStepIndex]);
 
-  // Dialogue turns stream in real time once call is answered/active, or when live custom turns are injected
+  // Dialogue turns stream in real time once call is answered/active, or when live custom turns are injected.
+  // In idle state, returns [] so no premature dummy messages are rendered before call starts.
+  // When call has ended, preserves completed turns for full post-call audit.
   const effectiveTurns = useMemo(() => {
     if (conversationTurns.length > 0) {
       return conversationTurns;
     }
-    if (callStatus === 'active' || isPlaying) {
+    if (callStatus === 'active' || callStatus === 'ended' || isPlaying) {
       return scenarioTurnsSoFar;
     }
     return [];

@@ -49,7 +49,7 @@ interface BranchTreeNode {
 }
 
 export const ConversationToolTree: React.FC = () => {
-  const { currentStepIndex, activeScenario, openApiExchangeModal } = useTelemetry();
+  const { currentStepIndex, activeScenario, callStatus, openApiExchangeModal } = useTelemetry();
   const [filterMode, setFilterMode] = useState<'all' | 'active'>('all');
 
   // Master definition of the complete Project Sambandh Decision & Tool Execution Tree
@@ -347,6 +347,14 @@ export const ConversationToolTree: React.FC = () => {
 
     if (!isHitInThisScenario) {
       return 'unhit'; // Node is on an unchosen branch
+    }
+
+    if (callStatus === 'idle') {
+      return 'pending'; // When call has not started yet, nodes remain pending
+    }
+
+    if (callStatus === 'ended') {
+      return 'completed'; // When call has ended, all executed nodes in active path are completed
     }
 
     const targetStep = node.scenarioStepMap[activeScenario.id];
