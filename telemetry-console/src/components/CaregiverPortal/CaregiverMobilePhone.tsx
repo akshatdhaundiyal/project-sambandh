@@ -51,8 +51,15 @@ import {
   VolumeX,
   Truck,
   Calendar,
-  Database
+  Database,
+  Home,
+  User,
+  Stethoscope,
+  Users,
+  X
 } from 'lucide-react';
+import { CaregiverProfileTab } from './CaregiverProfileTab';
+import { CaregiverTopicsTab } from './CaregiverTopicsTab';
 
 interface CaregiverMobilePhoneProps {
   onUploadClick?: () => void;
@@ -76,13 +83,18 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
     transcriberTranscript,
     startTranscriberMode,
     stopTranscriberMode,
-    syncTranscriberToEhr
+    syncTranscriberToEhr,
+    consultationSession,
+    openConsultationModal,
+    startDoctorConsultation,
+    toggleCaregiverAttendance
   } = useTelemetry();
 
   const profile = activeScenario.initialSeniorProfile;
-  const [activeTab, setActiveTab] = useState<'stream' | 'locker' | 'guardrails'>('stream');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'profile' | 'topics' | 'locker' | 'guardrails'>('dashboard');
   const [isHistorySheetOpen, setIsHistorySheetOpen] = useState(false);
   const [isPlayingSummaryAudio, setIsPlayingSummaryAudio] = useState(false);
+  const [isCaregiverDoctorPromptOpen, setIsCaregiverDoctorPromptOpen] = useState(false);
 
   const handlePlaySummaryAudio = () => {
     if (isPlayingSummaryAudio) {
@@ -302,53 +314,13 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
             </div>
           </div>
 
-          {/* 3-Tab Navigation Bar */}
-          <div className="flex items-center bg-[#EFECE6] p-1 mx-2.5 my-1.5 rounded-xl border border-[#DFDAD1] shrink-0 text-xs">
-            <button
-              type="button"
-              onClick={() => setActiveTab('stream')}
-              className={`flex-1 py-1 px-1.5 rounded-lg text-[11px] font-bold transition-all text-center cursor-pointer flex items-center justify-center gap-1 ${
-                activeTab === 'stream'
-                  ? 'bg-white text-stone-900 shadow-2xs border border-stone-200/80'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
-            >
-              <span>🏠</span>
-              <span>Dashboard</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('locker')}
-              className={`flex-1 py-1 px-1.5 rounded-lg text-[11px] font-bold transition-all text-center cursor-pointer flex items-center justify-center gap-1 ${
-                activeTab === 'locker'
-                  ? 'bg-white text-stone-900 shadow-2xs border border-stone-200/80'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
-            >
-              <span>🌿</span>
-              <span>Health Locker</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('guardrails')}
-              className={`flex-1 py-1 px-1.5 rounded-lg text-[11px] font-bold transition-all text-center cursor-pointer flex items-center justify-center gap-1 ${
-                activeTab === 'guardrails'
-                  ? 'bg-white text-stone-900 shadow-2xs border border-stone-200/80'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
-            >
-              <span>⚙️</span>
-              <span>Guardrails</span>
-            </button>
-          </div>
-
-          {/* Body Content Area */}
-          <div className="flex-1 overflow-y-auto px-2.5 pb-3 scrollbar-thin">
+          {/* Body Content Area (Scrollable Screen) */}
+          <div className="flex-1 overflow-y-auto px-2.5 pb-2 scrollbar-thin">
             {/* ========================================================================= */}
-            {/* SUB-TAB 1: AGENCY & TELEGRAM BOT                                          */}
+            {/* SUB-TAB 1: DASHBOARD & DAILY BRIEFING                                     */}
             {/* ========================================================================= */}
-            {activeTab === 'stream' && (
-              <div className="space-y-2.5 pt-0.5">
+            {activeTab === 'dashboard' && (
+              <div className="space-y-2.5 pt-1">
                 {/* Pre-Call Caregiver Agency Gate */}
                 {preCallAgency && (
                   <div className="p-2.5 rounded-2xl bg-white border border-[#DFDAD1] space-y-2 shadow-2xs">
@@ -706,20 +678,137 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                       </a>
                     </div>
 
-                    {/* Dr. Arvind Saxena */}
-                    <div className="p-2 rounded-xl bg-[#FAF8F5] border border-stone-200 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-base">👨‍⚕️</span>
-                        <div>
-                          <span className="text-xs font-bold text-stone-900 block leading-tight">
-                            Dr. Arvind Saxena
-                          </span>
-                          <span className="text-[9px] text-stone-500">Cardiology Specialist · Apollo Rohini</span>
+                    {/* Dr. Arvind Saxena & Consultation Bridge */}
+                    <div className="p-2.5 rounded-2xl bg-white border border-stone-200/90 shadow-2xs space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-base">👨‍⚕️</span>
+                          <div>
+                            <span className="text-xs font-bold text-stone-900 block leading-tight">
+                              Dr. Arvind Saxena
+                            </span>
+                            <span className="text-[9px] text-stone-500">Cardiology Specialist · Apollo Rohini</span>
+                          </div>
                         </div>
+                        <span className="text-[9px] font-mono text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                          {consultationSession.status === 'in_progress' ? '● In Session' : 'Online'}
+                        </span>
                       </div>
-                      <span className="text-[9px] font-mono text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                        Online
-                      </span>
+
+                      {/* Consultation Status & Actions */}
+                      {consultationSession.status === 'in_progress' ? (
+                        <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-200 space-y-1.5">
+                          <div className="flex items-center justify-between text-[10px]">
+                            <span className="font-bold text-emerald-950 flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
+                              <span>
+                                {consultationSession.caregiverAttending
+                                  ? 'Connected Live (3-Way Bridge)'
+                                  : 'Papa in Clinic (Solo Mode)'}
+                              </span>
+                            </span>
+                            <span className="font-mono text-emerald-800">
+                              {consultationSession.turns.length} turns
+                            </span>
+                          </div>
+                          <div className="flex gap-1.5">
+                            <button
+                              type="button"
+                              onClick={openConsultationModal}
+                              className="flex-1 py-1 px-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-[10px] font-bold shadow-2xs cursor-pointer"
+                            >
+                              Open Live Consultation Screen
+                            </button>
+                            {!consultationSession.caregiverAttending && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  toggleCaregiverAttendance();
+                                  openConsultationModal();
+                                }}
+                                className="px-2 py-1 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-[10px] font-bold shadow-2xs cursor-pointer"
+                              >
+                                Join Call
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ) : consultationSession.status === 'completed' ? (
+                        <div className="p-2 rounded-xl bg-stone-50 border border-stone-200 space-y-1 text-[10px]">
+                          <div className="flex items-center justify-between font-bold text-stone-800">
+                            <span>✅ Last Visit: Atorvastatin 10mg Added</span>
+                            <button
+                              type="button"
+                              onClick={openConsultationModal}
+                              className="underline text-teal-800 font-semibold cursor-pointer"
+                            >
+                              View Notes & Rx
+                            </button>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setIsCaregiverDoctorPromptOpen(true)}
+                            className="w-full py-1 text-stone-600 hover:text-stone-900 border border-dashed border-stone-300 rounded-lg text-[10px] font-medium"
+                          >
+                            + Initiate New Doctor Visit Session
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setIsCaregiverDoctorPromptOpen(true)}
+                          className="w-full py-1.5 bg-[#FAF8F5] hover:bg-stone-100 border border-stone-200 rounded-xl text-[10px] font-bold text-stone-800 flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                        >
+                          <Stethoscope className="w-3 h-3 text-teal-700" />
+                          <span>Initiate Doctor Visit Bridge</span>
+                        </button>
+                      )}
+
+                      {/* Caregiver Initiate Dialog */}
+                      {isCaregiverDoctorPromptOpen && (
+                        <div className="p-2.5 bg-stone-900 text-white rounded-xl space-y-1.5 animate-in fade-in duration-200">
+                          <div className="flex items-center justify-between text-[10px]">
+                            <span className="font-bold flex items-center gap-1">
+                              <Users className="w-3 h-3 text-cyan-400" />
+                              <span>Will you join Papa's consultation live?</span>
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setIsCaregiverDoctorPromptOpen(false)}
+                              className="text-stone-400 hover:text-white"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                          <p className="text-[9px] text-stone-300 leading-snug">
+                            Choose whether to attend via 3-way live telephony, or have the session auto-record for Papa solo and dispatch the summary to you later.
+                          </p>
+                          <div className="grid grid-cols-2 gap-1 pt-0.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsCaregiverDoctorPromptOpen(false);
+                                startDoctorConsultation('caregiver', true);
+                              }}
+                              className="py-1 px-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[9px] font-bold flex items-center justify-center gap-1 cursor-pointer"
+                            >
+                              <Phone className="w-2.5 h-2.5" />
+                              <span>Join Live Call</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsCaregiverDoctorPromptOpen(false);
+                                startDoctorConsultation('caregiver', false);
+                              }}
+                              className="py-1 px-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 rounded-lg text-[9px] font-bold flex items-center justify-center gap-1 cursor-pointer"
+                            >
+                              <User className="w-2.5 h-2.5" />
+                              <span>Papa Solo (Auto-Send)</span>
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Apollo DarkStore */}
@@ -743,7 +832,17 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
             )}
 
             {/* ========================================================================= */}
-            {/* SUB-TAB 2: HEALTH LOCKER & MEDGEMMA                                       */}
+            {/* SUB-TAB 2: ELDER PROFILE & CLINICAL BASELINE (PostgreSQL Backed)          */}
+            {/* ========================================================================= */}
+            {activeTab === 'profile' && <CaregiverProfileTab />}
+
+            {/* ========================================================================= */}
+            {/* SUB-TAB 3: ACTIVITIES, INTERESTS & OPINION SPARKS                         */}
+            {/* ========================================================================= */}
+            {activeTab === 'topics' && <CaregiverTopicsTab />}
+
+            {/* ========================================================================= */}
+            {/* SUB-TAB 4: HEALTH LOCKER & MEDGEMMA                                       */}
             {/* ========================================================================= */}
             {activeTab === 'locker' && (
               <div className="space-y-3 pt-1">
@@ -1134,6 +1233,19 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                     Activate during Dr. Saxena's physical consultation to transcribe verbal instructions directly into Ramesh Ji's Health Locker.
                   </p>
 
+                  <button
+                    type="button"
+                    onClick={openConsultationModal}
+                    className="w-full py-2 bg-gradient-to-r from-indigo-700 to-teal-700 hover:from-indigo-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+                  >
+                    <Stethoscope className="w-3.5 h-3.5" />
+                    <span>
+                      {consultationSession.status === 'in_progress'
+                        ? `Open Live Consultation (${consultationSession.turns.length} turns)`
+                        : 'Launch Doctor Consultation Bridge'}
+                    </span>
+                  </button>
+
                   <div className="flex items-center gap-2">
                     {isTranscriberActive ? (
                       <button
@@ -1191,6 +1303,89 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                 </div>
               </div>
             )}
+          </div>
+
+          {/* iOS Native Bottom Navigation Bar */}
+          <nav aria-label="Caregiver App Navigation" className="bg-white/95 backdrop-blur-md border-t border-[#E7E2DB] px-1 py-1 flex items-center justify-around shrink-0 z-20 shadow-xs">
+            <button
+              type="button"
+              onClick={() => setActiveTab('dashboard')}
+              className={`flex-1 py-1 px-0.5 flex flex-col items-center justify-center gap-0.5 rounded-xl transition-all cursor-pointer ${
+                activeTab === 'dashboard'
+                  ? 'text-teal-800 font-bold'
+                  : 'text-stone-400 hover:text-stone-700 font-medium'
+              }`}
+            >
+              <div className={`p-1 rounded-lg transition-colors ${activeTab === 'dashboard' ? 'bg-teal-50' : ''}`}>
+                <Home className={`w-4 h-4 ${activeTab === 'dashboard' ? 'stroke-[2.5]' : 'stroke-[1.8]'}`} />
+              </div>
+              <span className="text-[10px] tracking-tight leading-none">Home</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('profile')}
+              className={`flex-1 py-1 px-0.5 flex flex-col items-center justify-center gap-0.5 rounded-xl transition-all cursor-pointer ${
+                activeTab === 'profile'
+                  ? 'text-teal-800 font-bold'
+                  : 'text-stone-400 hover:text-stone-700 font-medium'
+              }`}
+            >
+              <div className={`p-1 rounded-lg transition-colors ${activeTab === 'profile' ? 'bg-teal-50' : ''}`}>
+                <User className={`w-4 h-4 ${activeTab === 'profile' ? 'stroke-[2.5]' : 'stroke-[1.8]'}`} />
+              </div>
+              <span className="text-[10px] tracking-tight leading-none">Profile</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('topics')}
+              className={`flex-1 py-1 px-0.5 flex flex-col items-center justify-center gap-0.5 rounded-xl transition-all cursor-pointer ${
+                activeTab === 'topics'
+                  ? 'text-teal-800 font-bold'
+                  : 'text-stone-400 hover:text-stone-700 font-medium'
+              }`}
+            >
+              <div className={`p-1 rounded-lg transition-colors ${activeTab === 'topics' ? 'bg-teal-50' : ''}`}>
+                <Sparkles className={`w-4 h-4 ${activeTab === 'topics' ? 'stroke-[2.5]' : 'stroke-[1.8]'}`} />
+              </div>
+              <span className="text-[10px] tracking-tight leading-none">Topics</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('locker')}
+              className={`flex-1 py-1 px-0.5 flex flex-col items-center justify-center gap-0.5 rounded-xl transition-all cursor-pointer ${
+                activeTab === 'locker'
+                  ? 'text-teal-800 font-bold'
+                  : 'text-stone-400 hover:text-stone-700 font-medium'
+              }`}
+            >
+              <div className={`p-1 rounded-lg transition-colors ${activeTab === 'locker' ? 'bg-teal-50' : ''}`}>
+                <FileText className={`w-4 h-4 ${activeTab === 'locker' ? 'stroke-[2.5]' : 'stroke-[1.8]'}`} />
+              </div>
+              <span className="text-[10px] tracking-tight leading-none">Locker</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('guardrails')}
+              className={`flex-1 py-1 px-0.5 flex flex-col items-center justify-center gap-0.5 rounded-xl transition-all cursor-pointer ${
+                activeTab === 'guardrails'
+                  ? 'text-teal-800 font-bold'
+                  : 'text-stone-400 hover:text-stone-700 font-medium'
+              }`}
+            >
+              <div className={`p-1 rounded-lg transition-colors ${activeTab === 'guardrails' ? 'bg-teal-50' : ''}`}>
+                <ShieldCheck className={`w-4 h-4 ${activeTab === 'guardrails' ? 'stroke-[2.5]' : 'stroke-[1.8]'}`} />
+              </div>
+              <span className="text-[10px] tracking-tight leading-none">Safety</span>
+            </button>
+          </nav>
+
+          {/* iOS Home Indicator Bar */}
+          <div className="w-full bg-white/95 pb-1 pt-0.5 flex justify-center shrink-0">
+            <div className="w-28 h-1 bg-stone-300 rounded-full" />
           </div>
 
           {/* Call Summary History Sheet Modal (Within phone bezel) */}

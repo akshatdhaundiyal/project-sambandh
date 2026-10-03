@@ -13,10 +13,17 @@ import { FullStateDrawer } from './components/Modals/FullStateDrawer';
 import { AudioSnippetModal } from './components/Modals/AudioSnippetModal';
 import { SettingsModal } from './components/Modals/SettingsModal';
 import { SystemPromptModal } from './components/Modals/SystemPromptModal';
+import { DoctorConsultationModal } from './components/DoctorConsultation/DoctorConsultationModal';
 import { YouthWisdomPortal } from './components/YouthView/YouthWisdomPortal';
 
 export const AppContent: React.FC = () => {
-  const { activeTab, isSystemPromptModalOpen, setIsSystemPromptModalOpen } = useTelemetry();
+  const {
+    activeTab,
+    isSystemPromptModalOpen,
+    setIsSystemPromptModalOpen,
+    isConsultationModalOpen,
+    closeConsultationModal
+  } = useTelemetry();
 
   // Mobile sub-view toggles for small screens (< lg)
   const [elderMobileView, setElderMobileView] = useState<'phone' | 'stream'>('stream');
@@ -193,6 +200,11 @@ export const AppContent: React.FC = () => {
       <SystemPromptModal
         isOpen={isSystemPromptModalOpen}
         onClose={() => setIsSystemPromptModalOpen(false)}
+      />
+      <DoctorConsultationModal
+        isOpen={isConsultationModalOpen}
+        onClose={closeConsultationModal}
+        viewerRole={isCaregiverTab ? 'caregiver' : 'senior'}
       />
     </div>
   );

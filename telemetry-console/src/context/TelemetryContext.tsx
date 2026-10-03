@@ -46,6 +46,12 @@ import {
   PacingOption,
   getStepApiExchange
 } from '../hooks';
+import { useDoctorConsultation } from '../hooks/useDoctorConsultation';
+import {
+  DoctorConsultationSession,
+  DoctorConsultationSpeaker,
+  DoctorConsultationAttachment
+} from '../types/telemetry';
 import {
   buildJitSystemPrompt,
   getLiveSystemPrompt,
@@ -176,6 +182,19 @@ interface TelemetryContextType {
   ) => Promise<MentorshipExchangeItem>;
   evaluateMentorshipQuestion: (questionId: string) => Promise<void>;
   simulateElderAnswerVoice: (questionId: string) => Promise<void>;
+
+  // In-Clinic Doctor Consultation Bridge & Multi-Speaker Diarization
+  consultationSession: DoctorConsultationSession;
+  isConsultationModalOpen: boolean;
+  setIsConsultationModalOpen: (open: boolean) => void;
+  openConsultationModal: () => void;
+  closeConsultationModal: () => void;
+  startDoctorConsultation: (initiatedBy: 'senior' | 'caregiver', caregiverAttending: boolean) => void;
+  addDoctorConsultationTurn: (speaker: DoctorConsultationSpeaker, content: string, hindiText?: string) => void;
+  toggleCaregiverAttendance: () => void;
+  attachDocumentToConsultation: (attachment: Omit<DoctorConsultationAttachment, 'id' | 'uploadedAt'>) => void;
+  completeDoctorConsultation: () => void;
+  resetDoctorConsultation: () => void;
 }
 
 const TelemetryContext = createContext<TelemetryContextType | undefined>(undefined);
@@ -325,6 +344,26 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
   } = useYouthMentorship({
     activeTtsEngine,
     handleTelegramAction: showFeedbackToast
+  });
+
+  // In-Clinic Doctor Consultation Bridge & Diarization - Isolated Domain Hook
+  const {
+    consultationSession,
+    isConsultationModalOpen,
+    setIsConsultationModalOpen,
+    openConsultationModal,
+    closeConsultationModal,
+    startDoctorConsultation,
+    addDoctorConsultationTurn,
+    toggleCaregiverAttendance,
+    attachDocumentToConsultation,
+    completeDoctorConsultation,
+    resetDoctorConsultation
+  } = useDoctorConsultation({
+    onFeedbackToast: showFeedbackToast,
+    onAddMedicalIssue: useCallback((newIssue: MedicalIssue) => {
+      setMedicalIssues(prev => [newIssue, ...prev]);
+    }, [setMedicalIssues])
   });
 
   // Conversation & LLM Inference Engine - Isolated Domain Hook
@@ -679,7 +718,20 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         mentorshipHistory,
         submitYouthQuestion,
         evaluateMentorshipQuestion,
-        simulateElderAnswerVoice
+        simulateElderAnswerVoice,
+
+        // In-Clinic Doctor Consultation Bridge & Diarization
+        consultationSession,
+        isConsultationModalOpen,
+        setIsConsultationModalOpen,
+        openConsultationModal,
+        closeConsultationModal,
+        startDoctorConsultation,
+        addDoctorConsultationTurn,
+        toggleCaregiverAttendance,
+        attachDocumentToConsultation,
+        completeDoctorConsultation,
+        resetDoctorConsultation
       }}
     >
       {children}

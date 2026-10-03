@@ -480,3 +480,62 @@ export interface Scenario {
   initialLogisticsState: LogisticsState;
   steps: ScenarioStep[];
 }
+
+// ============================================================================
+// IN-CLINIC DOCTOR CONSULTATION BRIDGE & MULTI-SPEAKER DIARIZATION TYPES
+// ============================================================================
+
+export type DoctorConsultationSpeaker = 'doctor' | 'senior' | 'caregiver' | 'system';
+
+export interface DoctorConsultationTurn {
+  id: string;
+  timestamp: string;
+  speaker: DoctorConsultationSpeaker;
+  speakerName: string; // e.g. "Dr. Arvind Saxena", "Ramesh Chandra", "Priya Sharma"
+  channel: 'in_clinic_mic' | 'remote_telephony' | 'system';
+  content: string;
+  hindiText?: string;
+}
+
+export interface DoctorConsultationAttachment {
+  id: string;
+  type: 'prescription' | 'doctor_note' | 'lab_order';
+  title: string;
+  doctorName: string;
+  rawText: string;
+  uploadedAt: string;
+  medGemmaEntitiesExtracted?: string[];
+}
+
+export type DoctorConsultationStatus = 'idle' | 'in_progress' | 'completed';
+
+export interface DoctorConsultationClinicalSummary {
+  bpReading?: string;
+  pulse?: string;
+  clinicalAssessment: string;
+  medicationChanges: string[];
+  actionItems: string[];
+  followUpDate?: string;
+}
+
+export interface DoctorConsultationSession {
+  id: string;
+  doctorName: string;
+  specialty: string;
+  clinicName: string;
+  seniorName: string;
+  seniorId: string;
+  caregiverName: string;
+  caregiverRelationship: string;
+  caregiverAttending: boolean; // true if Priya is connected live; false if elder is solo
+  initiatedBy: 'senior' | 'caregiver';
+  startedAt: string;
+  endedAt?: string;
+  status: DoctorConsultationStatus;
+  turns: DoctorConsultationTurn[];
+  attachments: DoctorConsultationAttachment[];
+  clinicalSummary?: DoctorConsultationClinicalSummary;
+  syncedToEhr: boolean;
+  caregiverBriefingSent: boolean;
+}
+

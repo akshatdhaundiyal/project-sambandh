@@ -22,7 +22,11 @@ import {
   Clock,
   ArrowRight,
   X,
-  CheckCircle
+  CheckCircle,
+  Stethoscope,
+  Users,
+  Plus,
+  User
 } from 'lucide-react';
 
 interface ElderMobilePhoneProps {
@@ -40,12 +44,16 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
     declineCall,
     endCall,
     callDurationSeconds,
-    activeTtsEngine
+    activeTtsEngine,
+    consultationSession,
+    openConsultationModal,
+    startDoctorConsultation
   } = useTelemetry();
   const profile = activeScenario.initialSeniorProfile;
   const [activeScreen, setActiveScreen] = useState<'dashboard' | 'incoming_call' | 'call'>('dashboard');
   const [isMuted, setIsMuted] = useState(false);
   const [speakerOn, setSpeakerOn] = useState(true);
+  const [isDoctorPromptOpen, setIsDoctorPromptOpen] = useState(false);
 
   // Call retry counter, quick notes, and search state
   const [declineRetryCount, setDeclineRetryCount] = useState<number>(0);
@@ -405,21 +413,126 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                   Your Primary Care Circle
                 </span>
 
-                <div className="bg-white rounded-2xl p-3 border border-stone-200/80 shadow-xs flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-full bg-cyan-100 flex items-center justify-center text-base">
-                      👨‍⚕️
+                {/* In-Clinic Doctor Consultation Bridge Card */}
+                <div className="bg-gradient-to-br from-white via-white to-emerald-50/70 rounded-3xl p-3.5 border border-emerald-200/90 shadow-2xs space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-sm shadow-2xs">
+                        🩺
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-serif font-bold text-stone-900">
+                            Dr. Arvind Saxena
+                          </span>
+                          <span className="text-[9px] font-mono text-emerald-800 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">
+                            Apollo Clinic
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-stone-500 block">
+                          Cardiologist Consultation · Multi-Speaker Transcriber
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-xs font-extrabold text-stone-900 block leading-tight">
-                        Dr. Arvind Saxena
+
+                    {consultationSession.status === 'in_progress' ? (
+                      <span className="text-[9px] font-mono font-bold text-rose-800 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 flex items-center gap-1 animate-pulse">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                        <span>ACTIVE</span>
                       </span>
-                      <span className="text-[10px] text-stone-500">Cardiology Specialist</span>
-                    </div>
+                    ) : consultationSession.status === 'completed' ? (
+                      <span className="text-[9px] font-mono font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                        SYNCED
+                      </span>
+                    ) : null}
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    Online
-                  </span>
+
+                  {consultationSession.status === 'in_progress' ? (
+                    <button
+                      type="button"
+                      onClick={openConsultationModal}
+                      className="w-full py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                    >
+                      <Stethoscope className="w-3.5 h-3.5" />
+                      <span>Open Live Consultation Screen ({consultationSession.turns.length} turns)</span>
+                    </button>
+                  ) : consultationSession.status === 'completed' ? (
+                    <div className="space-y-1.5">
+                      <div className="p-2 bg-emerald-50/80 rounded-xl border border-emerald-200 text-[10px] text-emerald-900 flex items-center justify-between">
+                        <span>✅ Last Visit Synced: Atorvastatin 10mg Added</span>
+                        <button
+                          type="button"
+                          onClick={openConsultationModal}
+                          className="font-bold underline text-emerald-800 cursor-pointer"
+                        >
+                          View Transcript
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsDoctorPromptOpen(true)}
+                        className="w-full py-1.5 bg-[#FAF8F5] hover:bg-stone-100 text-stone-800 border border-stone-200 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                      >
+                        <Plus className="w-3 h-3 text-emerald-700" />
+                        <span>Start New Doctor Consultation</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setIsDoctorPromptOpen(true)}
+                      className="w-full py-2 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                    >
+                      <Stethoscope className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Start Doctor Visit Session (परामर्श शुरू करें)</span>
+                    </button>
+                  )}
+
+                  {/* Attendance Prompt Dialog */}
+                  {isDoctorPromptOpen && (
+                    <div className="p-3 bg-stone-900 text-white rounded-2xl space-y-2 animate-in fade-in duration-200">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="font-bold text-stone-100 flex items-center gap-1">
+                          <Users className="w-3.5 h-3.5 text-cyan-400" />
+                          <span>Add Priya (Daughter) to consultation?</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setIsDoctorPromptOpen(false)}
+                          className="text-stone-400 hover:text-white"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                      <p className="text-[10px] text-stone-300 leading-snug">
+                        Would you like to bridge Priya on live telephony, or conduct a solo consultation with Dr. Saxena?
+                      </p>
+                      <div className="grid grid-cols-2 gap-1.5 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsDoctorPromptOpen(false);
+                            startDoctorConsultation('senior', true);
+                          }}
+                          className="py-1.5 px-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[10px] font-bold flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          <Phone className="w-3 h-3" />
+                          <span>Bridge Priya Live</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsDoctorPromptOpen(false);
+                            startDoctorConsultation('senior', false);
+                          }}
+                          className="py-1.5 px-2 bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 rounded-xl text-[10px] font-bold flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          <User className="w-3 h-3" />
+                          <span>Solo (Auto-Send)</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="bg-white rounded-2xl p-3 border border-stone-200/80 shadow-xs flex items-center justify-between">
