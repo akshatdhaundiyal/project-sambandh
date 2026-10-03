@@ -20,7 +20,9 @@ import {
   ShieldCheck,
   MapPin,
   Clock,
-  ArrowRight
+  ArrowRight,
+  X,
+  CheckCircle
 } from 'lucide-react';
 
 interface ElderMobilePhoneProps {
@@ -37,12 +39,49 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
     acceptCall,
     declineCall,
     endCall,
-    callDurationSeconds
+    callDurationSeconds,
+    activeTtsEngine
   } = useTelemetry();
   const profile = activeScenario.initialSeniorProfile;
   const [activeScreen, setActiveScreen] = useState<'dashboard' | 'incoming_call' | 'call'>('dashboard');
   const [isMuted, setIsMuted] = useState(false);
   const [speakerOn, setSpeakerOn] = useState(true);
+
+  // Call retry counter, quick notes, and search state
+  const [declineRetryCount, setDeclineRetryCount] = useState<number>(0);
+  const [isQuickNoteModalOpen, setIsQuickNoteModalOpen] = useState<boolean>(false);
+  const [activeToast, setActiveToast] = useState<{ message: string; type?: 'info' | 'success' | 'warn' } | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+
+  const showToast = (message: string, type: 'info' | 'success' | 'warn' = 'info') => {
+    setActiveToast({ message, type });
+    setTimeout(() => setActiveToast(null), 4000);
+  };
+
+  const handleDeclineCall = () => {
+    const nextRetry = declineRetryCount + 1;
+    setDeclineRetryCount(nextRetry);
+    declineCall();
+    setActiveScreen('dashboard');
+    if (nextRetry < 3) {
+      showToast(`Call declined. Retry ${nextRetry}/3 scheduled in 15m. Priya alerted.`, 'warn');
+    } else {
+      showToast(`3 consecutive calls declined. High-priority alert sent to Priya.`, 'warn');
+    }
+  };
+
+  const handleRemind10m = () => {
+    declineCall();
+    setActiveScreen('dashboard');
+    showToast('⏰ Reminder set for 10 minutes. Sambandh AI will call at 08:45 AM. Priya notified.', 'info');
+  };
+
+  const handleSendQuickNote = (noteText: string) => {
+    setIsQuickNoteModalOpen(false);
+    declineCall();
+    setActiveScreen('dashboard');
+    showToast(`Quick note sent to Priya: "${noteText}"`, 'success');
+  };
 
   // Sync activeScreen with live callStatus
   React.useEffect(() => {
@@ -121,6 +160,29 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                 </div>
               </div>
 
+              {/* Floating Status Notification Toast */}
+              {activeToast && (
+                <div className={`p-3 rounded-2xl text-xs font-semibold shadow-lg flex items-center justify-between gap-2 animate-in slide-in-from-top-2 duration-300 border ${
+                  activeToast.type === 'warn'
+                    ? 'bg-amber-900/90 text-amber-100 border-amber-600/50'
+                    : activeToast.type === 'success'
+                    ? 'bg-emerald-900/90 text-emerald-100 border-emerald-600/50'
+                    : 'bg-stone-900/90 text-stone-100 border-stone-700/50'
+                }`}>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>{activeToast.message}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveToast(null)}
+                    className="p-1 hover:bg-white/10 rounded-full text-stone-300 cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
               {/* Floating Incoming Call Popup Banner (visible if on dashboard while ringing) */}
               {callStatus === 'calling' && (
                 <div
@@ -134,7 +196,7 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
                         <span className="font-serif font-bold text-xs text-white truncate">
-                          Pari Calling...
+                          Sambandh AI Calling...
                         </span>
                         <span className="text-[9px] font-mono text-emerald-400 bg-emerald-950 px-1.5 py-0.2 rounded border border-emerald-700">
                           Jio PSTN
@@ -149,7 +211,7 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                   <div className="flex items-center gap-1.5 shrink-0" onClick={e => e.stopPropagation()}>
                     <button
                       type="button"
-                      onClick={() => declineCall()}
+                      onClick={handleDeclineCall}
                       className="w-8 h-8 rounded-full bg-rose-600 hover:bg-rose-500 flex items-center justify-center text-white shadow-md active:scale-95 transition-all cursor-pointer"
                       title="Decline Call"
                     >
@@ -178,9 +240,39 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
               </div>
 
               {/* Search Bar */}
-              <div className="bg-white rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 border border-stone-200/80 shadow-xs text-stone-400 text-xs">
-                <Search className="w-4 h-4 text-stone-400" />
-                <span>Search daily vitals, medicines, advice...</span>
+              <div className="relative">
+                <div className="bg-white rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 border border-stone-200/80 shadow-xs text-xs focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/10 transition-all">
+                  <Search className="w-4 h-4 text-stone-400 shrink-0" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search daily vitals, medicines, advice..."
+                    className="w-full bg-transparent text-xs text-stone-800 placeholder:text-stone-400 focus:outline-none"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="p-0.5 hover:bg-stone-100 rounded-full text-stone-400 hover:text-stone-600 cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                {searchQuery.trim().length > 0 && (
+                  <div className="mt-1.5 p-2 bg-emerald-50/90 border border-emerald-200 rounded-xl text-[11px] text-emerald-900 flex items-center justify-between">
+                    <span>Filtering for: <strong>"{searchQuery}"</strong></span>
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="text-[10px] font-bold underline text-emerald-700 cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Row 1: Vitals Widgets (Blood Pressure & Blood Glucose) */}
@@ -265,7 +357,7 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                   </div>
 
                   <p className="text-xs text-stone-300 leading-relaxed">
-                    Pari is ready to check in on your morning vitals, breakfast, and today's railway stories.
+                    Sambandh AI is ready to check in on your morning vitals, breakfast, and today's railway stories.
                   </p>
 
                   <button
@@ -277,7 +369,7 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                     className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
                   >
                     <Phone className="w-4 h-4 fill-current" />
-                    <span>Connect Morning Call with Pari</span>
+                    <span>Connect Morning Call with Sambandh AI</span>
                   </button>
                 </div>
               ) : (
@@ -360,7 +452,7 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
 
                 <div>
                   <h2 className="text-3xl sm:text-4xl font-serif font-bold text-white tracking-tight pt-1">
-                    Pari · परी
+                    Sambandh AI · संबंध
                   </h2>
                   <p className="text-xs text-stone-300 font-medium mt-0.5">
                     Sambandh AI Eldercare Companion
@@ -407,22 +499,16 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
               <div className="flex items-center justify-center gap-3 pt-3 z-10">
                 <button
                   type="button"
-                  onClick={() => {
-                    declineCall();
-                    setActiveScreen('dashboard');
-                  }}
-                  className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 text-stone-300 text-[11px] font-medium flex items-center gap-1.5 transition-all cursor-pointer"
+                  onClick={() => setIsQuickNoteModalOpen(true)}
+                  className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 text-stone-300 text-[11px] font-medium flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
                 >
                   <MessageCircle className="w-3 h-3 text-cyan-300" />
                   <span>Send Quick Note</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    declineCall();
-                    setActiveScreen('dashboard');
-                  }}
-                  className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 text-stone-300 text-[11px] font-medium flex items-center gap-1.5 transition-all cursor-pointer"
+                  onClick={handleRemind10m}
+                  className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 text-stone-300 text-[11px] font-medium flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
                 >
                   <Clock className="w-3 h-3 text-amber-300" />
                   <span>Remind in 10m</span>
@@ -435,10 +521,7 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                 <div className="flex flex-col items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => {
-                      declineCall();
-                      setActiveScreen('dashboard');
-                    }}
+                    onClick={handleDeclineCall}
                     className="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-gradient-to-tr from-rose-700 via-rose-600 to-rose-500 hover:from-rose-600 hover:to-rose-400 active:scale-90 flex items-center justify-center text-white shadow-xl shadow-rose-950/60 transition-all cursor-pointer ring-4 ring-rose-500/25"
                     title="Decline Call / अस्वीकार करें"
                   >
@@ -446,7 +529,7 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                   </button>
                   <div className="text-center">
                     <span className="text-xs font-semibold text-rose-300 block">
-                      Decline
+                      Decline {declineRetryCount > 0 ? `(${declineRetryCount}/3)` : ''}
                     </span>
                     <span className="text-[10px] text-stone-400 font-hindi">
                       अभी नहीं
@@ -477,6 +560,43 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                   </div>
                 </div>
               </div>
+
+              {/* Quick Note Selection Sheet Overlay */}
+              {isQuickNoteModalOpen && (
+                <div className="absolute inset-x-3 bottom-4 z-30 bg-stone-900/95 border border-stone-700/80 rounded-3xl p-4 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95 duration-200 space-y-3">
+                  <div className="flex items-center justify-between border-b border-stone-800 pb-2">
+                    <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <MessageCircle className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Send Quick Note to Priya</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIsQuickNoteModalOpen(false)}
+                      className="p-1 text-stone-400 hover:text-white rounded-lg cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="space-y-1.5">
+                    {[
+                      { emoji: '🥣', text: 'अभी नाश्ता कर रहा हूँ (Having breakfast)' },
+                      { emoji: '🌳', text: 'पार्क में वॉक कर रहा हूँ (Morning walk)' },
+                      { emoji: '🩺', text: 'क्लीनिक में हूँ (At clinic with doctor)' },
+                      { emoji: '😴', text: 'थोड़ा आराम कर रहा हूँ (Resting now)' }
+                    ].map((item, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleSendQuickNote(item.text)}
+                        className="w-full text-left p-2.5 rounded-xl bg-stone-800/80 hover:bg-stone-700 active:scale-[0.98] text-stone-200 text-xs font-medium transition-all flex items-center gap-2.5 cursor-pointer border border-stone-700/50"
+                      >
+                        <span className="text-base">{item.emoji}</span>
+                        <span className="truncate">{item.text}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             /* Live Call View */
@@ -509,7 +629,9 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
 
                 <div className="text-center space-y-1">
                   <h2 className="text-xl font-serif font-bold text-white">Ramesh Chandra Ji</h2>
-                  <p className="text-xs text-emerald-400 font-medium">WhisperFlo Neural Telephony Active</p>
+                  <p className="text-xs text-emerald-400 font-medium">
+                    {activeTtsEngine === 'browser' ? 'Browser Web Speech Active' : 'Gnani.ai Indic Voice Rail Active'}
+                  </p>
                 </div>
 
                 {/* Subtitle of active turn */}

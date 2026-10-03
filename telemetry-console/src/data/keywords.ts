@@ -6,6 +6,26 @@
  * - Tripwire fraud detection (TelemetryContext.tsx)
  */
 
+export const CRITICAL_EMERGENCY_KEYWORDS = [
+  'seene me dard', 'seene mein dard', 'chest pain', 'saans phool', 'saans lene me',
+  'chhati me dard', 'heart attack', 'seena bhaari', 'सीने में दर्द', 'सांस फूल', 'साँस फूल', 'छाती में दर्द'
+];
+
+export const FALL_KEYWORDS = [
+  'gir gaya', 'gir gaye', 'bathroom me gir', 'bathroom mein gir', 'uth nahi pa raha',
+  'uth nahi pa rahe', 'gira hua', 'fars par gir', 'chot lag gayi', 'गिर गया', 'फर्श पर गिर', 'उठ नहीं पा रहा', 'चोट लग गई'
+];
+
+export const MEDICATION_STOP_KEYWORDS = [
+  'band kar di', 'dawai band', 'dawa band', 'goli band', 'chhod di', 'nahi le raha',
+  'rok di', 'दवा बंद', 'दवाई बंद', 'गोली बंद', 'छोड़ दी', 'रोक दी'
+];
+
+export const ADHERENCE_CONFIRMATION_KEYWORDS = [
+  'le li', 'kha li', 'le li thi', 'kha li thi', 'goli le li', 'dawa le li', 'dawai le li',
+  'subah ki goli', 'le chuka', 'kha chuka', 'ले ली', 'खा ली', 'ले ली थी', 'खा ली थी'
+];
+
 export const MEDICATION_KEYWORDS = [
   'dawa', 'dawai', 'goli', 'pill', 'medicine', 'telmisartan',
   'parcha', 'parchi', 'khatam', 'bachi', 'refill', 'stock',
@@ -97,8 +117,8 @@ export const matchesKeywords = (text: string, keywords: string[]): boolean => {
  * Default structured memory ledger — single source of truth
  * Used as initial state in TelemetryContext and as fallback in foldConversationMemory.
  */
-export const DEFAULT_MEMORY_LEDGER = `• [Patient Profile]: Ramesh Chandra (74, Rohini, Delhi); retired Northern Railway supervisor.
-• [Primary Caregiver]: Daughter Priya Sharma (Bangalore); linked to daily care summary.
+export const DEFAULT_MEMORY_LEDGER = `• [Patient Profile]: Ramesh Chandra (72, Rohini, Delhi); retired Northern Railway supervisor.
+• [Primary Caregiver]: Daughter Priya Sharma (Bengaluru); linked to daily care summary.
 • [Clinical Baseline]: Hypertension (Telma 40 OD), Type 2 Diabetes (Metformin 500 BD); ABDM record active.
 • [Fiduciary Boundary]: Autonomous refill pre-authorization active up to ₹4,500 monthly limit.
 • [Session State]: Morning check-in active; listening attentively to elder's morning report.`;

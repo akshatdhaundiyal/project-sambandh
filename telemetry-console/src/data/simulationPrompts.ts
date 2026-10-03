@@ -60,14 +60,14 @@ export const SIMULATION_PRESETS: SimulationPreset[] = [
     tagline: 'Ramesh asks about his cardiologist instructions. Triggers ABDM Health Locker retrieval and MedGemma clinical co-pilot synthesis.',
     speaker: 'senior',
     speakerLabel: 'Ramesh Chandra (Elder Inquirer)',
-    devanagariPrompt: 'बेटा, वो डॉक्टर शर्मा जी ने पिछली बार बीपी की दवाई और नमक के बारे में क्या समझाया था? ज़रा याद दिला दो।',
-    hinglishPrompt: '[Beta, wo Dr. Sharma ji ne pichli baar BP ki dawai aur namak ke baare me kya samjhaya tha? Zara yaad dila do.]',
-    promptText: 'बेटा, वो डॉक्टर शर्मा जी ने पिछली बार बीपी की दवाई और नमक के बारे में क्या समझाया था? ज़रा याद दिला दो। [Beta, wo Dr. Sharma ji ne pichli baar BP ki dawai aur namak ke baare me kya samjhaya tha? Zara yaad dila do.]',
+    devanagariPrompt: 'बेटा, वो डॉक्टर सक्सेना जी ने पिछली बार बीपी की दवाई और नमक के बारे में क्या समझाया था? ज़रा याद दिला दो।',
+    hinglishPrompt: '[Beta, wo Dr. Saxena ji ne pichli baar BP ki dawai aur namak ke baare me kya samjhaya tha? Zara yaad dila do.]',
+    promptText: 'बेटा, वो डॉक्टर सक्सेना जी ने पिछली बार बीपी की दवाई और नमक के बारे में क्या समझाया था? ज़रा याद दिला दो। [Beta, wo Dr. Saxena ji ne pichli baar BP ki dawai aur namak ke baare me kya samjhaya tha? Zara yaad dila do.]',
     expectedNodeTypes: [
       { scenarioId: 'scenario-1', nodeType: 'health_locker_query' },
       { scenarioId: 'scenario-1', nodeType: 'medgemma_analysis' }
     ],
-    reasoningNote: 'Retrieved Dr. V. K. Sharma 10 Sep prescription and low-sodium directive. Synthesized non-prescriptive, explanatory reassurance.'
+    reasoningNote: 'Retrieved Dr. Arvind Saxena 10 Sep prescription and low-sodium directive. Synthesized non-prescriptive, explanatory reassurance.'
   },
   {
     id: 'sim-refill',
@@ -195,7 +195,7 @@ export const SIMULATION_PRESETS: SimulationPreset[] = [
     buttonLabel: 'Railway Wisdom',
     scenarioTitle: 'Scenario 2: Wisdom Exchange & Companionship Bond',
     badge: 'Nostalgic Story Sharing',
-    railBadges: ['WhisperFlo STT', 'Structured Memory', 'Telegram Audio'],
+    railBadges: ['Gnani.ai STT', 'Structured Memory', 'Telegram Audio'],
     railSummary: 'Captures authentic reminiscence ➔ Folds into clinical memory ledger ➔ Packages 30-sec audio story for daughter Priya',
     tagline: 'Ramesh shares nostalgic memories of the 1984 Purani Delhi signaling relay room. Companion listens and sends audio story snippet.',
     speaker: 'senior',

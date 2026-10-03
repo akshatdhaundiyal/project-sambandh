@@ -11,7 +11,10 @@ import {
   HealthLockerMedicationDose,
   HealthLockerVitalLevel,
   HealthLockerQueryRequest,
-  HealthLockerQueryResponse
+  HealthLockerQueryResponse,
+  SeniorProfile,
+  ElderTopicOfInterest,
+  ElderOpinionTopic
 } from '../types/telemetry';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api';
@@ -24,7 +27,7 @@ let CACHED_DOCUMENTS: HealthLockerDocument[] = [
     seniorId: 'SENIOR_RAMESH_001',
     category: 'prescription',
     title: 'Cardiology Follow-Up Prescription',
-    doctorName: 'Dr. V. K. Sharma (MD, Cardiology - Reg: UP-44918)',
+    doctorName: 'Dr. Arvind Saxena (MD, Cardiology - Delhi Medical Council #19482)',
     date: '10 Sep 2026',
     rawText: 'Ramesh Chandra, 72/M. Hypertension & Type 2 Diabetes mellitus. Continue Telmisartan 40mg (1 tablet once daily morning post breakfast). Continue Metformin 500mg (half tablet twice daily after meals). Strict low-sodium dietary restriction (<2g/day). Renal profile stable. Review after 3 months.',
     summary: 'Active prescription: Telmisartan 40mg and Metformin 500mg. Salt restriction emphasized.',
@@ -59,7 +62,7 @@ let CACHED_DOCUMENTS: HealthLockerDocument[] = [
     seniorId: 'SENIOR_RAMESH_001',
     category: 'consultation',
     title: 'Monthly Physician Clinical Review Note',
-    doctorName: 'Dr. V. K. Sharma (MD, Cardiology)',
+    doctorName: 'Dr. Arvind Saxena (MD, Cardiology)',
     date: '15 Aug 2026',
     rawText: 'Clinic consultation note: Ramesh Ji seated comfortably. Blood pressure recorded at clinic: 132/84 mmHg. Pulse: 72 bpm regular. Lungs clear, no pedal edema. Ramesh Ji reports walking in the neighborhood park for 20 mins every morning. Morning medication adherence confirmed.',
     summary: 'Blood pressure stable. Regular walking routine noted. No signs of peripheral edema.',
@@ -239,7 +242,7 @@ export async function fetchLockerDocuments(seniorId: string = 'SENIOR_RAMESH_001
         seniorId: r.senior_id,
         category: r.category,
         title: r.title,
-        doctorName: r.doctor_name || 'Dr. V. K. Sharma',
+        doctorName: r.doctor_name || 'Dr. Arvind Saxena',
         date: r.document_date,
         rawText: r.raw_text,
         summary: r.extracted_summary || r.raw_text.slice(0, 100) + '...',
@@ -390,7 +393,7 @@ export async function simulateDocumentUpload(docData: Partial<HealthLockerDocume
     senior_id: docData.seniorId || 'SENIOR_RAMESH_001',
     category: docData.category || 'prescription',
     title: docData.title || 'Uploaded Clinical Record',
-    doctor_name: docData.doctorName || 'Dr. V. K. Sharma',
+    doctor_name: docData.doctorName || 'Dr. Arvind Saxena',
     document_date: dateStr,
     raw_text: docData.rawText || 'Prescription document.',
     file_url: null
@@ -480,7 +483,7 @@ export async function queryHealthLocker(request: HealthLockerQueryRequest): Prom
   return {
     analysis,
     retrieved_chunks: [{ source: 'medication_doses', count: 2 }, { source: 'vital_and_level_tracking', count: 4 }],
-    sources: ['Cardiology Prescription (Dr. V. K. Sharma 10 Sep 2026)'],
+    sources: ['Cardiology Prescription (Dr. Arvind Saxena 10 Sep 2026)'],
     structured_doses: CACHED_DOSES,
     structured_vitals: CACHED_VITALS,
     latency_ms: Math.max(latency, 120),
@@ -492,6 +495,127 @@ export async function queryHealthLocker(request: HealthLockerQueryRequest): Prom
       tripwire_triggered: false
     }
   };
+}
+
+// ==============================================================================
+// Senior Profile & Caregiver Directives (PostgreSQL API)
+// ==============================================================================
+export async function fetchSeniorProfile(seniorId: string = 'SENIOR_RAMESH_001'): Promise<any> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/seniors/${seniorId}`, { signal: AbortSignal.timeout(2500) });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.debug('Failed to fetch senior profile from backend, using fallback:', err);
+  }
+  return {
+    id: seniorId,
+    name: 'Ramesh Chandra',
+    age: 72,
+    gender: 'Male',
+    city: 'Delhi',
+    address_line: 'Flat 402, Block C, Pocket 2, Rohini Sector 8',
+    pin_code: '110085',
+    daily_call_window_ist: '08:30:00',
+    vocation: 'Retired Chief Signal Inspector (Northern Railway, 41 years). Proud of mechanical relay safety record at Ghaziabad junction.',
+    personality_notes: 'Dignified, lucent, nostalgic about railway lore and Talat Mahmood ghazals.',
+    health_baseline: 'Stage-1 Essential Hypertension (Telma 40 OD morning post breakfast), Bilateral Knee Osteoarthritis (morning stiffness), controlled Type 2 Diabetes (Metformin 500mg evening).',
+    family_context: 'Daughter Priya Sharma lives in Bengaluru. Very caring; speaks weekly; pre-authorized Pine Labs monthly care budget ₹4,500.',
+    preferred_address: 'अंकल / जी',
+    caregiver_name: 'Priya Sharma',
+    caregiver_relationship: 'Daughter',
+    doctor_name: 'Dr. Arvind Saxena (MD, Cardiology)',
+    doctor_clinic: 'Apollo Clinic Rohini (+91 11 2790 1200)'
+  };
+}
+
+export async function updateSeniorProfile(seniorId: string, updates: any): Promise<any> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/seniors/${seniorId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return data.senior;
+    }
+  } catch (err) {
+    console.debug('Failed to update senior profile in backend:', err);
+  }
+  return updates;
+}
+
+export async function fetchSeniorInterests(seniorId: string = 'SENIOR_RAMESH_001'): Promise<ElderTopicOfInterest[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/seniors/${seniorId}/interests`, { signal: AbortSignal.timeout(2500) });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data.data) && data.data.length > 0) {
+        return data.data.map((item: any) => ({
+          id: item.id,
+          topic: item.topic,
+          category: item.category,
+          source: item.source,
+          addedBy: item.added_by,
+          enthusiasmLevel: item.enthusiasm_level,
+          notes: item.notes,
+          isActive: item.is_active
+        }));
+      }
+    }
+  } catch (err) {
+    console.debug('Failed to fetch senior interests from backend:', err);
+  }
+  return [];
+}
+
+export async function saveSeniorInterest(interest: Partial<ElderTopicOfInterest>, seniorId: string = 'SENIOR_RAMESH_001'): Promise<any> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/seniors/${seniorId}/interests`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: interest.id,
+        topic: interest.topic,
+        category: interest.category || 'GENERAL',
+        source: interest.source || 'CAREGIVER_CURATED',
+        added_by: interest.addedBy || 'Priya Sharma (Daughter)',
+        enthusiasm_level: interest.enthusiasmLevel || 'HIGH',
+        notes: interest.notes || '',
+        is_active: interest.isActive ?? true
+      })
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.debug('Failed to save senior interest to backend:', err);
+  }
+  return null;
+}
+
+export async function fetchSeniorOpinions(seniorId: string = 'SENIOR_RAMESH_001'): Promise<ElderOpinionTopic[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/seniors/${seniorId}/opinions`, { signal: AbortSignal.timeout(2500) });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data.data)) {
+        return data.data.map((item: any) => ({
+          id: item.id,
+          headline: item.headline,
+          locality: item.locality,
+          agentPrompt: item.agent_prompt,
+          elderContextHint: item.elder_context_hint,
+          isActive: item.is_active
+        }));
+      }
+    }
+  } catch (err) {
+    console.debug('Failed to fetch senior opinions from backend:', err);
+  }
+  return [];
 }
 
 export const healthLockerService = {
@@ -506,5 +630,10 @@ export const healthLockerService = {
   fetchCallSummaries,
   saveCallSummary,
   simulateDocumentUpload,
-  queryHealthLocker
+  queryHealthLocker,
+  fetchSeniorProfile,
+  updateSeniorProfile,
+  fetchSeniorInterests,
+  saveSeniorInterest,
+  fetchSeniorOpinions
 };

@@ -10,7 +10,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- (Uncomment when running in an environment with pgvector installed)
 -- CREATE EXTENSION IF NOT EXISTS vector;
 
--- 1. Seniors Master Profile Table
+-- 1. Seniors Master Profile Table (Populated by Primary Caregiver)
 CREATE TABLE IF NOT EXISTS seniors (
     id VARCHAR(64) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -19,13 +19,52 @@ CREATE TABLE IF NOT EXISTS seniors (
     abha_id VARCHAR(64) UNIQUE,
     primary_language VARCHAR(64) DEFAULT 'Hindi',
     address_line TEXT,
-    city VARCHAR(128) DEFAULT 'Lucknow',
-    state VARCHAR(128) DEFAULT 'Uttar Pradesh',
-    pin_code VARCHAR(16) DEFAULT '226024',
+    city VARCHAR(128) DEFAULT 'Delhi',
+    state VARCHAR(128) DEFAULT 'Delhi',
+    pin_code VARCHAR(16) DEFAULT '110085',
     daily_call_window_ist VARCHAR(32) DEFAULT '08:30:00',
+    vocation TEXT DEFAULT 'Retired Chief Signal Inspector (Northern Railway, 41 years). Proud of mechanical relay safety record at Ghaziabad junction.',
+    personality_notes TEXT DEFAULT 'Dignified, lucent, nostalgic about railway lore and Talat Mahmood ghazals.',
+    health_baseline TEXT DEFAULT 'Stage-1 Essential Hypertension (Telma 40 OD morning post breakfast), Bilateral Knee Osteoarthritis (morning stiffness), controlled Type 2 Diabetes (Metformin 500mg evening).',
+    family_context TEXT DEFAULT 'Daughter Priya Sharma lives in Bengaluru. Very caring; speaks weekly; pre-authorized Pine Labs monthly care budget ₹4,500.',
+    preferred_address VARCHAR(64) DEFAULT 'अंकल / जी',
+    caregiver_name VARCHAR(128) DEFAULT 'Priya Sharma',
+    caregiver_relationship VARCHAR(64) DEFAULT 'Daughter',
+    doctor_name VARCHAR(128) DEFAULT 'Dr. Arvind Saxena (MD, Cardiology)',
+    doctor_clinic VARCHAR(128) DEFAULT 'Apollo Clinic Rohini (+91 11 2790 1200)',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- 1b. Senior Activities & Interests (Caregiver-Curated + Autonomously Discovered)
+CREATE TABLE IF NOT EXISTS senior_interests (
+    id VARCHAR(64) PRIMARY KEY,
+    senior_id VARCHAR(64) NOT NULL REFERENCES seniors(id) ON DELETE CASCADE,
+    topic VARCHAR(255) NOT NULL,
+    category VARCHAR(64) NOT NULL DEFAULT 'GENERAL',
+    source VARCHAR(64) NOT NULL DEFAULT 'CAREGIVER_CURATED',
+    added_by VARCHAR(128) NOT NULL DEFAULT 'Priya Sharma (Daughter)',
+    enthusiasm_level VARCHAR(32) DEFAULT 'HIGH',
+    notes TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_interests_senior ON senior_interests(senior_id, is_active);
+
+-- 1c. Senior Opinions & Local News Sparks
+CREATE TABLE IF NOT EXISTS senior_opinions (
+    id VARCHAR(64) PRIMARY KEY,
+    senior_id VARCHAR(64) NOT NULL REFERENCES seniors(id) ON DELETE CASCADE,
+    headline VARCHAR(255) NOT NULL,
+    locality VARCHAR(128) NOT NULL,
+    agent_prompt TEXT NOT NULL,
+    elder_context_hint TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_opinions_senior ON senior_opinions(senior_id, is_active);
 
 -- 2. Clinical Documents & Diagnostic Vault
 CREATE TABLE IF NOT EXISTS clinical_documents (
@@ -123,7 +162,10 @@ CREATE TABLE IF NOT EXISTS clinical_audit_logs (
 -- Seed Data for Ramesh Chandra (SENIOR_RAMESH_001)
 -- ==============================================================================
 
-INSERT INTO seniors (id, name, age, gender, abha_id, primary_language, address_line, city, state, pin_code, daily_call_window_ist)
+INSERT INTO seniors (
+    id, name, age, gender, abha_id, primary_language, address_line, city, state, pin_code, daily_call_window_ist,
+    vocation, personality_notes, health_baseline, family_context, preferred_address, caregiver_name, caregiver_relationship, doctor_name, doctor_clinic
+)
 VALUES (
     'SENIOR_RAMESH_001',
     'Ramesh Chandra',
@@ -131,12 +173,108 @@ VALUES (
     'Male',
     '91-8273-1928-4491',
     'Hindi',
-    'B-42, Sector C, Aliganj',
-    'Lucknow',
-    'Uttar Pradesh',
-    '226024',
-    '08:30:00'
-) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
+    'Flat 402, Block C, Pocket 2, Rohini Sector 8',
+    'Delhi',
+    'Delhi',
+    '110085',
+    '08:30:00',
+    'Retired Chief Signal Inspector (Northern Railway, 41 years). Proud of mechanical relay safety record at Ghaziabad junction.',
+    'Dignified, lucent, nostalgic about railway lore and Talat Mahmood ghazals.',
+    'Stage-1 Essential Hypertension (Telma 40 OD morning post breakfast), Bilateral Knee Osteoarthritis (morning stiffness), controlled Type 2 Diabetes (Metformin 500mg evening).',
+    'Daughter Priya Sharma lives in Bengaluru. Very caring; speaks weekly; pre-authorized Pine Labs monthly care budget ₹4,500.',
+    'अंकल / जी',
+    'Priya Sharma',
+    'Daughter',
+    'Dr. Arvind Saxena (MD, Cardiology)',
+    'Apollo Clinic Rohini (+91 11 2790 1200)'
+) ON CONFLICT (id) DO UPDATE SET 
+    name = EXCLUDED.name,
+    vocation = EXCLUDED.vocation,
+    personality_notes = EXCLUDED.personality_notes,
+    health_baseline = EXCLUDED.health_baseline,
+    family_context = EXCLUDED.family_context,
+    preferred_address = EXCLUDED.preferred_address;
+
+-- Seed Initial Interests & Activities
+INSERT INTO senior_interests (id, senior_id, topic, category, source, added_by, enthusiasm_level, notes, is_active)
+VALUES
+(
+    'topic-railway-mechanics',
+    'SENIOR_RAMESH_001',
+    'Northern Railway Signaling Lore & WDM-2 Diesel Locos',
+    'RAILWAYS_CAREER',
+    'CAREGIVER_CURATED',
+    'Priya Sharma (Daughter)',
+    'VERY_HIGH',
+    'Father loves discussing interlocking signals, safety protocols, and his 41 years in Northern Railway.',
+    TRUE
+),
+(
+    'topic-old-ghazals-rafi',
+    'SENIOR_RAMESH_001',
+    'Mohammed Rafi, Talat Mahmood & Manna Dey Melodies',
+    'MUSIC_CULTURE',
+    'CAREGIVER_CURATED',
+    'Priya Sharma (Daughter)',
+    'HIGH',
+    'Listens to morning old classics on transistor radio while sipping ginger tea.',
+    TRUE
+),
+(
+    'topic-japanese-park-walks',
+    'SENIOR_RAMESH_001',
+    'Morning Walks & Neem Tree Bench at Japanese Park',
+    'GARDENING_ROUTINE',
+    'AUTONOMOUSLY_DISCOVERED',
+    'Sambandh Cognitive Memory',
+    'HIGH',
+    'Ramesh enjoys meeting his walking peers near Sector 11 gate.',
+    TRUE
+),
+(
+    'topic-rohini-balcony-tulsi',
+    'SENIOR_RAMESH_001',
+    'Balcony Gardening: Shyama Tulsi & Winter Marigolds',
+    'GARDENING_ROUTINE',
+    'AUTONOMOUSLY_DISCOVERED',
+    'Sambandh Cognitive Memory',
+    'MEDIUM',
+    'Waters plants every morning at 07:45 AM before taking morning tea.',
+    TRUE
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- Seed Initial Opinion Sparks & Local Topics
+INSERT INTO senior_opinions (id, senior_id, headline, locality, agent_prompt, elder_context_hint, is_active)
+VALUES
+(
+    'opinion-japanese-park',
+    'SENIOR_RAMESH_001',
+    'Rohini Japanese Park New Musical Fountain & Walking Track',
+    'Rohini Sector 14, Delhi',
+    'अंकल जी, रोहिणी जापानी पार्क में नया वॉकवे बन गया है। कुछ लोग कहते हैं कि पहले वाला कच्चा ट्रैक पैरों के लिए ज़्यादा आरामदायक था। आपका क्या तजुर्बा है इसपर?',
+    'Ramesh has taken morning walks in Japanese Park for 15+ years.',
+    TRUE
+),
+(
+    'opinion-vande-bharat',
+    'SENIOR_RAMESH_001',
+    'Indian Railways Launching New Sleeper Vande Bharat Trains',
+    'Northern Railway / Delhi Division',
+    'अंकल जी, रेलवे अब नए वंदे भारत स्लीपर कोच ला रहा है। आप तो 40 साल रेलवे में सिग्नल और मैकेनिकल व्यवस्था संभालते रहे हैं—आपको क्या लगता है, पुरानी राजधानी की तुलना में ये कैसे रहेंगे?',
+    'Retired Chief Signal Inspector with deep technical pride in railway safety.',
+    TRUE
+),
+(
+    'opinion-metro-phase4',
+    'SENIOR_RAMESH_001',
+    'Delhi Metro Phase 4 Rithala to Narela Line Expansion',
+    'Rohini / Outer Delhi Corridor',
+    'अंकल जी, रिठाला से आगे नरेला वाली मेट्रो लाइन का काम तेज़ हो रहा है। आपके समय में जब रोहिणी नई-नई बसी थी, तब तो बसें भी मुश्किल से मिलती थीं ना? कितना बदलाव आ गया है!',
+    'Witnessed Rohini transform from vacant plots to bustling urban hub since 1985.',
+    TRUE
+)
+ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO clinical_documents (id, senior_id, category, title, doctor_name, document_date, raw_text, extracted_summary)
 VALUES 
@@ -145,7 +283,7 @@ VALUES
     'SENIOR_RAMESH_001',
     'prescription',
     'Cardiology Follow-Up Prescription',
-    'Dr. V. K. Sharma (MD, Cardiology)',
+    'Dr. Arvind Saxena (MD, Cardiology)',
     '2026-09-10',
     'Ramesh Chandra, 72/M. Hypertension & Type 2 Diabetes stable. Continue Telmisartan 40mg (1 OD morning post breakfast). Continue Metformin 500mg (half tab BD after meals). Salt restriction advised. Renal profile stable. Review after 3 months.',
     'Active prescriptions for Telmisartan 40mg and Metformin 500mg. Salt restriction emphasized. Renal profile reported stable.'
@@ -165,7 +303,7 @@ VALUES
     'SENIOR_RAMESH_001',
     'consultation',
     'Monthly Physician Clinical Review Note',
-    'Dr. V. K. Sharma (MD, Cardiology)',
+    'Dr. Arvind Saxena (MD, Cardiology)',
     '2026-08-15',
     'Blood pressure recorded at clinic: 132/84 mmHg. Lungs clear, no pedal edema. Ramesh Ji reports walking in the neighborhood park for 20 mins every morning. Adherence to morning BP medicine confirmed.',
     'Blood pressure stable. Regular walking routine noted. No signs of peripheral edema.'
@@ -293,7 +431,7 @@ ON CONFLICT (id) DO NOTHING;
 CREATE TABLE IF NOT EXISTS caregiver_config (
     senior_id VARCHAR(64) PRIMARY KEY REFERENCES seniors(id) ON DELETE CASCADE,
     caregiver_name VARCHAR(128) NOT NULL DEFAULT 'Priya Sharma',
-    caregiver_phone VARCHAR(32) NOT NULL DEFAULT '+91 98112 34567',
+    caregiver_phone VARCHAR(32) NOT NULL DEFAULT '+91 98765 43210',
     caregiver_email VARCHAR(128) DEFAULT 'priya.sharma@gmail.com',
     notification_channel VARCHAR(32) NOT NULL DEFAULT 'telegram',
     order_total_limit_inr INT NOT NULL DEFAULT 4500,
@@ -306,7 +444,7 @@ INSERT INTO caregiver_config (senior_id, caregiver_name, caregiver_phone, caregi
 VALUES (
     'SENIOR_RAMESH_001',
     'Priya Sharma',
-    '+91 98112 34567',
+    '+91 98765 43210',
     'priya.sharma@gmail.com',
     'telegram',
     4500,
@@ -430,4 +568,94 @@ VALUES
     'BP: 110/78 mmHg · Glucose: 102 mg/dL'
 )
 ON CONFLICT (id) DO NOTHING;
+
+-- ==============================================================================
+-- 7. Youth Mentorship & Intergenerational Wisdom Exchange Table
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS youth_mentorship_questions (
+    id VARCHAR(64) PRIMARY KEY,
+    senior_id VARCHAR(64) NOT NULL REFERENCES seniors(id) ON DELETE CASCADE,
+    youth_id VARCHAR(64) NOT NULL,
+    youth_name VARCHAR(255) NOT NULL,
+    youth_avatar TEXT,
+    youth_bio TEXT,
+    question_text TEXT NOT NULL,
+    category VARCHAR(64) NOT NULL CHECK (category IN ('GENUINE', 'MALICIOUS')),
+    domain_topic VARCHAR(128) NOT NULL,
+    status VARCHAR(64) NOT NULL DEFAULT 'PENDING_REVIEW' CHECK (status IN (
+        'DRAFT',
+        'PENDING_REVIEW', 
+        'APPROVED', 
+        'BLOCKED', 
+        'VOICED_IN_CALL', 
+        'ANSWERED'
+    )),
+    safety_verdict VARCHAR(32) CHECK (safety_verdict IN ('SAFE', 'BLOCKED')),
+    safety_confidence NUMERIC(5, 4),
+    safety_category VARCHAR(64),
+    safety_explanation TEXT,
+    curated_speech_hindi TEXT,
+    elder_answer_text TEXT,
+    elder_answer_audio_url TEXT,
+    submitted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    reviewed_at TIMESTAMP WITH TIME ZONE,
+    answered_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE INDEX IF NOT EXISTS idx_youth_q_senior ON youth_mentorship_questions(senior_id, status);
+
+-- Seed Initial Answered Wisdom Archive for Ramesh Chandra
+INSERT INTO youth_mentorship_questions (
+    id, senior_id, youth_id, youth_name, youth_avatar, youth_bio, question_text, 
+    category, domain_topic, status, safety_verdict, safety_confidence, safety_category, 
+    safety_explanation, curated_speech_hindi, elder_answer_text, elder_answer_audio_url, 
+    submitted_at, reviewed_at, answered_at
+)
+VALUES
+(
+    'yq-hist-01',
+    'SENIOR_RAMESH_001',
+    'youth-aarav',
+    'Aarav Mehta',
+    '👨‍🎓',
+    '4th Year B.Tech Electrical Engineering, DTU Delhi',
+    'Ramesh Uncle, Purani Delhi junction par dense fog ke dauran mechanical relay interlocking fail hone se kaise rokte the?',
+    'GENUINE',
+    'Signal Interlocking & Fog Safety',
+    'ANSWERED',
+    'SAFE',
+    0.9920,
+    'BENIGN_ENGINEERING_WISDOM',
+    'Technical question honoring 41 years of Northern Railway service. High dignity and cognitive stimulation.',
+    'रमेश अंकल, डीटीयू के छात्र आरव पूछ रहे हैं कि पुरानी दिल्ली जंक्शन पर कोहरे में सिग्नल रिले फेल होने पर आप लोग क्या करते थे?',
+    'बेटा, कोहरे में डेटोनेटर (पटाखा सिग्नल) का इस्तेमाल होता था और मैकेनिकल लीवर फ्रेम पर डबल-चेक लॉक लगता था ताकि कोई भी ट्रेन ओवरशूट न करे। अनुशासन ही सबसे बड़ी सुरक्षा थी।',
+    'https://assets.sambandh.ai/audio/wisdom-archive-fog-signals.mp3',
+    NOW() - INTERVAL '2 days',
+    NOW() - INTERVAL '2 days',
+    NOW() - INTERVAL '1 day'
+),
+(
+    'yq-hist-02',
+    'SENIOR_RAMESH_001',
+    'youth-aarav',
+    'Aarav Mehta',
+    '👨‍🎓',
+    '4th Year B.Tech Electrical Engineering, DTU Delhi',
+    'Uncle ji, Yamuna bridge par monsoon flood shifts ke dauran tracks ki safety monitoring ka SOP kya rehta tha?',
+    'GENUINE',
+    'Monsoon Track Safety Protocols',
+    'ANSWERED',
+    'SAFE',
+    0.9880,
+    'BENIGN_ENGINEERING_WISDOM',
+    'Historical engineering inquiry. Safe and dignifying.',
+    'रमेश अंकल, यमुना पुल पर बारिश में ट्रैक की निगरानी कैसे होती थी?',
+    'यमुना के पुराने लोहे के पुल पर जब जलस्तर खतरे के निशान से ऊपर जाता था, तो हम हर 30 मिनट में वाटर गेज और पिलर वाइब्रेशन नापते थे। जब तक खुद संतुष्ट न हों, ग्रीन सिग्नल कभी नहीं दिया।',
+    'https://assets.sambandh.ai/audio/wisdom-archive-yamuna-bridge.mp3',
+    NOW() - INTERVAL '5 days',
+    NOW() - INTERVAL '5 days',
+    NOW() - INTERVAL '4 days'
+)
+ON CONFLICT (id) DO NOTHING;
+
 

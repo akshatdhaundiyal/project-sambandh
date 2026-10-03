@@ -69,7 +69,7 @@ class HealthLockerDB:
         }
 
     # =========================================================================
-    # Seniors Profile
+    # Seniors Profile (Caregiver Editable)
     # =========================================================================
     def get_senior(self, senior_id: str = "SENIOR_RAMESH_001") -> Optional[Dict[str, Any]]:
         if self.is_connected():
@@ -91,12 +91,175 @@ class HealthLockerDB:
             "gender": "Male",
             "abha_id": "91-8273-1928-4491",
             "primary_language": "Hindi",
-            "address_line": "Rohini Sector 8, Delhi",
+            "address_line": "Flat 402, Block C, Pocket 2, Rohini Sector 8",
             "city": "Delhi",
             "state": "Delhi",
             "pin_code": "110085",
-            "daily_call_window_ist": "08:30:00"
+            "daily_call_window_ist": "08:30:00",
+            "vocation": "Retired Chief Signal Inspector (Northern Railway, 41 years). Proud of mechanical relay safety record at Ghaziabad junction.",
+            "personality_notes": "Dignified, lucent, nostalgic about railway lore and Talat Mahmood ghazals.",
+            "health_baseline": "Stage-1 Essential Hypertension (Telma 40 OD morning post breakfast), Bilateral Knee Osteoarthritis (morning stiffness), controlled Type 2 Diabetes (Metformin 500mg evening).",
+            "family_context": "Daughter Priya Sharma lives in Bengaluru. Very caring; speaks weekly; pre-authorized Pine Labs monthly care budget ₹4,500.",
+            "preferred_address": "अंकल / जी",
+            "caregiver_name": "Priya Sharma",
+            "caregiver_relationship": "Daughter",
+            "doctor_name": "Dr. Arvind Saxena (MD, Cardiology)",
+            "doctor_clinic": "Apollo Clinic Rohini (+91 11 2790 1200)"
         }
+
+    def update_senior(self, senior_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
+        """Update senior profile fields populated by primary caregiver."""
+        if not updates:
+            return self.get_senior(senior_id)
+
+        if self.is_connected():
+            try:
+                set_clauses = []
+                params = []
+                for k, v in updates.items():
+                    set_clauses.append(f"{k} = %s")
+                    params.append(v)
+                params.append(senior_id)
+
+                sql = f"UPDATE seniors SET {', '.join(set_clauses)}, updated_at = CURRENT_TIMESTAMP WHERE id = %s RETURNING *;"
+                import psycopg2.extras
+                with self._pg_conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                    cur.execute(sql, tuple(params))
+                    row = cur.fetchone()
+                    if row:
+                        return dict(row)
+            except Exception as e:
+                logger.error("Error updating senior in PG: %s", e)
+
+        # In-memory merge fallback
+        base = self.get_senior(senior_id)
+        base.update(updates)
+        return base
+
+    # =========================================================================
+    # Senior Activities, Interests & Opinions
+    # =========================================================================
+    def get_senior_interests(self, senior_id: str = "SENIOR_RAMESH_001") -> List[Dict[str, Any]]:
+        if self.is_connected():
+            try:
+                import psycopg2.extras
+                with self._pg_conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                    cur.execute("""
+                        SELECT id, topic, category, source, added_by, enthusiasm_level, notes, is_active
+                        FROM senior_interests
+                        WHERE senior_id = %s AND is_active = TRUE
+                        ORDER BY created_at DESC;
+                    """, (senior_id,))
+                    return [dict(r) for r in cur.fetchall()]
+            except Exception as e:
+                logger.error("Error fetching senior interests from PG: %s", e)
+
+        return [
+            {
+                "id": "topic-railway-mechanics",
+                "topic": "Northern Railway Signaling Lore & WDM-2 Diesel Locos",
+                "category": "RAILWAYS_CAREER",
+                "source": "CAREGIVER_CURATED",
+                "added_by": "Priya Sharma (Daughter)",
+                "enthusiasm_level": "VERY_HIGH",
+                "notes": "Father loves discussing interlocking signals and locomotive lore.",
+                "is_active": True
+            },
+            {
+                "id": "topic-old-ghazals-rafi",
+                "topic": "Mohammed Rafi, Talat Mahmood & Manna Dey Melodies",
+                "category": "MUSIC_CULTURE",
+                "source": "CAREGIVER_CURATED",
+                "added_by": "Priya Sharma (Daughter)",
+                "enthusiasm_level": "HIGH",
+                "notes": "Listens to morning old classics on transistor radio while sipping ginger tea.",
+                "is_active": True
+            },
+            {
+                "id": "topic-japanese-park-walks",
+                "topic": "Morning Walks & Neem Tree Bench at Japanese Park",
+                "category": "GARDENING_ROUTINE",
+                "source": "AUTONOMOUSLY_DISCOVERED",
+                "added_by": "Sambandh Cognitive Memory",
+                "enthusiasm_level": "HIGH",
+                "notes": "Ramesh enjoys meeting his walking peers near Sector 11 gate.",
+                "is_active": True
+            },
+            {
+                "id": "topic-rohini-balcony-tulsi",
+                "topic": "Balcony Gardening: Shyama Tulsi & Winter Marigolds",
+                "category": "GARDENING_ROUTINE",
+                "source": "AUTONOMOUSLY_DISCOVERED",
+                "added_by": "Sambandh Cognitive Memory",
+                "enthusiasm_level": "MEDIUM",
+                "notes": "Waters plants every morning at 07:45 AM before taking morning tea.",
+                "is_active": True
+            }
+        ]
+
+    def save_senior_interest(self, interest: Dict[str, Any]) -> Dict[str, Any]:
+        senior_id = interest.get("senior_id", "SENIOR_RAMESH_001")
+        int_id = interest.get("id") or f"topic-{int(datetime.now().timestamp() * 1000)}"
+        if self.is_connected():
+            try:
+                with self._pg_conn.cursor() as cur:
+                    cur.execute("""
+                        INSERT INTO senior_interests (id, senior_id, topic, category, source, added_by, enthusiasm_level, notes, is_active)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        ON CONFLICT (id) DO UPDATE SET
+                            topic = EXCLUDED.topic,
+                            category = EXCLUDED.category,
+                            enthusiasm_level = EXCLUDED.enthusiasm_level,
+                            notes = EXCLUDED.notes,
+                            is_active = EXCLUDED.is_active;
+                    """, (
+                        int_id, senior_id, interest.get("topic"), interest.get("category", "GENERAL"),
+                        interest.get("source", "AUTONOMOUSLY_DISCOVERED"), interest.get("added_by", "Caregiver"),
+                        interest.get("enthusiasm_level", "HIGH"), interest.get("notes", ""), interest.get("is_active", True)
+                    ))
+            except Exception as e:
+                logger.error("Error saving interest to PG: %s", e)
+
+        return {**interest, "id": int_id, "senior_id": senior_id}
+
+    def get_senior_opinions(self, senior_id: str = "SENIOR_RAMESH_001") -> List[Dict[str, Any]]:
+        if self.is_connected():
+            try:
+                import psycopg2.extras
+                with self._pg_conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                    cur.execute("""
+                        SELECT id, headline, locality, agent_prompt, elder_context_hint, is_active
+                        FROM senior_opinions
+                        WHERE senior_id = %s AND is_active = TRUE
+                        ORDER BY created_at DESC;
+                    """, (senior_id,))
+                    return [dict(r) for r in cur.fetchall()]
+            except Exception as e:
+                logger.error("Error fetching senior opinions from PG: %s", e)
+
+        return [
+            {
+                "id": "opinion-japanese-park",
+                "headline": "Rohini Japanese Park New Musical Fountain & Walking Track",
+                "locality": "Rohini Sector 14, Delhi",
+                "agent_prompt": "अंकल जी, रोहिणी जापानी पार्क में नया वॉकवे बन गया है। कुछ लोग कहते हैं कि पहले वाला कच्चा ट्रैक पैरों के लिए ज़्यादा आरामदायक था। आपका क्या तजुर्बा है इसपर?",
+                "elder_context_hint": "Ramesh has taken morning walks in Japanese Park for 15+ years."
+            },
+            {
+                "id": "opinion-vande-bharat",
+                "headline": "Indian Railways Launching New Sleeper Vande Bharat Trains",
+                "locality": "Northern Railway / Delhi Division",
+                "agent_prompt": "अंकल जी, रेलवे अब नए वंदे भारत स्लीपर कोच ला रहा है। आप तो 40 साल रेलवे में सिग्नल और मैकेनिकल व्यवस्था संभालते रहे हैं—आपको क्या लगता है, पुरानी राजधानी की तुलना में ये कैसे रहेंगे?",
+                "elder_context_hint": "Retired Chief Signal Inspector with deep technical pride in railway safety."
+            },
+            {
+                "id": "opinion-metro-phase4",
+                "headline": "Delhi Metro Phase 4 Rithala to Narela Line Expansion",
+                "locality": "Rohini / Outer Delhi Corridor",
+                "agent_prompt": "अंकल जी, रिठाला से आगे नरेला वाली मेट्रो लाइन का काम तेज़ हो रहा है। आपके समय में जब रोहिणी नई-नई बसी थी, तब तो बसें भी मुश्किल से मिलती थीं ना? कितना बदलाव आ गया है!",
+                "elder_context_hint": "Witnessed Rohini transform from vacant plots to bustling urban hub since 1985."
+            }
+        ]
 
     # =========================================================================
     # Clinical Documents
@@ -130,7 +293,7 @@ class HealthLockerDB:
                         ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, raw_text = EXCLUDED.raw_text;
                     """, (
                         doc["id"], doc["senior_id"], doc["category"], doc["title"],
-                        doc.get("doctor_name", "Dr. V. K. Sharma"), doc.get("document_date", datetime.now().strftime("%Y-%m-%d")),
+                        doc.get("doctor_name", "Dr. Arvind Saxena"), doc.get("document_date", datetime.now().strftime("%Y-%m-%d")),
                         doc["raw_text"], doc.get("file_url"), doc.get("extracted_summary")
                     ))
 
@@ -271,7 +434,7 @@ class HealthLockerDB:
         return {
             "senior_id": "SENIOR_RAMESH_001",
             "caregiver_name": "Priya Sharma",
-            "caregiver_phone": "+91 98112 34567",
+            "caregiver_phone": "+91 98765 43210",
             "notification_channel": "telegram",
             "order_total_limit_inr": 4500,
             "auto_refill_threshold_days": 7,
@@ -356,23 +519,87 @@ class HealthLockerDB:
         return {"status": "SUCCESS", "id": summary["id"]}
 
     # =========================================================================
-    # Clinical Audit Logging
+    # Youth Mentorship & Intergenerational Wisdom
     # =========================================================================
-    def log_audit(self, senior_id: str, query_text: str, mode: str, model_used: str, latency_ms: int, tokens_evaluated: int, guardrail_status: Dict[str, Any], response_summary: str = ""):
+    def get_youth_questions(self, senior_id: str = "SENIOR_RAMESH_001") -> List[Dict[str, Any]]:
         if self.is_connected():
             try:
-                import uuid
+                import psycopg2.extras
+                with self._pg_conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                    cur.execute("""
+                        SELECT id, senior_id, youth_id, youth_name, youth_avatar, youth_bio,
+                               question_text, category, domain_topic, status, safety_verdict,
+                               safety_confidence, safety_category, safety_explanation,
+                               curated_speech_hindi, elder_answer_text, elder_answer_audio_url,
+                               submitted_at, reviewed_at, answered_at
+                        FROM youth_mentorship_questions
+                        WHERE senior_id = %s
+                        ORDER BY submitted_at DESC;
+                    """, (senior_id,))
+                    rows = cur.fetchall()
+                    return [dict(r) for r in rows]
+            except Exception as e:
+                logger.error("Error fetching youth questions: %s", e)
+        return []
+
+    def save_youth_question(self, q: Dict[str, Any]) -> Dict[str, Any]:
+        if self.is_connected():
+            try:
                 with self._pg_conn.cursor() as cur:
                     cur.execute("""
-                        INSERT INTO clinical_audit_logs (id, senior_id, query_text, retrieval_mode, model_used, latency_ms, tokens_evaluated, guardrail_status, response_summary)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s::jsonb, %s);
+                        INSERT INTO youth_mentorship_questions (
+                            id, senior_id, youth_id, youth_name, youth_avatar, youth_bio,
+                            question_text, category, domain_topic, status, safety_verdict,
+                            safety_confidence, safety_category, safety_explanation,
+                            curated_speech_hindi, elder_answer_text, elder_answer_audio_url,
+                            submitted_at, reviewed_at, answered_at
+                        )
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), %s, %s)
+                        ON CONFLICT (id) DO UPDATE SET
+                            status = EXCLUDED.status,
+                            safety_verdict = EXCLUDED.safety_verdict,
+                            safety_confidence = EXCLUDED.safety_confidence,
+                            safety_category = EXCLUDED.safety_category,
+                            safety_explanation = EXCLUDED.safety_explanation,
+                            curated_speech_hindi = EXCLUDED.curated_speech_hindi,
+                            elder_answer_text = EXCLUDED.elder_answer_text,
+                            elder_answer_audio_url = EXCLUDED.elder_answer_audio_url,
+                            reviewed_at = EXCLUDED.reviewed_at,
+                            answered_at = EXCLUDED.answered_at;
                     """, (
-                        f"AUDIT_{uuid.uuid4().hex[:12]}", senior_id, query_text,
-                        mode, model_used, latency_ms, tokens_evaluated,
-                        json.dumps(guardrail_status), response_summary
+                        q["id"], q.get("senior_id", "SENIOR_RAMESH_001"), q.get("youth_id", "youth-aarav"),
+                        q.get("youth_name", "Aarav Mehta"), q.get("youth_avatar", "👨‍🎓"),
+                        q.get("youth_bio", "4th Year B.Tech Electrical Engineering, DTU Delhi"),
+                        q["question_text"], q.get("category", "GENUINE"), q.get("domain_topic", "Railway Engineering"),
+                        q.get("status", "PENDING_REVIEW"), q.get("safety_verdict"),
+                        q.get("safety_confidence", 0.98), q.get("safety_category"),
+                        q.get("safety_explanation"), q.get("curated_speech_hindi"),
+                        q.get("elder_answer_text"), q.get("elder_answer_audio_url"),
+                        q.get("reviewed_at"), q.get("answered_at")
                     ))
+                return {"status": "SUCCESS", "id": q["id"]}
             except Exception as e:
-                logger.error("Error logging audit in PG: %s", e)
+                logger.error("Error saving youth question: %s", e)
+                return {"status": "ERROR", "message": str(e)}
+        return {"status": "SUCCESS", "id": q["id"]}
+
+    def record_elder_answer(self, question_id: str, answer_text: str, audio_url: Optional[str] = None) -> Dict[str, Any]:
+        if self.is_connected():
+            try:
+                with self._pg_conn.cursor() as cur:
+                    cur.execute("""
+                        UPDATE youth_mentorship_questions
+                        SET status = 'ANSWERED',
+                            elder_answer_text = %s,
+                            elder_answer_audio_url = %s,
+                            answered_at = NOW()
+                        WHERE id = %s;
+                    """, (answer_text, audio_url, question_id))
+                return {"status": "SUCCESS", "id": question_id}
+            except Exception as e:
+                logger.error("Error recording answer: %s", e)
+                return {"status": "ERROR", "message": str(e)}
+        return {"status": "SUCCESS", "id": question_id}
 
 # Singleton export
 db = HealthLockerDB()

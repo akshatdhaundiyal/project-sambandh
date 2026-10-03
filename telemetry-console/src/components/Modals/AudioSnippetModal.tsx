@@ -40,7 +40,7 @@ export const AudioSnippetModal: React.FC = () => {
                 Papa's Railway Story Snippet (30s)
               </h3>
               <span className="text-[10px] font-mono text-slate-400">
-                WhisperFlo Hi-Fi Acoustic Diarization Stream
+                Gnani.ai Hi-Fi Acoustic Diarization Stream
               </span>
             </div>
           </div>

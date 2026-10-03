@@ -164,22 +164,105 @@ export const DELHIVERY_SUCCESS_EXCHANGE: HttpApiExchange = {
   }
 };
 
-export const WHISPERFLO_DIAL_EXCHANGE: HttpApiExchange = {
-  railName: "WhisperFlo Telephony SIP Carrier Rail",
-  method: "POST",
-  endpoint: "https://api.whisperflo.ai/v1/telephony/sip/dial",
-  schemaStandard: "WhisperFlo SIP Trunking & Voiceprint Engine v4.2",
+export const DELHIVERY_TRACKING_EXCHANGE: HttpApiExchange = {
+  railName: "Delhivery Surface Express Tracking Rail",
+  method: "GET",
+  endpoint: "https://track.delhivery.com/api/v1/packages/json/?waybill=DLV-98234-DEL&verbose=2",
+  schemaStandard: "Delhivery Real-Time Package Tracking API v1 (Healthcare SLA)",
   headers: {
-    "Authorization": "Bearer [MOCK_WHISPERFLO_API_KEY]",
-    "Content-Type": "application/json"
+    "Authorization": "Token dlv_prod_77192834014fbc9",
+    "Accept": "application/json"
+  },
+  requestBody: null,
+  responseStatus: 200,
+  responseStatusText: "OK",
+  responseLatencyMs: 95,
+  responseHeaders: {
+    "Content-Type": "application/json",
+    "X-Delhivery-Trace-Id": "DLV_TRC_991823"
+  },
+  responseBody: {
+    "ShipmentData": [
+      {
+        "Shipment": {
+          "Waybill": "DLV-98234-DEL",
+          "ReferenceNo": "SAMBANDH_REFILL_20261012_01",
+          "Status": {
+            "Status": "Out for Delivery",
+            "StatusType": "OFD",
+            "StatusDateTime": "2026-10-12T13:45:00+05:30",
+            "StatusLocation": "Rohini Sector 8 Delivery Center, Delhi",
+            "Instructions": "Priority temperature-sensitive prescription medication delivery"
+          },
+          "PickUpDate": "2026-10-12T09:15:00+05:30",
+          "ExpectedDeliveryDate": "2026-10-12T14:30:00+05:30",
+          "Destination": "Rohini Sector 8, Delhi",
+          "Consignee": {
+            "Name": "Ramesh Chandra",
+            "Address": "Flat 402, Block C, Pocket 2, Rohini Sector 8, Delhi - 110085",
+            "PinCode": "110085"
+          },
+          "DeliveryAgent": {
+            "Name": "Rajesh Kumar",
+            "Phone": "+91 98111 22334",
+            "OtpRequired": false,
+            "CaregiverSignoff": "Autonomous Cashless Delivery"
+          },
+          "Scans": [
+            {
+              "ScanDetail": {
+                "ScanDateTime": "2026-10-12T09:15:00+05:30",
+                "ScanType": "PU",
+                "Scan": "Manifest generated and parcel picked from Apollo DarkStore Rohini Sector 11",
+                "ScannedLocation": "Rohini Sector 11 DarkStore"
+              }
+            },
+            {
+              "ScanDetail": {
+                "ScanDateTime": "2026-10-12T10:30:00+05:30",
+                "ScanType": "IT",
+                "Scan": "Bag arrived at Delhi NorthWest Distribution Hub",
+                "ScannedLocation": "Delhi NorthWest DC"
+              }
+            },
+            {
+              "ScanDetail": {
+                "ScanDateTime": "2026-10-12T13:45:00+05:30",
+                "ScanType": "OFD",
+                "Scan": "Out for delivery with courier rider Rajesh Kumar (+91 98111 22334)",
+                "ScannedLocation": "Rohini Sector 8 Last-Mile DC"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+};
+
+export const GNANI_TELEPHONY_EXCHANGE: HttpApiExchange = {
+  railName: "Gnani.ai Full-Duplex Telephony Carrier Rail",
+  method: "POST",
+  endpoint: "wss://telephony.gnani.ai/v2/stream (SIP Trunk Dial)",
+  schemaStandard: "Gnani.ai Indic Telephony Protocol v2.4 (Awadhi/Hindi Streaming STT/TTS)",
+  headers: {
+    "Authorization": "Bearer [MOCK_GNANI_CARRIER_TOKEN]",
+    "Content-Type": "application/json",
+    "X-Rail-Standard": "Gnani-Indic-v2.4",
+    "X-Dialect": "awa-IN",
+    "X-Full-Duplex": "ENABLED"
   },
   requestBody: {
     "caller_id": "SAMBANDH_VOICE_RAIL",
     "recipient_phone": "+919810123456",
-    "senior_id": "SENIOR_RAMESH_DL08",
+    "senior_id": "SENIOR_RAMESH_001",
     "carrier_trunk": "JIO_SIP_DELHI_ROHINI",
     "preferred_codec": "OPUS_HD_48KHZ",
     "dialect": "hi-IN-Awadhi",
+    "acoustic_model": "gnani_indic_awadhi_conversational_v2",
+    "vad_mode": "CONTINUOUS_FULL_DUPLEX",
+    "vad_threshold_ms": 114,
+    "barge_in_enabled": true,
     "voiceprint_verification_enabled": true
   },
   responseStatus: 200,
@@ -187,15 +270,18 @@ export const WHISPERFLO_DIAL_EXCHANGE: HttpApiExchange = {
   responseLatencyMs: 114,
   responseHeaders: {
     "Content-Type": "application/json",
-    "X-Call-Sid": "WF_CALL_88192031"
+    "X-Call-Sid": "GNANI_CALL_88192031",
+    "X-Streaming-Mode": "FULL_DUPLEX_GAPLESS"
   },
   responseBody: {
-    "call_sid": "WF_CALL_88192031",
+    "call_sid": "GNANI_CALL_88192031",
     "sip_status": "200_OK_CONNECTED",
-    "carrier": "Jio PSTN Delhi-NCR",
+    "carrier": "Jio PSTN Delhi-NCR via Gnani Rail",
     "voiceprint_match": true,
-    "confidence_score": 0.984,
-    "vad_latency_ms": 114
+    "confidence_score": 0.988,
+    "vad_latency_ms": 114,
+    "barge_in_ready": true,
+    "stream_sample_rate": 16000
   }
 };
 
@@ -580,7 +666,7 @@ export const HEALTH_LOCKER_QUERY_EXCHANGE: HttpApiExchange = {
     ],
     "sources": [
       "Metropolis Metabolic Lab Report (05 Sep 2026)",
-      "Dr. V. K. Sharma Cardiology Prescription (10 Sep 2026)"
+      "Dr. Arvind Saxena Cardiology Prescription (10 Sep 2026)"
     ],
     "structured_vitals": [
       { "vitalType": "creatinine", "valueNumeric": 1.10, "unit": "mg/dL", "trend": "STABLE" }
@@ -603,7 +689,7 @@ export const MEDGEMMA_ANALYSIS_EXCHANGE: HttpApiExchange = {
   requestBody: {
     "model": "medgemma:4b",
     "prompt": "Caregiver asks: Can Papa take extra salty pickle with dinner? Evaluate against low-sodium directive.",
-    "system": "You are Google MedGemma 4B, an expert clinical AI co-pilot for Sambandh Health Locker. Patient: Ramesh Chandra (72/M, Lucknow). Active Rx: Telmisartan 40mg (1 OD morning), Metformin 500mg (half tab BD). Strict low-sodium diet (<2g/day).",
+    "system": "You are Google MedGemma 4B, an expert clinical AI co-pilot for Sambandh Health Locker. Patient: Ramesh Chandra (72/M, Rohini Sector 8, Delhi). Active Rx: Telmisartan 40mg (1 OD morning), Metformin 500mg (half tab BD). Strict low-sodium diet (<2g/day).",
     "options": {
       "temperature": 0.2,
       "num_predict": 128

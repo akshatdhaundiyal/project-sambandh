@@ -11,7 +11,7 @@ import {
 import {
   PineLabsLogo,
   DelhiveryLogo,
-  WhisperFloLogo,
+  GnaniLogo,
   AbdmLogo,
   TelegramLogo,
   TripwireLogo
@@ -118,10 +118,10 @@ export const JudgeStepApiPane: React.FC<JudgeStepApiPaneProps> = ({
       case 'logistics':
         return <DelhiveryLogo className={sizeClass} />;
       case 'telephony':
-        return activeTtsEngine === 'chrome' ? (
+        return activeTtsEngine === 'browser' ? (
           <Languages className={`${sizeClass} text-emerald-600`} />
         ) : (
-          <WhisperFloLogo className={sizeClass} />
+          <GnaniLogo className={sizeClass} />
         );
       case 'abdm':
         return <AbdmLogo className={sizeClass} />;
@@ -264,7 +264,7 @@ export const JudgeStepApiPane: React.FC<JudgeStepApiPaneProps> = ({
                   Call Session Idle — Initial Node Awaiting Initiation
                 </h4>
                 <p className="text-[11px] text-stone-500 leading-relaxed">
-                  Nodes are pulled dynamically as each tool/API call is triggered by the autonomous agent. Click Start Call to trigger Node 1 (WhisperFlo Telephony Session).
+                  Nodes are pulled dynamically as each tool/API call is triggered by the autonomous agent. Click Start Call to trigger Node 1 (Gnani.ai Telephony Session).
                 </p>
               </div>
               <button
@@ -544,7 +544,7 @@ export const JudgeStepApiPane: React.FC<JudgeStepApiPaneProps> = ({
             Awaiting Tool Execution & Rail Telemetry
           </p>
           <p className="text-xs text-slate-500 max-w-sm">
-            Once the morning call connects, live HTTP contracts from partner rails (WhisperFlo, Tripwire, ABDM, Pine Labs, Delhivery, Telegram) will stream here.
+            Once the morning call connects, live HTTP contracts from partner rails (Gnani.ai, Tripwire, ABDM, Pine Labs, Delhivery, Telegram) will stream here.
           </p>
         </div>
       )}

@@ -8,6 +8,8 @@ import {
   MEDICATION_KEYWORDS, SYMPTOM_KEYWORDS, FINANCIAL_KEYWORDS,
   FAMILY_KEYWORDS, BREAKFAST_KEYWORDS, GREETING_KEYWORDS,
   NEWS_KEYWORDS, WEATHER_KEYWORDS, JOKE_KEYWORDS, INTEREST_KEYWORDS,
+  CRITICAL_EMERGENCY_KEYWORDS, FALL_KEYWORDS, MEDICATION_STOP_KEYWORDS,
+  ADHERENCE_CONFIRMATION_KEYWORDS,
   matchesKeywords, DEFAULT_MEMORY_LEDGER
 } from '../data/keywords';
 
@@ -51,6 +53,26 @@ export const generateContextualCompanionResponse = (
   _memoryLedger?: string
 ): string => {
   const text = userMessage || '';
+
+  // 0A. CRITICAL MEDICAL EMERGENCY: Chest Pain, Breathlessness, Cardiac Crisis (Highest Priority)
+  if (matchesKeywords(text, CRITICAL_EMERGENCY_KEYWORDS)) {
+    return 'रमेश अंकल, आप बिल्कुल शांत होकर बैठ जाइए और कोई ज़ोर मत लगाइए। सीने में भारीपन या सांस फूलने पर तुरंत 112 आपातकालीन सेवा को कॉल करना ज़रूरी है। मैं फोन लाइन पर ही आपके साथ बनी हुई हूँ, और हम तुरंत प्रिया बिटिया और डॉक्टर अरविंद सक्सेना जी को रेड अलर्ट भेज रहे हैं। [Ramesh Uncle, aap bilkul shaant hokar baith jaiye aur koi zor mat lagaiye. Seene me dard ya saans phoolne par turant 112 emergency services ko call karein. Main phone line par hi aapke saath hoon, aur hum turant Priya bitiya aur Dr. Arvind Saxena ji ko Red Alert bhej rahe hain.]';
+  }
+
+  // 0B. ACCIDENTAL FALL DETECTED
+  if (matchesKeywords(text, FALL_KEYWORDS)) {
+    return 'रमेश अंकल, आप बिल्कुल हिलने की कोशिश मत कीजिए! क्या आपको कहीं गंभीर चोट आई है? मैं तुरंत प्रिया बिटिया को इमरजेंसी फॉल अलर्ट और पड़ोसियों को सूचना भेज रही हूँ। आप मेरी आवाज़ सुनते रहिए, मैं लाइन पर ही आपके साथ हूँ। [Ramesh Uncle, aap bilkul hilne ki koshish mat kijiye! Kya aapko chot aayi hai? Main turant Priya bitiya ko Emergency Fall Alert bhej rahi hoon. Aap meri aawaz sunte rahiye, main line par hi aapke saath hoon.]';
+  }
+
+  // 0C. MEDICATION DISCONTINUATION / NON-ADHERENCE WARNING
+  if (matchesKeywords(text, MEDICATION_STOP_KEYWORDS)) {
+    return 'रमेश अंकल, डॉक्टर अरविंद सक्सेना जी की सलाह के बिना बीपी की दवा (Telma 40) अचानक बंद करना बहुत जोखिम भरा हो सकता है। अगर चक्कर आ रहे हैं, तो तुरंत बैठकर आराम करें और पानी पिएं। हम अभी डॉक्टर सक्सेना और प्रिया बिटिया को इसकी सूचना भेज रहे हैं ताकि परामर्श हो सके। कृपया बिना डॉक्टर से पूछे दवा बंद न करें। [Ramesh Uncle, Dr. Arvind Saxena ji ki salah ke bina BP ki dawa achanak band karna bahut jokhim bhara ho sakta hai. Agar chakkar aa rahe hain to turant baithkar aaram karein aur paani piyein. Hum abhi Dr. Saxena aur Priya bitiya ko alert bhej rahe hain. Kripya bina doctor ke kahe dawa band na karein.]';
+  }
+
+  // 0D. ROUTINE ADHERENCE CONFIRMATION (Taking pill is good news)
+  if (matchesKeywords(text, ADHERENCE_CONFIRMATION_KEYWORDS)) {
+    return 'बहुत बढ़िया अंकल जी! सुबह नाश्ते के बाद समय से बीपी की गोली (Telma 40) ले लेना ही सबसे अच्छी आदत है। आपका यह अनुशासन देखकर प्रिया बिटिया भी बहुत खुश होंगी। आज का मौसम भी अच्छा है, आप आराम से धूप में बैठिए। [Bahut badhiya Uncle ji! Subah nashte ke baad samay se BP ki goli Telma 40 le lena hi sabse achhi aadat hai. Aapka yeh anushasan dekhkar Priya bitiya bhi bahut khush hongi. Aaj dhoop me baithkar aaram kijiye.]';
+  }
 
   // 1. Humor & Lighthearted Jokes
   if (matchesKeywords(text, JOKE_KEYWORDS)) {

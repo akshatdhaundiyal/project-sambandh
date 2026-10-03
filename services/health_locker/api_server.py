@@ -97,7 +97,7 @@ class IngestDocumentRequest(BaseModel):
     senior_id: str = "SENIOR_RAMESH_001"
     category: str = Field(default="prescription", description="prescription | lab_report | consultation | caregiver_note")
     title: str
-    doctor_name: Optional[str] = "Dr. V. K. Sharma"
+    doctor_name: Optional[str] = "Dr. Arvind Saxena"
     document_date: str = Field(default_factory=lambda: time.strftime("%Y-%m-%d"))
     raw_text: str
     file_url: Optional[str] = None
@@ -125,6 +125,34 @@ class CallSummaryCreateRequest(BaseModel):
     audioDuration: Optional[str] = "0:40"
     fiduciaryOrLogistics: Optional[str] = None
     vitalsSnippet: Optional[str] = None
+
+class SeniorProfileUpdateRequest(BaseModel):
+    name: Optional[str] = None
+    age: Optional[int] = None
+    gender: Optional[str] = None
+    city: Optional[str] = None
+    address_line: Optional[str] = None
+    daily_call_window_ist: Optional[str] = None
+    vocation: Optional[str] = None
+    personality_notes: Optional[str] = None
+    health_baseline: Optional[str] = None
+    family_context: Optional[str] = None
+    preferred_address: Optional[str] = None
+    caregiver_name: Optional[str] = None
+    caregiver_relationship: Optional[str] = None
+    doctor_name: Optional[str] = None
+    doctor_clinic: Optional[str] = None
+
+class SeniorInterestPayload(BaseModel):
+    id: Optional[str] = None
+    senior_id: str = "SENIOR_RAMESH_001"
+    topic: str
+    category: str = "GENERAL"
+    source: str = "CAREGIVER_CURATED"
+    added_by: str = "Priya Sharma (Daughter)"
+    enthusiasm_level: str = "HIGH"
+    notes: Optional[str] = ""
+    is_active: bool = True
 
 class CaregiverConfigUpdateRequest(BaseModel):
     order_total_limit_inr: Optional[int] = None
@@ -169,6 +197,33 @@ def get_senior_profile(senior_id: str = "SENIOR_RAMESH_001"):
     if not senior:
         raise HTTPException(status_code=404, detail="Senior profile not found")
     return senior
+
+@app.put("/api/seniors/{senior_id}")
+def update_senior_profile(senior_id: str, req: SeniorProfileUpdateRequest):
+    """Update senior profile populated by primary caregiver in PostgreSQL."""
+    updates = req.dict(exclude_unset=True)
+    updated = db.update_senior(senior_id, updates)
+    return {"status": "SUCCESS", "senior": updated}
+
+@app.get("/api/seniors/{senior_id}/interests")
+def get_senior_interests(senior_id: str = "SENIOR_RAMESH_001"):
+    """Fetch elder's activities, hobbies, and conversation interests."""
+    interests = db.get_senior_interests(senior_id)
+    return {"status": "SUCCESS", "data": interests}
+
+@app.post("/api/seniors/{senior_id}/interests")
+def save_senior_interest_endpoint(senior_id: str, payload: SeniorInterestPayload):
+    """Save caregiver-curated or AI-discovered elder interest to PostgreSQL."""
+    data = payload.dict()
+    data["senior_id"] = senior_id
+    saved = db.save_senior_interest(data)
+    return {"status": "SUCCESS", "interest": saved}
+
+@app.get("/api/seniors/{senior_id}/opinions")
+def get_senior_opinions(senior_id: str = "SENIOR_RAMESH_001"):
+    """Fetch elder's local news opinion topics and sparks."""
+    opinions = db.get_senior_opinions(senior_id)
+    return {"status": "SUCCESS", "data": opinions}
 
 @app.get("/api/documents")
 def list_documents(senior_id: str = Query("SENIOR_RAMESH_001")):
@@ -323,6 +378,49 @@ def query_locker(req: QueryLockerRequest):
         }
     }
 
+# ==============================================================================
+# Youth Mentorship & Intergenerational Wisdom Endpoints
+# ==============================================================================
+class YouthQuestionSubmission(BaseModel):
+    id: str
+    senior_id: str = "SENIOR_RAMESH_001"
+    youth_id: str
+    youth_name: str
+    youth_avatar: str = "👨‍🎓"
+    youth_bio: str
+    question_text: str
+    category: str = "GENUINE"
+    domain_topic: str = "Railway Engineering"
+    status: str = "PENDING_REVIEW"
+    safety_verdict: Optional[str] = None
+    safety_confidence: Optional[float] = None
+    safety_category: Optional[str] = None
+    safety_explanation: Optional[str] = None
+    curated_speech_hindi: Optional[str] = None
+
+class ElderAnswerPayload(BaseModel):
+    answer_text: str
+    audio_url: Optional[str] = None
+
+@app.get("/api/v1/youth/questions")
+def get_youth_questions(senior_id: str = "SENIOR_RAMESH_001"):
+    """Retrieve all youth questions and elder answers for the given senior."""
+    questions = db.get_youth_questions(senior_id)
+    return {"status": "SUCCESS", "count": len(questions), "data": questions}
+
+@app.post("/api/v1/youth/questions/submit")
+def submit_youth_question(payload: YouthQuestionSubmission):
+    """Save a youth question and its AI safety gate evaluation to PostgreSQL."""
+    res = db.save_youth_question(payload.dict())
+    return {"status": "SUCCESS", "id": payload.id, "result": res}
+
+@app.post("/api/v1/youth/questions/{question_id}/record-answer")
+def record_elder_answer_endpoint(question_id: str, payload: ElderAnswerPayload):
+    """Record elder's spoken answer and audio URL for the youth question."""
+    res = db.record_elder_answer(question_id, payload.answer_text, payload.audio_url)
+    return {"status": "SUCCESS", "id": question_id, "result": res}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("api_server:app", host="0.0.0.0", port=8001, reload=True)
+

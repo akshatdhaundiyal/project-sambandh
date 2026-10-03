@@ -64,7 +64,7 @@ class IngestRequest(BaseModel):
     senior_id: str = Field(default="SENIOR_RAMESH_001")
     category: str = Field(default="prescription", description="prescription | lab_report | consultation | caregiver_note")
     title: str
-    doctor_name: Optional[str] = "Dr. V. K. Sharma"
+    doctor_name: Optional[str] = "Dr. Arvind Saxena"
     document_date: str = Field(default_factory=lambda: time.strftime("%Y-%m-%d"))
     raw_text: str
     file_url: Optional[str] = None
@@ -211,7 +211,7 @@ class MedGemmaWorker:
             "1. ZERO-DIAGNOSIS RULE: Never diagnose de-novo diseases or conditions.\n"
             "2. ZERO-TITRATION RULE: Never alter doses, advice discontinuing, or add unprescribed medications.\n"
             "3. Ground all statements strictly in the provided EHR, prescription, and lab context.\n"
-            "4. For acute complaints, instruct immediate connection with attending physician Dr. V. K. Sharma.\n"
+            "4. For acute complaints, instruct immediate connection with attending physician Dr. Arvind Saxena.\n"
         )
 
         query_lower = prompt.lower()
@@ -220,12 +220,12 @@ class MedGemmaWorker:
                 "Ramesh Ji's serum creatinine is recorded at 1.10 mg/dL (Reference: 0.70 – 1.30 mg/dL), "
                 "which indicates stable renal filtration with an estimated eGFR >75 mL/min. "
                 "This renal profile is within normal clinical limits and remains safe for his ongoing "
-                "maintenance prescription of Telmisartan 40mg. Continued routine monitoring is advised as per Dr. Sharma's review schedule."
+                "maintenance prescription of Telmisartan 40mg. Continued routine monitoring is advised as per Dr. Saxena's review schedule."
             )
             tokens = 112
         elif "bp" in query_lower or "dawai" in query_lower or "medicine" in query_lower:
             analysis = (
-                "According to Dr. V. K. Sharma's active cardiology prescription dated 10 Sep 2026, "
+                "According to Dr. Arvind Saxena's active cardiology prescription dated 10 Sep 2026, "
                 "Ramesh Ji is prescribed Telmisartan 40mg (Brand: Telma 40) once daily in the morning immediately after breakfast with water. "
                 "For glycemic management, he is prescribed Metformin 500mg (half tablet twice daily after meals). "
                 "Note: Current Telmisartan stock is at 6 units (6-day runway remaining, triggering autonomous replenishment)."
@@ -233,7 +233,7 @@ class MedGemmaWorker:
             tokens = 138
         elif "salt" in query_lower or "diet" in query_lower:
             analysis = (
-                "Dr. Sharma's cardiology consultation notes specifically emphasize dietary salt restriction "
+                "Dr. Saxena's cardiology consultation notes specifically emphasize dietary salt restriction "
                 "(< 2g sodium per day) to support blood pressure management alongside Telmisartan 40mg. "
                 "Priya's caregiver directive confirms strict low-sodium cooking without added salt on salads or curd."
             )
@@ -242,7 +242,7 @@ class MedGemmaWorker:
             analysis = (
                 f"Based on Ramesh Chandra's longitudinal Health Locker dossier (ABHA: 91-8273-1928-4491): "
                 f"Vital indicators remain stable under active care. All medications and lifestyle modifications are grounded in "
-                f"Dr. V. K. Sharma's active cardiology guidance."
+                f"Dr. Arvind Saxena's active cardiology guidance."
             )
             tokens = 64
 
@@ -421,7 +421,7 @@ def query_health_locker(req: QueryRequest) -> HealthLockerResponse:
             {"document_id": d["id"], "title": d["title"], "date": d["document_date"]}
             for d in docs
         ],
-        sources=["Cardiology Prescription (Dr. V. K. Sharma)", "Metropolis Metabolic Lab Report"],
+        sources=["Cardiology Prescription (Dr. Arvind Saxena)", "Metropolis Metabolic Lab Report"],
         structured_doses=doses,
         structured_vitals=vitals,
         latency_ms=latency_ms,

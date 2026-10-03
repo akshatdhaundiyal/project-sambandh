@@ -63,8 +63,8 @@ export const DelhiveryLogo: React.FC<BrandLogoProps> = ({ className = "w-5 h-5",
   </svg>
 );
 
-// 🟣 WhisperFlo Neural Telephony Engine Logo
-export const WhisperFloLogo: React.FC<BrandLogoProps> = ({ className = "w-5 h-5", size }) => (
+// 🎙️ Gnani.ai Full-Duplex Indic Voice Telephony Rail Logo
+export const GnaniLogo: React.FC<BrandLogoProps> = ({ className = "w-5 h-5", size }) => (
   <svg
     viewBox="0 0 32 32"
     fill="none"
@@ -72,16 +72,22 @@ export const WhisperFloLogo: React.FC<BrandLogoProps> = ({ className = "w-5 h-5"
     className={className}
     style={size ? { width: size, height: size } : undefined}
   >
-    <rect width="32" height="32" rx="8" fill="#4F46E5" />
-    {/* Dynamic Sound Wave & Voice Ring */}
-    <circle cx="16" cy="16" r="11" stroke="#A5B4FC" strokeWidth="1.5" strokeDasharray="2 2" />
+    <defs>
+      <linearGradient id="gnaniGrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#4338CA" />
+        <stop offset="1" stopColor="#06B6D4" />
+      </linearGradient>
+    </defs>
+    <rect width="32" height="32" rx="8" fill="url(#gnaniGrad)" />
+    {/* Concentric Full-Duplex Speech & Acoustic Waveform */}
+    <circle cx="16" cy="16" r="12" stroke="#A5F3FC" strokeWidth="1" strokeDasharray="3 2" strokeOpacity="0.6" />
     <path
-      d="M8 16H10M12 12V20M16 8V24M20 12V20M22 16H24"
+      d="M7 16H9M11 11V21M15 7V25M19 10V22M23 13V19M25 16H27"
       stroke="#FFFFFF"
-      strokeWidth="2.5"
+      strokeWidth="2.2"
       strokeLinecap="round"
     />
-    <circle cx="16" cy="16" r="2.5" fill="#38BDF8" />
+    <circle cx="15" cy="16" r="2.2" fill="#22D3EE" />
   </svg>
 );
 

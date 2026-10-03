@@ -9,7 +9,7 @@ import {
   PINE_LABS_SUCCESS_EXCHANGE,
   PINE_LABS_LIMIT_EXCEEDED_EXCHANGE,
   DELHIVERY_SUCCESS_EXCHANGE,
-  WHISPERFLO_DIAL_EXCHANGE,
+  GNANI_TELEPHONY_EXCHANGE,
   ABDM_RUNWAY_EXCHANGE,
   TELEGRAM_DISPATCH_EXCHANGE
 } from '../data/apiExchanges';
@@ -38,7 +38,7 @@ export const getStepApiExchange = (
   ) {
     return TELEGRAM_DISPATCH_EXCHANGE;
   }
-  return WHISPERFLO_DIAL_EXCHANGE;
+  return GNANI_TELEPHONY_EXCHANGE;
 };
 
 export const useScenarioPlayback = () => {

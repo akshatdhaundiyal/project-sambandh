@@ -4,7 +4,7 @@ import {
   PINE_LABS_SUCCESS_EXCHANGE,
   PINE_LABS_LIMIT_EXCEEDED_EXCHANGE,
   DELHIVERY_SUCCESS_EXCHANGE,
-  WHISPERFLO_DIAL_EXCHANGE,
+  GNANI_TELEPHONY_EXCHANGE,
   ABDM_RUNWAY_EXCHANGE,
   TELEGRAM_DISPATCH_EXCHANGE,
   NETMEDS_PHARMACY_ORDER_EXCHANGE,
@@ -79,9 +79,9 @@ export const ConversationToolTree: React.FC = () => {
       id: 'root-dial',
       title: '08:30 IST Scheduled Check-In Initiation',
       category: 'conversation',
-      toolName: 'whisperflo_telephony_dial',
-      description: 'Outbound telephony initiated over Jio PSTN trunk. Biometric voiceprint matched at 98.4%.',
-      apiExchange: WHISPERFLO_DIAL_EXCHANGE,
+      toolName: 'gnani_telephony_dial',
+      description: 'Outbound telephony initiated over Jio PSTN trunk via Gnani.ai. Biometric voiceprint matched at 98.8%.',
+      apiExchange: GNANI_TELEPHONY_EXCHANGE,
       hitInScenarios: ['scenario-1', 'scenario-2', 'scenario-3', 'scenario-4', 'scenario-5'],
       scenarioStepMap: {
         'scenario-1': 0,
@@ -97,7 +97,7 @@ export const ConversationToolTree: React.FC = () => {
       id: 'lane1-wisdom',
       title: 'Lane 1: Railway Wisdom Mentorship',
       category: 'conversation',
-      toolName: 'whisperflo_stt_stream',
+      toolName: 'gnani_stt_stream',
       description: 'Senior mentors aspiring engineer on railway signal interlocking. Vitality & social utility verified.',
       hitInScenarios: ['scenario-1', 'scenario-2', 'scenario-3', 'scenario-4', 'scenario-5'],
       scenarioStepMap: {
@@ -116,7 +116,7 @@ export const ConversationToolTree: React.FC = () => {
       category: 'tripwire',
       branchLabel: 'BRANCH: FINANCIAL SOLICITATION DETECTED',
       branchGroup: 'Mentorship Safety Rail',
-      toolName: 'whisperflo_fraud_tripwire',
+      toolName: 'gnani_fraud_tripwire',
       description: 'Unverified ask for ₹5,000 transfer intercepted before audio relay. Senior line and peace of mind protected.',
       hitInScenarios: ['scenario-3'],
       scenarioStepMap: { 'scenario-3': 1 }
@@ -140,7 +140,7 @@ export const ConversationToolTree: React.FC = () => {
       title: 'Lane 2: Oral Adherence Ground-Truthing',
       category: 'conversation',
       branchLabel: 'BRANCH: NORMAL RAPPORT ➔ ADHERENCE CHECK',
-      toolName: 'whisperflo_stt_stream',
+      toolName: 'gnani_stt_stream',
       description: 'Contextual bridge to morning medication recall: "Laal wali BP ki goli" & Metformin.',
       hitInScenarios: ['scenario-1', 'scenario-2', 'scenario-4', 'scenario-5'],
       scenarioStepMap: {

@@ -2,7 +2,7 @@
  * Project Sambandh Indic Phonetic Transliteration Engine
  * Converts Romanized Hinglish (Latin alphabet) into Devanagari Hindi script.
  * 
- * Purpose: Standard TTS engines (Microsoft Windows hi-IN, WhisperFlo, Azure, Google)
+ * Purpose: Standard TTS engines (Gnani.ai, Browser hi-IN, Azure, Google)
  * sound robotic or unintelligible when given Romanized Hinglish.
  * When converted to Devanagari, the Hindi voices pronounce words with 100% natural phonetics.
  */
@@ -101,6 +101,50 @@ const HINGLISH_DICTIONARY: Record<string, string> = {
   badi: 'बड़ी',
   naya: 'नया',
   nayi: 'नयी',
+
+  // Prepositions & Connectives
+  mein: 'में',
+  me: 'में',
+  se: 'से',
+  ko: 'को',
+  par: 'पर',
+  pe: 'पे',
+  ka: 'का',
+  ki: 'की',
+  ke: 'के',
+  bhi: 'भी',
+  toh: 'तो',
+  to: 'तो',
+  aur: 'और',
+  ya: 'या',
+  sirf: 'सिर्फ',
+  bahut: 'बहुत',
+  bohot: 'बहुत',
+  kam: 'कम',
+  zyada: 'ज़्यादा',
+  jyada: 'ज़्यादा',
+  saath: 'साथ',
+  paas: 'पास',
+  baad: 'बाद',
+  pehle: 'पहले',
+  kar: 'कर',
+  karke: 'करके',
+  raha: 'रहा',
+  rahi: 'रही',
+  rahe: 'रहे',
+  hua: 'हुआ',
+  hui: 'हुई',
+  hue: 'हुए',
+  gir: 'गिर',
+  gira: 'गिरा',
+  uth: 'उठ',
+  utha: 'उठा',
+  baith: 'बैठ',
+  baitho: 'बैठो',
+  baithiye: 'बैठिये',
+  pee: 'पी',
+  pi: 'पी',
+  peete: 'पीते',
 
   // Common Verbs & Conversational Particles
   haan: 'हाँ',

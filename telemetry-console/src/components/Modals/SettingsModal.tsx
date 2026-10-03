@@ -40,7 +40,7 @@ import { getOpenRouterApiKey, testOpenRouterConnection } from '../../services/ll
 import {
   getActiveHindiVoiceSource,
   speakWithBrowserTts,
-  speakWithWhisperFloApi,
+  speakWithGnaniStreaming,
   stopSpeech
 } from '../../utils/speechService';
 
@@ -119,10 +119,10 @@ export const SettingsModal: React.FC = () => {
     }
     setIsTestingSpeech(true);
     const testText = "नमस्ते अंकल जी, आपका सुबह का नाश्ता और बीपी की दवाई हो गई?";
-    if (activeTtsEngine === 'chrome') {
+    if (activeTtsEngine === 'browser') {
       await speakWithBrowserTts(testText, { speaker: 'agent' });
     } else {
-      await speakWithWhisperFloApi(testText, { speaker: 'agent' });
+      await speakWithGnaniStreaming(testText, { speaker: 'agent' });
     }
     setIsTestingSpeech(false);
   };
@@ -404,11 +404,11 @@ export const SettingsModal: React.FC = () => {
                 Active Speech Synthesis Engine
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* Chrome Web Speech */}
+                {/* Browser Web Speech */}
                 <div
-                  onClick={() => setActiveTtsEngine('chrome')}
+                  onClick={() => setActiveTtsEngine('browser')}
                   className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between gap-3 ${
-                    activeTtsEngine === 'chrome'
+                    activeTtsEngine === 'browser'
                       ? 'bg-emerald-50/70 border-emerald-500 shadow-xs ring-1 ring-emerald-500'
                       : 'bg-white border-stone-200 hover:border-stone-300 hover:bg-stone-50/50'
                   }`}
@@ -420,12 +420,12 @@ export const SettingsModal: React.FC = () => {
                       </div>
                       <div>
                         <h4 className="font-extrabold text-xs text-stone-900 flex items-center gap-1.5">
-                          <span>Chrome Web Speech API</span>
-                          {activeTtsEngine === 'chrome' && (
+                          <span>Browser Web Speech API</span>
+                          {activeTtsEngine === 'browser' && (
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                           )}
                         </h4>
-                        <span className="text-[10px] font-medium text-emerald-700">OS-Free & Instant</span>
+                        <span className="text-[10px] font-medium text-emerald-700">OS-Free & Offline</span>
                       </div>
                     </div>
                     <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
@@ -433,40 +433,40 @@ export const SettingsModal: React.FC = () => {
                     </span>
                   </div>
                   <p className="text-xs text-stone-600 leading-relaxed">
-                    Uses local client browser speech engine (Google hi-IN / Natural Hindi). Zero external network latency, 100% reliable for competitions.
+                    Uses local client browser speech engine (Google hi-IN / Natural Hindi). Zero external network latency, 100% reliable for offline operation.
                   </p>
                 </div>
 
-                {/* WhisperFlo Neural Telephony */}
+                {/* Gnani.ai Full-Duplex Indic Carrier Rail */}
                 <div
-                  onClick={() => setActiveTtsEngine('whisperflo')}
+                  onClick={() => setActiveTtsEngine('gnani')}
                   className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between gap-3 ${
-                    activeTtsEngine === 'whisperflo'
-                      ? 'bg-emerald-50/70 border-emerald-500 shadow-xs ring-1 ring-emerald-500'
+                    activeTtsEngine === 'gnani'
+                      ? 'bg-indigo-50/70 border-indigo-500 shadow-xs ring-1 ring-indigo-500'
                       : 'bg-white border-stone-200 hover:border-stone-300 hover:bg-stone-50/50'
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2.5">
                       <div className="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-800 flex items-center justify-center font-bold">
-                        ☁️
+                        🎙️
                       </div>
                       <div>
                         <h4 className="font-extrabold text-xs text-stone-900 flex items-center gap-1.5">
-                          <span>WhisperFlo Neural Telephony</span>
-                          {activeTtsEngine === 'whisperflo' && (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>Gnani.ai Indic Voice Rail</span>
+                          {activeTtsEngine === 'gnani' && (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600" />
                           )}
                         </h4>
-                        <span className="text-[10px] font-medium text-indigo-700">Studio Grade PSTN</span>
+                        <span className="text-[10px] font-medium text-indigo-700">Full-Duplex Telephony</span>
                       </div>
                     </div>
                     <span className="text-[10px] bg-indigo-100 text-indigo-800 font-bold px-2 py-0.5 rounded-full">
-                      Ultra-Realistic
+                      Zero-Pause
                     </span>
                   </div>
                   <p className="text-xs text-stone-600 leading-relaxed">
-                    Neural streaming telephony pipeline tailored with acoustic warmth for Indian elderly tones and regional Hindi inflection.
+                    Carrier-grade streaming telephony pipeline with Awadhi acoustic models, sample-accurate gapless AudioContext queue, and sub-50ms acoustic barge-in.
                   </p>
                 </div>
               </div>
@@ -502,7 +502,7 @@ export const SettingsModal: React.FC = () => {
                   const voiceInfo = getActiveHindiVoiceSource('agent', activeTtsEngine);
                   return (
                     <>
-                      <span className="text-lg">{voiceInfo.source === 'chrome' ? '🌐' : '☁️'}</span>
+                      <span className="text-lg">{voiceInfo.source === 'browser' ? '🌐' : '🎙️'}</span>
                       <div className="flex-1 min-w-0">
                         <span className="font-bold text-stone-900 block truncate">{voiceInfo.name}</span>
                         <span className="text-[10px] text-stone-500 font-mono">

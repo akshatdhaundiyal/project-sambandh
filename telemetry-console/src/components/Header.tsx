@@ -5,7 +5,8 @@ import {
   Smartphone,
   ShieldCheck,
   Settings,
-  Radio
+  Radio,
+  GraduationCap
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -69,48 +70,48 @@ export const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Center Section: Primary Navigation View Tabs (Strict 3-Tab Architecture) */}
+        {/* Center Section: Primary Navigation View Tabs (3-Persona Architecture) */}
         <div className="grid grid-cols-3 md:flex md:items-center bg-[#EFECE6] p-1 rounded-xl border border-[#DFDAD1] shadow-2xs w-full md:w-auto shrink-0 gap-1">
           {/* Tab 1: Elder Companion */}
           <button
             onClick={() => setActiveTab('elder')}
-            className={`flex items-center justify-center gap-1.5 px-2.5 md:px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex items-center justify-center gap-1.5 px-3 md:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'elder' || activeTab === 'elder-app'
                 ? 'bg-white text-stone-900 shadow-2xs font-bold border border-stone-200/80'
                 : 'text-stone-600 hover:text-stone-900'
             }`}
           >
             <Smartphone className="w-3.5 h-3.5 text-stone-700 shrink-0" />
-            <span className="hidden lg:inline">Elder Companion</span>
-            <span className="lg:hidden">Elder</span>
+            <span className="hidden sm:inline">Elder Companion</span>
+            <span className="sm:hidden">Elder</span>
           </button>
 
           {/* Tab 2: Caregiver Hub */}
           <button
             onClick={() => setActiveTab('caregiver')}
-            className={`flex items-center justify-center gap-1.5 px-2.5 md:px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+            className={`flex items-center justify-center gap-1.5 px-3 md:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'caregiver' || activeTab === 'caregiver-telegram' || activeTab === 'medical-records'
                 ? 'bg-white text-stone-900 shadow-2xs font-bold border border-stone-200/80'
                 : 'text-stone-600 hover:text-stone-900'
             }`}
           >
             <ShieldCheck className="w-3.5 h-3.5 text-teal-700 shrink-0" />
-            <span className="hidden lg:inline">Caregiver Hub</span>
-            <span className="lg:hidden">Caregiver</span>
+            <span className="hidden sm:inline">Caregiver Hub</span>
+            <span className="sm:hidden">Caregiver</span>
           </button>
 
-          {/* Tab 3: Judge Telemetry & Rails */}
+          {/* Tab 3: Youth & Wisdom Bridge */}
           <button
-            onClick={() => setActiveTab('judge')}
-            className={`flex items-center justify-center gap-1.5 px-2.5 md:px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'judge' || activeTab === 'judge-tree' || activeTab === 'dual-pane'
+            onClick={() => setActiveTab('youth')}
+            className={`flex items-center justify-center gap-1.5 px-3 md:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
+              activeTab === 'youth'
                 ? 'bg-white text-stone-900 shadow-2xs font-bold border border-stone-200/80'
                 : 'text-stone-600 hover:text-stone-900'
             }`}
           >
-            <Columns2 className="w-3.5 h-3.5 text-stone-700 shrink-0" />
-            <span className="hidden lg:inline">Judge Telemetry & Rails</span>
-            <span className="lg:hidden">Judges</span>
+            <GraduationCap className="w-3.5 h-3.5 text-indigo-700 shrink-0" />
+            <span className="hidden sm:inline">Youth & Wisdom Bridge</span>
+            <span className="sm:hidden">Youth Bridge</span>
           </button>
         </div>
 

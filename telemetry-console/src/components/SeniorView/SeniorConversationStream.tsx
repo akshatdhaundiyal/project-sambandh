@@ -7,6 +7,7 @@ import type { ConversationTurn } from '../../types/telemetry';
 import { HindiSpeechRecognizer, isSpeechRecognitionSupported } from '../../utils/speechRecognitionService';
 import { RecommendedPromptsModal } from './RecommendedPromptsModal';
 import { getTimeContext } from '../../data/conversationalSparks';
+import { SIMULATION_PRESETS } from '../../data/simulationPrompts';
 
 export const SeniorConversationStream: React.FC = () => {
   const timeCtx = getTimeContext();
@@ -82,7 +83,7 @@ export const SeniorConversationStream: React.FC = () => {
       if (started) {
         setWasVoiceInput(true);
       } else if (!isSpeechRecognitionSupported()) {
-        setSpeechError('Speech recognition is not available in this browser. Please type or use WhisperFlo API.');
+        setSpeechError('Speech recognition is not available in this browser. Please type or use Gnani.ai streaming.');
         setTimeout(() => setSpeechError(null), 4000);
       }
     }
@@ -184,7 +185,7 @@ export const SeniorConversationStream: React.FC = () => {
               title="Open Simulation Scenarios & Benchmark Prompts Modal"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
-              <span>⚡ Test Scenarios (6)</span>
+              <span>⚡ Test Scenarios ({SIMULATION_PRESETS.length})</span>
             </button>
 
             {/* Audio & Telephony Settings Shortcut */}
@@ -350,7 +351,7 @@ export const SeniorConversationStream: React.FC = () => {
                               ? 'bg-emerald-700 text-white'
                               : 'bg-white hover:bg-stone-50 text-stone-700 border border-stone-200'
                           }`}
-                          title={isSpeakingThis ? "Stop speech" : `Read aloud via ${activeTtsEngine === 'chrome' ? 'Chrome Web Speech' : 'WhisperFlo'}`}
+                          title={isSpeakingThis ? "Stop speech" : `Read aloud via ${activeTtsEngine === 'browser' ? 'Browser Web Speech' : 'Gnani.ai'}`}
                         >
                           {isSpeakingThis ? (
                             <>
@@ -511,7 +512,7 @@ export const SeniorConversationStream: React.FC = () => {
               onClick={() => openSettingsModal('telephony')}
               className="hover:text-stone-600 transition-colors cursor-pointer flex items-center gap-1"
             >
-              <span>Engine: {activeTtsEngine === 'chrome' ? '🌐 Browser STT/TTS' : '☁️ WhisperFlo Neural'}</span>
+              <span>Engine: {activeTtsEngine === 'browser' ? '🌐 Browser Web Speech' : '🎙️ Gnani.ai Carrier Rail'}</span>
               <Settings2 className="w-2.5 h-2.5 text-stone-400" />
             </button>
           </div>

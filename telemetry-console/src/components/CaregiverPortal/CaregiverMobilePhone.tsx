@@ -180,7 +180,7 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
     if (preset === 'rx') {
       setUploadCategory('prescription');
       setUploadTitle('Dr. Saxena Review Slip (Oct 2026)');
-      setUploadDoctor('Dr. P. N. Saxena (MD, Cardiology)');
+      setUploadDoctor('Dr. Arvind Saxena (MD, Cardiology)');
       setUploadText(
         'Rx: Ramesh Chandra, 72/M. BP reading 138/86 in clinic. Continue Telmisartan 40mg OD. Add Amlodipine 5mg at night if evening systolic stays above 135 mmHg. Re-check Serum Creatinine in 6 weeks.'
       );
@@ -377,7 +377,7 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                     {preCallAgency.status === 'awaiting_approval' ? (
                       <div className="space-y-2 pt-0.5">
                         <p className="text-[11px] text-stone-600 leading-snug">
-                          Pari is ready to check in on Papa. Would you like to call him directly yourself today, or delegate to Pari?
+                          Sambandh AI is ready to check in on Papa. Would you like to call him directly yourself today, or delegate to Sambandh AI?
                         </p>
                         <div className="grid grid-cols-2 gap-1.5">
                           <button
@@ -394,7 +394,7 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                             className="py-1.5 px-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-[10px] flex items-center justify-center gap-1 cursor-pointer transition-colors shadow-2xs"
                           >
                             <Sparkles className="w-3 h-3" />
-                            <span>Let Pari Call</span>
+                            <span>Let Sambandh AI Call</span>
                           </button>
                         </div>
                       </div>
@@ -416,7 +416,7 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                       <div className="flex items-center justify-between text-[11px] text-sky-800 bg-sky-50/80 p-2 rounded-xl border border-sky-200">
                         <span className="font-medium flex items-center gap-1.5">
                           <CheckCircle2 className="w-3.5 h-3.5 text-sky-600 shrink-0" />
-                          <span>Pari authorized for {timeCtx.period.toLowerCase()} check-in</span>
+                          <span>Sambandh AI authorized for {timeCtx.period.toLowerCase()} check-in</span>
                         </span>
                         <button
                           type="button"
@@ -1182,7 +1182,7 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                       Scheduled Daily Check-In Window
                     </span>
                     <span className="text-[10px] text-stone-500">
-                      Pari companion check-in ({timeCtx.period})
+                      Sambandh AI companion check-in ({timeCtx.period})
                     </span>
                   </div>
                   <span className="font-mono font-bold text-xs text-stone-800 bg-[#FAF8F5] px-2.5 py-1 rounded-xl border border-stone-200">

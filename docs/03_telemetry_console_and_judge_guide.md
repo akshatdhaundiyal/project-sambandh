@@ -6,23 +6,26 @@
 
 ---
 
-## 1. Overview of the Dual-Pane Telemetry Console
+## 1. Overview of the 3-Persona Telemetry Console
 
 The **Project Sambandh L3 Telemetry Console** was engineered specifically for competition judges, technical evaluators, and system architects. Evaluating an autonomous voice agent presents an inherent challenge: speech is ephemeral. When an elder speaks over a phone, judges cannot see the internal reasoning loops, the database lookups, or the partner API handshakes taking place in the background.
 
-The Telemetry Console solves this by providing a **50/50 Dual-Pane Split Interface**:
+The Telemetry Console solves this by providing a unified **3-Persona Architecture**:
 
 ```
-┌──────────────────────────────────────────────┬──────────────────────────────────────────────┐
-│  LEFT PANE: SENIOR-FRIENDLY TELEPHONY VIEW   │    RIGHT PANE: JUDGE & STEP API INSPECTOR    │
-├──────────────────────────────────────────────┼──────────────────────────────────────────────┤
-│ • Elder Profile & Jio PSTN Session State    │ • Partner Rails Catalog (Logo + Name + Hover)│
-│ • Recommended Prompts Table (Hindi+Hinglish) │ • Tool Execution Node Timeline (Live SLAs)   │
-│ • Ongoing Call Waveform & Audio Telemetry    │ • Collapsible HTTP Request / Response Blocks │
-│ • Multi-Engine Hindi Voice Synthesis (TTS)   │ • Real-time Latency Metrics (84ms – 310ms)   │
-│ • Structured Memory Ledger (~210 Tokens)     │ • Dynamic Partner API Firing & Accrual       │
-│ • Vernacular Chat Stream & Custom Input Bar  │ • Acoustic Tripwire Fraud Intercept Banner   │
-└──────────────────────────────────────────────┴──────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                              PROJECT SAMBANDH TELEMETRY CONSOLE                         │
+├──────────────────────────┬─────────────────────────────┬───────────────────────────────┤
+│ TAB 1: ELDER COMPANION   │ TAB 2: CAREGIVER HUB        │ TAB 3: YOUTH & WISDOM BRIDGE  │
+│ (Ramesh Chandra, 72/M)   │ (Priya Sharma, Daughter)    │ (DTU Engineering Students)    │
+├──────────────────────────┼─────────────────────────────┼───────────────────────────────┤
+│ • Elder Telephony View   │ • Caregiver Command Deck    │ • Youth Mentorship Cards      │
+│ • Recommended Prompts    │ • Dynamic Profile Editor    │ • Real-time Safety Gate (LLM) │
+│ • Audio Waveform Viz     │ • Hobbies & Opinions Mgmt   │ • Acceptance/Rejection Flow   │
+│ • Hindi Voice Synthesis  │ • Live DAG Execution Tree   │ • Asynchronous Voice Relay    │
+│ • Memory Ledger (~210T)  │ • Fiduciary Mandate Ledger  │ • Privacy Name Hashing        │
+│ • Step API Inspector     │ • PostgreSQL Direct Sync    │ • Student Persona Profiles    │
+└──────────────────────────┴─────────────────────────────┴───────────────────────────────┘
 ```
 
 ---
@@ -149,24 +152,41 @@ Every autonomous action taken by Sambandh manifests as a chronological **Tool Ex
 
 ---
 
-## 4. Caregiver Receptor Tabs
+## 4. Persona Navigation & Command Deck
 
-At the top right of the console, tabs allow judges to switch between the inspector and caregiver communication channels:
+The console header provides 1-click navigation across the 3 dedicated persona domains:
 
-1. **`caregiver-telegram` (Live Telegram Reassurance & Topic Control Hub):**
-   - **Daily Morning Reassurance Card:** Displays the exact MTProto message delivered to Priya's phone with mood sentiment, adherence status, and active delivery tracking.
-   - **Interactive Buttons:** `[🎧 Listen to Papa's Story]`, `[📦 Track Delhivery Delivery]`, `[💳 View Pine Labs Receipt]`, `[📞 Call Papa Directly]`.
-   - **Papa's Topics of Interest & Conversation Starters:** An interactive caregiver management card where daughter Priya can:
-     - Review topics discovered autonomously during voice calls.
-     - Add new personal topics (e.g., family events, grandchildren updates, nostalgic memories).
-     - Toggle individual topics active/inactive to steer upcoming morning companion calls.
-     - Remove obsolete topics with 1 click.
-2. **`weekly-digest` (Sunday 7:00 PM Family Digest):**
-   - Renders longitudinal health adherence graphs (98.4% weekly compliance).
-   - Medication runway projection bar chart (showing 28 days of secure buffer).
-   - Vitals trendline (blood pressure stable at 128/82 mmHg).
-3. **`telemetry-dashboard` (System Performance Metrics):**
-   - High-level telemetry: 182ms average safety response, 310ms payment settlement SLA, 0% conversational context loss.
+### 4.1 Persona Tab 1: Elder Companion (Ramesh Chandra)
+- **Primary Telephony Interface:** Dual-pane layout featuring Ramesh Uncle's morning call simulation on the left and the real-time Judge & Step API Inspector on the right.
+- **Audio Synthesis & Visualizer:** Real-time animated waveform with multi-engine Hindi voice synthesis (Windows SAPI5 / Natural, Web Speech, WhisperFlo).
+- **Recommended Prompts Playbook:** 1-click test scenarios across routine adherence, local news opinions, balcony wellness, and emergency tripwires.
+
+### 4.2 Persona Tab 2: Caregiver Hub (Priya Sharma Command Deck)
+A unified, accordion-driven Command Deck designed for daughter Priya Sharma (overseeing care from Bengaluru):
+1. **Dynamic Elder Profile & Clinical Baseline:**
+   - Real-time form fields for Elder Name, Age, Gender, City, Vocation, Baseline Diagnoses, Preferred Address Style (e.g. "अंकल / जी" vs "बाबूजी"), Caregiver Relationship, and Monthly Spending Envelope.
+   - **PostgreSQL Live Sync:** Clicking `[Save Profile & Update Sambandh]` executes `PUT /api/seniors/{id}` in the FastAPI backend, updating PostgreSQL and instantly re-calibrating future voice calls without deployment.
+2. **Conversation Sparks, Interests & Opinions:**
+   - Curate topics for Sambandh to bring up during morning calls (e.g., *Northern Railway Locomotive Lore*, *Rohini Japanese Park Walking Track*).
+   - View autonomously extracted topics discovered from call transcripts.
+   - Toggle topics active/inactive or add new topics dynamically.
+3. **Live Telemetry & DAG Execution Inspector:**
+   - Real-time DAG execution tree tracking tool execution status, HTTP status codes, and microsecond latencies.
+   - Audit trail of autonomous Pine Labs UPI auto-debits, ABDM inventory queries, and Delhivery courier dispatches.
+4. **Caregiver Telegram & Weekly Digest Receptors:**
+   - Interactive Telegram MTProto reassurance card delivered within 60s of call completion.
+   - Sunday Family Digest visualizing longitudinal adherence (98.4%) and 28-day medicine runway buffers.
+
+### 4.3 Persona Tab 3: Youth & Wisdom Bridge (DTU Engineering Students)
+Transforms digital healthcare from one-way elder care into an intergenerational mentorship engine:
+- **Left Chassis (Elder Mentor Profile):** Privacy-preserved profile of Ramesh Chandra (`R***** C******`) highlighting his 41-year Northern Railway signaling career and mechanical relay expertise.
+- **Right Chassis (Student Question Deck & Safety Gate):**
+  - **Youth Personas:** Aarav Mehta (3rd Year EE, DTU) and Sneha Rao (4th Year Mech, DTU).
+  - **Vetted & Malicious Question Presets:** Pre-designed prompts testing both legitimate engineering questions (mechanical relay interlocking SOP) and exploitative prompts (asking for pension money, OTP, or house keys).
+  - **Autonomous LLM Safety Gate:** Questions undergo automated safety evaluation against PII harvesting, financial solicitation, and exploitation.
+  - **Visual Safety Status:** Approved questions display a green `[SAFE TO RELAY]` badge and queue into Sambandh's morning call; predatory questions are flagged with a red `[EXPLOITATION / PII HARVESTING DETECTED]` banner and severed.
+
+For complete details on prompt composition, token budgeting, and database column mappings, see **[System Prompt Architecture & JIT Budgeting](file:///d:/lab/projects/project-sambandh/docs/SYSTEM_PROMPT_ARCHITECTURE.md)**.
 
 ---
 

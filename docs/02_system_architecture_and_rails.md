@@ -383,3 +383,33 @@ The system transitions across 9 formal states with 4 governed exception traps:
 | **S6** | **LOGISTICS** | Payment 200 OK | Books Delhivery same-day courier dispatch | Stockout $\rightarrow$ Secondary pharmacy hub routing |
 | **S7** | **CAREGIVER BRIEF** | Logistics manifested | Formats and dispatches Telegram Reassurance Card | MTProto retry backoff |
 | **S8** | **TERMINATE** | Call concluded | Updates memory ledger and returns to S0 | - |
+
+---
+
+## 9. Relational Data Layer: PostgreSQL (`sambandh-postgres`)
+
+To eradicate static constants and ensure zero hardcoded senior profiles, Sambandh uses a relational PostgreSQL persistence engine (`services/health_locker/schema.sql`):
+
+- **`seniors` Table:** Stores senior identity, age, city, vocation, clinical baseline, preferred address style, caregiver details, and Pine Labs spending ceilings.
+- **`senior_interests` Table:** Tracks caregiver-curated and autonomously call-extracted conversation topics with active/inactive boolean flags.
+- **`senior_opinions` Table:** Stores topical local news sparks (infrastructure, parks, metro expansions) used to stimulate elder opinions and combat cognitive decline.
+- **`prescriptions` & `medication_intakes` Tables:** Powers deterministic pill runway calculations and adherence timelines.
+
+FastAPI endpoints (`services/health_locker/api_server.py`) expose CRUD operations (`PUT /api/seniors/{id}`, `GET/POST /api/seniors/{id}/interests`, `GET /api/seniors/{id}/opinions`), enabling daughter Priya to adjust Ramesh Uncle's profile at runtime via the Caregiver Hub.
+
+---
+
+## 10. Frontend Architecture: Single-Responsibility Hooks
+
+The Telemetry Console (`telemetry-console/src/`) avoids monolithic context anti-patterns by decomposing state into 8 focused hooks coordinated by a thin `TelemetryContext`:
+
+1. `useAudioPipeline`: Multi-engine Hindi voice synthesis (SAPI5/Natural, Web Speech), live audio context, and animated waveform bars.
+2. `useConversationEngine`: JIT modular prompt assembly, Gemini LLM invocations, dialogue streams, and auto-discovery of new interests.
+3. `useCaregiverState`: PostgreSQL senior profile sync, active conversation sparks, and opinion topic updates.
+4. `useFiduciaryLedger`: Pine Labs wallet balances, UPI transaction entries, and 2FA step-up limits.
+5. `useYouthMentorship`: Intergenerational engineering student questions, LLM safety gate reviews, and asynchronous voice relays.
+6. `useCallSession`: Telephony call lifecycle states (IDLE, CONNECTING, ACTIVE, ENDED) and duration timers.
+7. `useExecutionNodes`: Partner rail execution timeline, HTTP request/response payloads, and latency tracking.
+8. `useScenarioPlayback`: 1-click test execution of the 5 competition preset scenarios.
+
+For the exhaustive specification of the dynamic prompt construction and token savings, consult **[System Prompt Architecture & JIT Budgeting](file:///d:/lab/projects/project-sambandh/docs/SYSTEM_PROMPT_ARCHITECTURE.md)**.

@@ -10,15 +10,20 @@ import {
   FINANCIAL_KEYWORDS,
   LOGISTICS_KEYWORDS,
   FAMILY_KEYWORDS,
+  CRITICAL_EMERGENCY_KEYWORDS,
+  FALL_KEYWORDS,
+  MEDICATION_STOP_KEYWORDS,
+  ADHERENCE_CONFIRMATION_KEYWORDS,
   matchesKeywords
 } from '../data/keywords';
 import {
   createLlmExchange,
   CHROME_SPEECH_EXCHANGE,
-  WHISPERFLO_DIAL_EXCHANGE,
+  GNANI_TELEPHONY_EXCHANGE,
   HEALTH_LOCKER_QUERY_EXCHANGE,
   MEDGEMMA_ANALYSIS_EXCHANGE,
-  CAREGIVER_PRECALL_APPROVAL_EXCHANGE
+  CAREGIVER_PRECALL_APPROVAL_EXCHANGE,
+  ABDM_RUNWAY_EXCHANGE
 } from '../data/apiExchanges';
 
 export const useExecutionNodes = () => {
@@ -39,27 +44,27 @@ export const useExecutionNodes = () => {
   /**
    * Seeds the initial Telephony audio node when a live call connects.
    */
-  const seedInitialCallNode = useCallback((isChrome: boolean) => {
+  const seedInitialCallNode = useCallback((isBrowser: boolean) => {
     const timestamp = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST';
     setDynamicExecutionNodes([
       {
         id: `node-audio-initial-${Date.now()}`,
         stepIndex: 0,
         nodeType: 'telephony',
-        brandName: isChrome ? 'Chrome Web Speech API' : 'WhisperFlo Engine',
-        toolName: isChrome ? 'web_speech_recognition' : 'whisperflo_stt_stream',
-        title: isChrome ? 'Web Speech Audio Pipeline' : 'WhisperFlo Carrier STT',
-        actionSummary: isChrome
+        brandName: isBrowser ? 'Browser Web Speech API' : 'Gnani.ai Indic Voice Rail',
+        toolName: isBrowser ? 'web_speech_recognition' : 'gnani_telephony_full_duplex',
+        title: isBrowser ? 'Browser Audio Pipeline' : 'Gnani.ai Carrier STT/TTS',
+        actionSummary: isBrowser
           ? 'Streaming audio through in-browser Web Speech API engine.'
-          : 'SIP audio trunk bridged via WhisperFlo telephonic stream.',
+          : 'SIP audio trunk bridged via Gnani.ai Awadhi full-duplex stream.',
         timestamp,
         status: 'SUCCESS',
         statusCode: 'STREAM ACTIVE',
-        latencyMs: 142,
-        apiExchange: isChrome ? CHROME_SPEECH_EXCHANGE : WHISPERFLO_DIAL_EXCHANGE,
-        reasoningSnippet: isChrome
+        latencyMs: 114,
+        apiExchange: isBrowser ? CHROME_SPEECH_EXCHANGE : GNANI_TELEPHONY_EXCHANGE,
+        reasoningSnippet: isBrowser
           ? 'Browser Web Speech bidirectional duplex streaming active with punctuation sanitization.'
-          : 'WhisperFlo carrier SIP trunk bridged on Jio Delhi-NCR with 114ms VAD.',
+          : 'Gnani.ai carrier SIP trunk bridged on Jio Delhi-NCR with 114ms VAD and instant barge-in.',
         brandColor: '#0EA5E9'
       }
     ]);
@@ -97,15 +102,96 @@ export const useExecutionNodes = () => {
    * Detects domain rail nodes (ABDM, Pine Labs, Delhivery, Caregiver Telegram)
    * from full conversation context using shared keyword sets.
    */
-  const detectDomainNodes = useCallback((contextText: string): ToolExecutionNode[] => {
+  /**
+   * Detects domain rail nodes (ABDM, Pine Labs, Delhivery, Caregiver Telegram)
+   * from full conversation context using shared keyword sets and clinical safety rules.
+   */
+  const detectDomainNodes = useCallback((contextText: string, spendingCapInr: number = 4500): ToolExecutionNode[] => {
     const timestamp = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST';
     const detected: ToolExecutionNode[] = [];
     const normalized = contextText.toLowerCase();
 
+    // 1. CRITICAL MEDICAL EMERGENCY & FALL DETECTION (Highest Priority)
+    if (matchesKeywords(normalized, CRITICAL_EMERGENCY_KEYWORDS) || matchesKeywords(normalized, FALL_KEYWORDS)) {
+      const emergencyAbdm = SCENARIO_NODE_REGISTRY['scenario-5']?.find(n => n.nodeType === 'abdm');
+      if (emergencyAbdm) {
+        detected.push({
+          ...emergencyAbdm,
+          id: `node-emergency-protocol-${Date.now()}`,
+          timestamp
+        });
+      }
+      const emergencyTg = SCENARIO_NODE_REGISTRY['scenario-5']?.find(n => n.nodeType === 'caregiver');
+      if (emergencyTg) {
+        detected.push({
+          ...emergencyTg,
+          id: `node-emergency-alert-${Date.now()}`,
+          timestamp
+        });
+      }
+      return detected;
+    }
+
+    // 2. MEDICATION STOPPAGE / NON-ADHERENCE ALERT
+    if (matchesKeywords(normalized, MEDICATION_STOP_KEYWORDS)) {
+      detected.push({
+        id: `node-adherence-alert-${Date.now()}`,
+        stepIndex: 1,
+        nodeType: 'abdm',
+        brandName: 'ABDM Clinical Safety Rail',
+        toolName: 'clinical_adherence_interceptor',
+        title: 'Medication Discontinuation Safety Rail',
+        actionSummary: 'Elder reported discontinuing BP medication. Autonomous system enforces no unapproved titration rule and alerts Dr. Saxena & Priya.',
+        timestamp,
+        status: 'BLOCKED',
+        statusCode: 'NON-ADHERENCE WARNING',
+        latencyMs: 82,
+        brandColor: '#E11D48',
+        reasoningSnippet: 'Elder reported dizziness/stoppage. Prescribing/titration forbidden. Cardiologist review dispatched.',
+        apiExchange: ABDM_RUNWAY_EXCHANGE
+      });
+      const tgAlert = SCENARIO_NODE_REGISTRY['scenario-5']?.find(n => n.nodeType === 'caregiver');
+      if (tgAlert) {
+        detected.push({
+          ...tgAlert,
+          id: `node-tg-adherence-${Date.now()}`,
+          title: 'Adherence Warning Dispatched to Priya',
+          actionSummary: 'Urgent Telegram notification sent: Papa stopped BP meds due to dizziness. Recommended Dr. Saxena follow-up.',
+          timestamp
+        });
+      }
+      return detected;
+    }
+
+    // 3. ROUTINE ADHERENCE CONFIRMATION (Taking pill is good news, NOT low stock!)
+    const isAdherenceConfirmation = matchesKeywords(normalized, ADHERENCE_CONFIRMATION_KEYWORDS);
+
+    if (isAdherenceConfirmation) {
+      detected.push({
+        id: `node-adherence-confirmed-${Date.now()}`,
+        stepIndex: 1,
+        nodeType: 'abdm',
+        brandName: 'ABDM Health Authority',
+        toolName: 'oral_adherence_audit',
+        title: 'Oral Adherence Verified (Telma-40 Taken)',
+        actionSummary: 'Ramesh confirmed taking morning BP medication post-breakfast with water. Stock inventory unaffected.',
+        timestamp,
+        status: 'SUCCESS',
+        statusCode: 'ADHERENCE CONFIRMED',
+        latencyMs: 64,
+        brandColor: '#059669',
+        reasoningSnippet: 'Daily BP adherence ground-truthed. Fiduciary rails remain idle.',
+        apiExchange: ABDM_RUNWAY_EXCHANGE
+      });
+      return detected;
+    }
+
+    // 4. LOW STOCK / REFILL TRIGGER
     if (matchesKeywords(normalized, MEDICATION_KEYWORDS)) {
       const isRefillOrLowStock = matchesKeywords(normalized, [
-        'khatam', 'bachi', 'bache', 'refill', 'stock', 'kam', 'sirf', '3', '2', '1', 'order', 'mangwa', 'bhejo', 'kharch', 'parcha',
-        'पर्चा', 'खत्म', 'बची', 'कम', 'सिर्फ', 'मंगवा', 'ऑर्डर', 'गोली'
+        'khatam', 'bachi', 'bache', 'refill', 'stock', 'kam pad', 'sirf 3', 'sirf 2', 'sirf 1', '3 bachi', '2 bachi', '1 bachi',
+        'order kar', 'mangwa do', 'bhej do', 'parcha khatam', 'dawa khatam', 'goli khatam',
+        'पर्चा खत्म', 'खत्म हो', 'बची हैं', 'कम हैं', 'सिर्फ 3', 'सिर्फ 2', 'मंगवा दो', 'ऑर्डर कर'
       ]);
 
       const abdm = SCENARIO_NODE_REGISTRY['scenario-1']?.find(n => n.nodeType === 'abdm');
@@ -117,43 +203,66 @@ export const useExecutionNodes = () => {
         });
       }
 
-      // When low stock or refill is detected, autonomous agent cascades fulfillment:
-      // Pine Labs (Auto-Debit) ➔ Netmeds (Pharmacy Pack) ➔ Delhivery (Express Courier) ➔ Telegram (Family Brief)
       if (isRefillOrLowStock) {
-        const pine = SCENARIO_NODE_REGISTRY['scenario-1']?.find(n => n.nodeType === 'fiduciary');
-        if (pine) {
-          detected.push({
-            ...pine,
-            id: `node-pine-${Date.now()}`,
-            timestamp
-          });
-        }
+        const refillCost = 840;
+        const capExceeded = refillCost > spendingCapInr;
 
-        const netmeds = SCENARIO_NODE_REGISTRY['scenario-1']?.find(n => n.nodeType === 'pharmacy');
-        if (netmeds) {
-          detected.push({
-            ...netmeds,
-            id: `node-netmeds-${Date.now()}`,
-            timestamp
-          });
-        }
+        if (capExceeded) {
+          // Exceeds caregiver's configured cap -> HALT and request step-up approval!
+          const haltNode = SCENARIO_NODE_REGISTRY['scenario-4']?.find(n => n.nodeType === 'fiduciary');
+          if (haltNode) {
+            detected.push({
+              ...haltNode,
+              id: `node-pine-cap-${Date.now()}`,
+              actionSummary: `Auto-debit HALTED: ₹${refillCost} exceeds Priya's configured cap of ₹${spendingCapInr}. Mandate returned 402 Limit Exceeded.`,
+              timestamp
+            });
+          }
+          const stepUpCard = SCENARIO_NODE_REGISTRY['scenario-4']?.find(n => n.nodeType === 'caregiver');
+          if (stepUpCard) {
+            detected.push({
+              ...stepUpCard,
+              id: `node-tg-stepup-${Date.now()}`,
+              timestamp
+            });
+          }
+        } else {
+          // Within cap -> Autonomous fulfillment cascade
+          const pine = SCENARIO_NODE_REGISTRY['scenario-1']?.find(n => n.nodeType === 'fiduciary');
+          if (pine) {
+            detected.push({
+              ...pine,
+              id: `node-pine-${Date.now()}`,
+              timestamp
+            });
+          }
 
-        const dlv = SCENARIO_NODE_REGISTRY['scenario-1']?.find(n => n.nodeType === 'logistics');
-        if (dlv) {
-          detected.push({
-            ...dlv,
-            id: `node-dlv-${Date.now()}`,
-            timestamp
-          });
-        }
+          const netmeds = SCENARIO_NODE_REGISTRY['scenario-1']?.find(n => n.nodeType === 'pharmacy');
+          if (netmeds) {
+            detected.push({
+              ...netmeds,
+              id: `node-netmeds-${Date.now()}`,
+              timestamp
+            });
+          }
 
-        const tg = SCENARIO_NODE_REGISTRY['scenario-1']?.find(n => n.nodeType === 'caregiver');
-        if (tg) {
-          detected.push({
-            ...tg,
-            id: `node-tg-${Date.now()}`,
-            timestamp
-          });
+          const dlv = SCENARIO_NODE_REGISTRY['scenario-1']?.find(n => n.nodeType === 'logistics');
+          if (dlv) {
+            detected.push({
+              ...dlv,
+              id: `node-dlv-${Date.now()}`,
+              timestamp
+            });
+          }
+
+          const tg = SCENARIO_NODE_REGISTRY['scenario-1']?.find(n => n.nodeType === 'caregiver');
+          if (tg) {
+            detected.push({
+              ...tg,
+              id: `node-tg-${Date.now()}`,
+              timestamp
+            });
+          }
         }
       }
     } else {

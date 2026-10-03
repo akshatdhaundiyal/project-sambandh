@@ -1,9 +1,9 @@
 import { Scenario, SeniorProfile, ClinicalState, FiduciaryLedger, LogisticsState } from '../types/telemetry';
 
 export const BASE_SENIOR_PROFILE: SeniorProfile = {
-  id: "SENIOR_RAMESH_DL08",
+  id: "SENIOR_RAMESH_001",
   name: "Ramesh Chandra",
-  age: 74,
+  age: 72,
   gender: "Male",
   location: {
     addressLine: "Flat 402, Block C, Pocket 2",
@@ -13,7 +13,7 @@ export const BASE_SENIOR_PROFILE: SeniorProfile = {
   },
   telephony: {
     phoneNumber: "+91 98101 23456",
-    carrierTrunk: "Jio PSTN via WhisperFlo Voice Engine",
+    carrierTrunk: "Jio PSTN via Gnani.ai Voice Engine",
     dialect: "hi-IN-Awadhi",
     dailyWindowIst: "08:30:00",
     voiceprintConfidence: 0.982
@@ -103,7 +103,7 @@ const SCENARIO_1: Scenario = {
   subtitle: "Default Live Dynamic Dialogue · Autonomous Refill (₹840) · Delhivery Dispatch",
   description: "By default, the interaction runs completely unscripted: dialogue is generated dynamically in real time without canned scripts, while the L3 agent autonomously monitors oral adherence, ABDM runway (4 days < 5 days), executes ₹840 auto-debit on Pine Labs Plural, dispatches via Delhivery CMU, and briefs Priya on Telegram.",
   conversationMode: "UNSCRIPTED_DYNAMIC",
-  backgroundContext: "By default, all Sambandh scenarios operate as a live unscripted conversation. Dialogue is synthesized dynamically in real time without pre-recorded IVR prompts or canned scripts. The autonomous LLM agent reasons through Ramesh Chandra's spontaneous Awadhi-Hindi speech, memories, and emotional cues while deterministic L3 rails (Pine Labs Plural, Delhivery CMU, WhisperFlo acoustic tripwires) provide bulletproof guardrails.",
+  backgroundContext: "By default, all Sambandh scenarios operate as a live unscripted conversation. Dialogue is synthesized dynamically in real time without pre-recorded IVR prompts or canned scripts. The autonomous LLM agent reasons through Ramesh Chandra's spontaneous Awadhi-Hindi speech, memories, and emotional cues while deterministic L3 rails (Pine Labs Plural, Delhivery CMU, Gnani.ai acoustic tripwires) provide bulletproof guardrails.",
   category: "Happy Path",
   initialSeniorProfile: BASE_SENIOR_PROFILE,
   initialClinicalState: BASE_CLINICAL_STATE,
@@ -114,7 +114,7 @@ const SCENARIO_1: Scenario = {
       stepNumber: 1,
       phase: "OUTBOUND_DIALING",
       title: "Clock Tick & Outbound Telephony Initiation",
-      description: "Scheduler triggers 08:30 IST window. WhisperFlo initiates outbound SIP call over Jio PSTN trunk.",
+      description: "Scheduler triggers 08:30 IST window. Gnani.ai initiates outbound SIP call over Jio PSTN trunk.",
       callActive: true,
       callDurationSeconds: 4,
       badgeText: "200 SIP OK",
@@ -125,14 +125,14 @@ const SCENARIO_1: Scenario = {
           timestamp: "08:30:02 IST",
           speaker: "system",
           lane: "system",
-          speakerLabel: "WhisperFlo SIP Trunk",
+          speakerLabel: "Gnani.ai SIP Trunk",
           content: "Outbound call placed to +91 98101 23456 (Ramesh Chandra). Ringing tone generated. Carrier: Jio Delhi-NCR PSTN.",
           webhookPayload: {
-            eventId: "WF_EVT_DIAL_908123",
+            eventId: "GNANI_EVT_DIAL_908123",
             timestamp: "2026-10-12T08:30:02.114+05:30",
-            callSid: "WF_CALL_88192031",
+            callSid: "GNANI_CALL_88192031",
             carrierTrunk: "JIO_SIP_DELHI_ROHINI",
-            engine: "WhisperFlo v4.2-Turbo",
+            engine: "Gnani Indic Telephony v2.4",
             codec: "OPUS_HD_48KHZ",
             latencyMs: 114,
             confidence: 0.99,
@@ -152,7 +152,7 @@ const SCENARIO_1: Scenario = {
           fiduciaryCeiling: "ACTIVE",
           abdmPrescriptionLocking: "ACTIVE",
           noMedicalAdviceProtocol: "ACTIVE",
-          whisperfloAcousticTripwire: "ACTIVE"
+          gnaniAcousticTripwire: "ACTIVE"
         }
       },
       fiduciary: { ...BASE_FIDUCIARY_LEDGER, requestedDebitInr: 0, headroomRemainingInr: 4500 },
@@ -178,11 +178,11 @@ const SCENARIO_1: Scenario = {
           hindiText: "प्रणाम रमेश अंकल! शुभ प्रभात। बालकनी में बैठकर सुबह की चाय का आनंद ले रहे हैं? एक उभरते रेलवे इंजीनियर आरव ने पुणे से पूछा है: सिग्नल इंटरलॉकिंग फेल-सेफ होने पर भी मैनुअल ओवरराइड में टीम का विश्वास कैसे बनाएं? आपका 41 साल का अनुभव उनके काम आएगा!",
           hinglishText: "Pranam Ramesh Uncle! Shubh prabhat. Balcony me baithkar subah ki chai ka anand le rahe hain? Ek aspiring railway engineer Aarav ne Pune se pucha hai: Signal interlocking fail-safe hone par bhi manual override me team ka vishwas kaise banayein? Aapka 41 saal ka anubhav unke kaam aayega!",
           webhookPayload: {
-            eventId: "WF_EVT_TTS_10921",
+            eventId: "GNANI_EVT_TTS_10921",
             timestamp: "2026-10-12T08:30:10.450+05:30",
-            callSid: "WF_CALL_88192031",
+            callSid: "GNANI_CALL_88192031",
             carrierTrunk: "JIO_SIP_DELHI_ROHINI",
-            engine: "WhisperFlo Neural TTS (hi-IN-Awadhi-Male-Warm)",
+            engine: "Gnani.ai Neural TTS (hi-IN-Awadhi-Male-Warm)",
             codec: "OPUS_HD_48KHZ",
             latencyMs: 118,
             confidence: 0.995,
@@ -202,11 +202,11 @@ const SCENARIO_1: Scenario = {
           hindiText: "जीते रहो बेटा! हाँ हम ठीक हैं, पोहे और अदरक वाली चाय के साथ धूप सेक रहे थे। आरव से कहना: 1989 में गाज़ियाबाद यार्ड में जब रिले लॉजिक बदला था, हमने केबिन मास्टर और पॉइंट्समैन के साथ चाय पीकर उनकी बात सुनी थी। नियमों से ज़्यादा ज़मीनी कारीगर के हाथ की गर्मी और सम्मान संरक्षा बनाता है!",
           hinglishText: "Jeete raho beta! Haan hum theek hain, pohe aur adrak chai ke sath dhoop sek rahe the. Aarav se kehna: 1989 me Ghaziabad yard me jab relay logic badla tha, humne cabin master aur pointsman ke sath chai pi kar unki suni thi. Rules se zyaada ground technician ke haath ki garmi aur respect safety banati hai!",
           webhookPayload: {
-            eventId: "WF_EVT_ASR_29012",
+            eventId: "GNANI_EVT_ASR_29012",
             timestamp: "2026-10-12T08:30:28.820+05:30",
-            callSid: "WF_CALL_88192031",
+            callSid: "GNANI_CALL_88192031",
             carrierTrunk: "JIO_SIP_DELHI_ROHINI",
-            engine: "WhisperFlo Streaming STT (VAD: SpeechDetected)",
+            engine: "Gnani.ai Streaming STT (VAD: SpeechDetected)",
             codec: "OPUS_HD_48KHZ",
             latencyMs: 122,
             confidence: 0.984,
@@ -227,7 +227,7 @@ const SCENARIO_1: Scenario = {
           fiduciaryCeiling: "ACTIVE",
           abdmPrescriptionLocking: "ACTIVE",
           noMedicalAdviceProtocol: "ACTIVE",
-          whisperfloAcousticTripwire: "ACTIVE"
+          gnaniAcousticTripwire: "ACTIVE"
         }
       },
       fiduciary: { ...BASE_FIDUCIARY_LEDGER, requestedDebitInr: 0, headroomRemainingInr: 4500 },
@@ -253,11 +253,11 @@ const SCENARIO_1: Scenario = {
           hindiText: "वाह अंकल, ज़मीनी कारीगर का सम्मान ही सबसे बड़ी संरक्षा है—यह बात आरव को ज़रूर प्रेरित करेगी। वैसे अंकल, सुबह की चाय के बाद अपनी लाल वाली बीपी की गोली टेल्मिसार्टन और शुगर की आधी गोली ले ली थी ना?",
           hinglishText: "Wah Uncle, ground technician ka samman hi sabse badi safety hai—yeh baat Aarav ko zarur inspire karegi. Waise Uncle, subah ki chai ke baad apni laal wali BP ki goli Telmisartan aur sugar ki aadhi tablet le li thi na?",
           webhookPayload: {
-            eventId: "WF_EVT_TTS_10944",
+            eventId: "GNANI_EVT_TTS_10944",
             timestamp: "2026-10-12T08:31:10.200+05:30",
-            callSid: "WF_CALL_88192031",
+            callSid: "GNANI_CALL_88192031",
             carrierTrunk: "JIO_SIP_DELHI_ROHINI",
-            engine: "WhisperFlo Neural TTS",
+            engine: "Gnani.ai Neural TTS",
             codec: "OPUS_HD_48KHZ",
             latencyMs: 116,
             confidence: 0.99,
@@ -277,11 +277,11 @@ const SCENARIO_1: Scenario = {
           hindiText: "हाँ बेटा, नाश्ते के तुरंत बाद लाल वाली गोली और डायबिटीज़ की आधी गोली गुनगुने पानी के साथ ले ली थी। सब नियमित है।",
           hinglishText: "Haan beta, nashte ke turant baad laal wali goli aur diabetes ki aadhi goli gungune paani ke sath le li thi. Sab regular hai.",
           webhookPayload: {
-            eventId: "WF_EVT_ASR_29045",
+            eventId: "GNANI_EVT_ASR_29045",
             timestamp: "2026-10-12T08:31:32.410+05:30",
-            callSid: "WF_CALL_88192031",
+            callSid: "GNANI_CALL_88192031",
             carrierTrunk: "JIO_SIP_DELHI_ROHINI",
-            engine: "WhisperFlo Streaming STT",
+            engine: "Gnani.ai Streaming STT",
             codec: "OPUS_HD_48KHZ",
             latencyMs: 120,
             confidence: 0.978,
@@ -302,7 +302,7 @@ const SCENARIO_1: Scenario = {
           fiduciaryCeiling: "ACTIVE",
           abdmPrescriptionLocking: "ACTIVE",
           noMedicalAdviceProtocol: "ACTIVE",
-          whisperfloAcousticTripwire: "ACTIVE"
+          gnaniAcousticTripwire: "ACTIVE"
         }
       },
       fiduciary: { ...BASE_FIDUCIARY_LEDGER, requestedDebitInr: 0, headroomRemainingInr: 4500 },
@@ -326,9 +326,9 @@ const SCENARIO_1: Scenario = {
           speakerLabel: "ABDM Adherence Rail",
           content: "Inventory Runway Analysis: Last courier delivery at 2026-09-14. Consumed: 26 units. Remaining: 4 units (4 days). Refill threshold = 5 days. Condition breached: AUTONOMOUS_REFILL_REQUIRED.",
           webhookPayload: {
-            eventId: "WF_EVT_INT_RUNWAY_4491",
+            eventId: "GNANI_EVT_INT_RUNWAY_4491",
             timestamp: "2026-10-12T08:31:50.110+05:30",
-            callSid: "WF_CALL_88192031",
+            callSid: "GNANI_CALL_88192031",
             carrierTrunk: "SYSTEM_INTERNAL_EVENT",
             engine: "ABDM-FHIR-Engine",
             codec: "INTERNAL_EVENT",
@@ -350,11 +350,11 @@ const SCENARIO_1: Scenario = {
           hindiText: "अंकल, आपके नियमित टेल्मिसार्टन और ग्लाइकोमेट में सिर्फ 4 दिन का स्टॉक बचा है। हर महीने की तरह, हम फार्मेसी से नया 30 दिन का पैक आज ही डिस्पैच करवा देते हैं, ठीक है?",
           hinglishText: "Uncle, aapke regular Telmisartan aur Glycomet me 4 din ka stock bacha hai. Har mahine ki tarah, hum pharmacy se fresh 30-din ka pack aaj hi dispatch karwa dete hain, theek hai?",
           webhookPayload: {
-            eventId: "WF_EVT_TTS_10988",
+            eventId: "GNANI_EVT_TTS_10988",
             timestamp: "2026-10-12T08:32:05.300+05:30",
-            callSid: "WF_CALL_88192031",
+            callSid: "GNANI_CALL_88192031",
             carrierTrunk: "JIO_SIP_DELHI_ROHINI",
-            engine: "WhisperFlo Neural TTS",
+            engine: "Gnani.ai Neural TTS",
             codec: "OPUS_HD_48KHZ",
             latencyMs: 119,
             confidence: 0.99,
@@ -374,11 +374,11 @@ const SCENARIO_1: Scenario = {
           hindiText: "हाँ बेटा, भिजवा दो। बहुत-बहुत धन्यवाद!",
           hinglishText: "Haan beta, bhejwa do. Dhanyawad!",
           webhookPayload: {
-            eventId: "WF_EVT_ASR_29099",
+            eventId: "GNANI_EVT_ASR_29099",
             timestamp: "2026-10-12T08:32:15.550+05:30",
-            callSid: "WF_CALL_88192031",
+            callSid: "GNANI_CALL_88192031",
             carrierTrunk: "JIO_SIP_DELHI_ROHINI",
-            engine: "WhisperFlo Streaming STT",
+            engine: "Gnani.ai Streaming STT",
             codec: "OPUS_HD_48KHZ",
             latencyMs: 115,
             confidence: 0.989,
@@ -399,7 +399,7 @@ const SCENARIO_1: Scenario = {
           fiduciaryCeiling: "ACTIVE",
           abdmPrescriptionLocking: "ACTIVE",
           noMedicalAdviceProtocol: "ACTIVE",
-          whisperfloAcousticTripwire: "ACTIVE"
+          gnaniAcousticTripwire: "ACTIVE"
         }
       },
       fiduciary: { ...BASE_FIDUCIARY_LEDGER, requestedDebitInr: 840.0, headroomRemainingInr: 3660.0 },
@@ -423,9 +423,9 @@ const SCENARIO_1: Scenario = {
           speakerLabel: "Pine Labs Plural Gateway",
           content: "⚡ Mandate Execution Success: ₹840.00 debited from HDFC UPI Autopay. Auth Ref: PL_TXN_DEL_992140. UTR: UPI/20261012/88129031. Remaining Monthly Cap: ₹3,660.00. Status: 200 OK CAPTURED.",
           webhookPayload: {
-            eventId: "WF_EVT_PL_98124",
+            eventId: "GNANI_EVT_PL_98124",
             timestamp: "2026-10-12T08:32:20.400+05:30",
-            callSid: "WF_CALL_88192031",
+            callSid: "GNANI_CALL_88192031",
             carrierTrunk: "PINE_LABS_PLURAL_API",
             engine: "PineLabs-Plural-v2",
             codec: "REST_HTTPS_JSON",
@@ -447,7 +447,7 @@ const SCENARIO_1: Scenario = {
           fiduciaryCeiling: "ACTIVE",
           abdmPrescriptionLocking: "ACTIVE",
           noMedicalAdviceProtocol: "ACTIVE",
-          whisperfloAcousticTripwire: "ACTIVE"
+          gnaniAcousticTripwire: "ACTIVE"
         }
       },
       fiduciary: {
@@ -477,9 +477,9 @@ const SCENARIO_1: Scenario = {
           speakerLabel: "Delhivery CMU Rail",
           content: "📦 Logistics Booking Success: Waybill DLV-98234-DEL created. Tier: PRIORITY_HEALTHCARE_SAME_DAY. Origin: Apollo Rohini DarkStore. Destination: Flat 402, Rohini Sector 8, Delhi 110085. SLA ETA: Today 4:00 PM.",
           webhookPayload: {
-            eventId: "WF_EVT_DLV_881234",
+            eventId: "GNANI_EVT_DLV_881234",
             timestamp: "2026-10-12T08:32:25.820+05:30",
-            callSid: "WF_CALL_88192031",
+            callSid: "GNANI_CALL_88192031",
             carrierTrunk: "DELHIVERY_B2C_API",
             engine: "Delhivery-CMU-v3",
             codec: "REST_HTTPS_JSON",
@@ -501,7 +501,7 @@ const SCENARIO_1: Scenario = {
           fiduciaryCeiling: "ACTIVE",
           abdmPrescriptionLocking: "ACTIVE",
           noMedicalAdviceProtocol: "ACTIVE",
-          whisperfloAcousticTripwire: "ACTIVE"
+          gnaniAcousticTripwire: "ACTIVE"
         }
       },
       fiduciary: {
@@ -532,11 +532,11 @@ const SCENARIO_1: Scenario = {
           hindiText: "अंकल, दवाइयाँ आज शाम 4:00 बजे तक आपके पास पहुँच जाएंगी। आप आराम से धूप सेकिए और चाय का आनंद लीजिए। प्रणाम!",
           hinglishText: "Uncle, medicine aaj sham 4 baje tak pahunch jayegi. Aap aaram se dhoop sekiye aur chai ka anand lijiye. Pranam!",
           webhookPayload: {
-            eventId: "WF_EVT_TTS_11012",
+            eventId: "GNANI_EVT_TTS_11012",
             timestamp: "2026-10-12T08:32:40.100+05:30",
-            callSid: "WF_CALL_88192031",
+            callSid: "GNANI_CALL_88192031",
             carrierTrunk: "JIO_SIP_DELHI_ROHINI",
-            engine: "WhisperFlo Neural TTS",
+            engine: "Gnani.ai Neural TTS",
             codec: "OPUS_HD_48KHZ",
             latencyMs: 114,
             confidence: 0.99,
@@ -554,7 +554,7 @@ const SCENARIO_1: Scenario = {
           speakerLabel: "Telegram Bot Rail (@SambandhCareBot)",
           content: "✈️ Telegram Care Briefing delivered to Priya Sharma (@priya_sharma_care). Message ID: #98412. Inline buttons active.",
           webhookPayload: {
-            eventId: "WF_EVT_TG_77123",
+            eventId: "GNANI_EVT_TG_77123",
             timestamp: "2026-10-12T08:32:48.330+05:30",
             callSid: "TELEGRAM_BOT_DISPATCH",
             carrierTrunk: "TELEGRAM_MTPROTO_API",
@@ -578,7 +578,7 @@ const SCENARIO_1: Scenario = {
           fiduciaryCeiling: "ACTIVE",
           abdmPrescriptionLocking: "ACTIVE",
           noMedicalAdviceProtocol: "ACTIVE",
-          whisperfloAcousticTripwire: "ACTIVE"
+          gnaniAcousticTripwire: "ACTIVE"
         }
       },
       fiduciary: {
@@ -653,11 +653,11 @@ const SCENARIO_2: Scenario = {
           speakerLabel: "Sambandh Voice Agent",
           content: "Pranam Uncle! IIT Roorkee se Sneha ne pucha hai: Foggy winter me track circuits fail hone par signal safety kaise maintain karein? Aapka anubhav unhe guide karega.",
           webhookPayload: {
-            eventId: "WF_EVT_TTS_2011",
+            eventId: "GNANI_EVT_TTS_2011",
             timestamp: "2026-10-12T08:30:15.110+05:30",
-            callSid: "WF_CALL_9910291",
+            callSid: "GNANI_CALL_9910291",
             carrierTrunk: "JIO_SIP_DELHI_ROHINI",
-            engine: "WhisperFlo Neural TTS",
+            engine: "Gnani.ai Neural TTS",
             codec: "OPUS_HD_48KHZ",
             latencyMs: 112,
             confidence: 0.99,
@@ -675,11 +675,11 @@ const SCENARIO_2: Scenario = {
           speakerLabel: "Ramesh Chandra (Senior)",
           content: "Are wah, bahot accha sawal! Beta fog me track circuit shunt resistance drop ho jata hai. Humne double distant signal aur detonator placement ka rule strictly implement karwaya tha. Sneha se kaho failure mode hamesha 'fail-to-red' hona chahiye!",
           webhookPayload: {
-            eventId: "WF_EVT_ASR_4401",
+            eventId: "GNANI_EVT_ASR_4401",
             timestamp: "2026-10-12T08:31:05.400+05:30",
-            callSid: "WF_CALL_9910291",
+            callSid: "GNANI_CALL_9910291",
             carrierTrunk: "JIO_SIP_DELHI_ROHINI",
-            engine: "WhisperFlo Streaming STT",
+            engine: "Gnani.ai Streaming STT",
             codec: "OPUS_HD_48KHZ",
             latencyMs: 118,
             confidence: 0.988,
@@ -699,7 +699,7 @@ const SCENARIO_2: Scenario = {
           fiduciaryCeiling: "ACTIVE",
           abdmPrescriptionLocking: "ACTIVE",
           noMedicalAdviceProtocol: "ACTIVE",
-          whisperfloAcousticTripwire: "ACTIVE"
+          gnaniAcousticTripwire: "ACTIVE"
         }
       },
       fiduciary: { ...BASE_FIDUCIARY_LEDGER, requestedDebitInr: 0, headroomRemainingInr: 4500 },
@@ -723,11 +723,11 @@ const SCENARIO_2: Scenario = {
           speakerLabel: "Sambandh Voice Agent",
           content: "Shandar Uncle! Aur subah ki laal goli aur sugar tablet time par le li na? Strip me stock theek hai?",
           webhookPayload: {
-            eventId: "WF_EVT_TTS_2022",
+            eventId: "GNANI_EVT_TTS_2022",
             timestamp: "2026-10-12T08:32:00.120+05:30",
-            callSid: "WF_CALL_9910291",
+            callSid: "GNANI_CALL_9910291",
             carrierTrunk: "JIO_SIP_DELHI_ROHINI",
-            engine: "WhisperFlo Neural TTS",
+            engine: "Gnani.ai Neural TTS",
             codec: "OPUS_HD_48KHZ",
             latencyMs: 114,
             confidence: 0.99,
@@ -745,11 +745,11 @@ const SCENARIO_2: Scenario = {
           speakerLabel: "Ramesh Chandra (Senior)",
           content: "Haan beta, dawai nashte ke sath le li thi. Abhi toh pura naya patta khula hai, aaram se 20-22 din chalega. Koi chinta nahi.",
           webhookPayload: {
-            eventId: "WF_EVT_ASR_4422",
+            eventId: "GNANI_EVT_ASR_4422",
             timestamp: "2026-10-12T08:32:15.300+05:30",
-            callSid: "WF_CALL_9910291",
+            callSid: "GNANI_CALL_9910291",
             carrierTrunk: "JIO_SIP_DELHI_ROHINI",
-            engine: "WhisperFlo Streaming STT",
+            engine: "Gnani.ai Streaming STT",
             codec: "OPUS_HD_48KHZ",
             latencyMs: 116,
             confidence: 0.985,
@@ -769,7 +769,7 @@ const SCENARIO_2: Scenario = {
           fiduciaryCeiling: "ACTIVE",
           abdmPrescriptionLocking: "ACTIVE",
           noMedicalAdviceProtocol: "ACTIVE",
-          whisperfloAcousticTripwire: "ACTIVE"
+          gnaniAcousticTripwire: "ACTIVE"
         }
       },
       fiduciary: { ...BASE_FIDUCIARY_LEDGER, requestedDebitInr: 0, headroomRemainingInr: 4500 },
@@ -793,7 +793,7 @@ const SCENARIO_2: Scenario = {
           speakerLabel: "Telegram Bot Rail (@SambandhCareBot)",
           content: "✈️ Telegram Care Briefing delivered to Priya Sharma (@priya_sharma_care). Mood: Energetic & Purposeful (Vitality 96%). Stock: 22 days runway.",
           webhookPayload: {
-            eventId: "WF_EVT_TG_77901",
+            eventId: "GNANI_EVT_TG_77901",
             timestamp: "2026-10-12T08:33:40.110+05:30",
             callSid: "TELEGRAM_BOT_DISPATCH",
             carrierTrunk: "TELEGRAM_MTPROTO_API",
@@ -817,7 +817,7 @@ const SCENARIO_2: Scenario = {
           fiduciaryCeiling: "ACTIVE",
           abdmPrescriptionLocking: "ACTIVE",
           noMedicalAdviceProtocol: "ACTIVE",
-          whisperfloAcousticTripwire: "ACTIVE"
+          gnaniAcousticTripwire: "ACTIVE"
         }
       },
       fiduciary: { ...BASE_FIDUCIARY_LEDGER, requestedDebitInr: 0, headroomRemainingInr: 4500 },
@@ -851,9 +851,9 @@ const SCENARIO_3: Scenario = {
   scenarioNumber: 3,
   title: "Mentorship Impersonation & Fraud Tripwire",
   subtitle: "Immediate Call Severing + Whitelist Lock (<300ms Tripwire)",
-  description: "Demonstrates conversational security guardrail: Unverified mentee attempts financial solicitation ('Uncle, my fees are due, send ₹5,000 on GPay'). WhisperFlo semantic tripwire severs the line in <300ms, blacklists the profile, protects the senior from panic, and sends a silent security brief to Priya's Telegram.",
+  description: "Demonstrates conversational security guardrail: Unverified mentee attempts financial solicitation ('Uncle, my fees are due, send ₹5,000 on GPay'). Gnani.ai semantic tripwire severs the line in <300ms, blacklists the profile, protects the senior from panic, and sends a silent security brief to Priya's Telegram.",
   conversationMode: "UNSCRIPTED_DYNAMIC",
-  backgroundContext: "Live unscripted check-in where an unverified external mentee tries to solicit money from Ramesh Chandra. WhisperFlo's acoustic fraud tripwire detects the financial solicitation keywords in under 300ms, immediately terminates the call safely, and alerts Priya on Telegram without alarming the elder.",
+  backgroundContext: "Live unscripted check-in where an unverified external mentee tries to solicit money from Ramesh Chandra. Gnani.ai's acoustic fraud tripwire detects the financial solicitation keywords in under 300ms, immediately terminates the call safely, and alerts Priya on Telegram without alarming the elder.",
   category: "Security Tripwire",
   initialSeniorProfile: BASE_SENIOR_PROFILE,
   initialClinicalState: BASE_CLINICAL_STATE,
@@ -878,11 +878,11 @@ const SCENARIO_3: Scenario = {
           speakerLabel: "Sambandh Voice Agent",
           content: "Ramesh Uncle, hamare mentorship bridge par ek naye trainee Vicky connect hue hain...",
           webhookPayload: {
-            eventId: "WF_EVT_TTS_301",
+            eventId: "GNANI_EVT_TTS_301",
             timestamp: "2026-10-12T08:30:10.100+05:30",
-            callSid: "WF_CALL_FRAUD_TRIP_01",
+            callSid: "GNANI_CALL_FRAUD_TRIP_01",
             carrierTrunk: "JIO_SIP_DELHI_ROHINI",
-            engine: "WhisperFlo Neural TTS",
+            engine: "Gnani.ai Neural TTS",
             codec: "OPUS_HD_48KHZ",
             latencyMs: 114,
             confidence: 0.99,
@@ -900,11 +900,11 @@ const SCENARIO_3: Scenario = {
           speakerLabel: "Vicky (Unverified Mentee - Caller ID Mismatch)",
           content: "Hello Uncle ji! Hum railway workshop join kar rahe hain par hamari college fees pending hai. Kya aap mujhe Google Pay par ₹5,000 bhej sakte hain? Aur aap ghar par akele rehte hain kya?",
           webhookPayload: {
-            eventId: "WF_EVT_ASR_TRIP_911",
+            eventId: "GNANI_EVT_ASR_TRIP_911",
             timestamp: "2026-10-12T08:30:18.250+05:30",
-            callSid: "WF_CALL_FRAUD_TRIP_01",
+            callSid: "GNANI_CALL_FRAUD_TRIP_01",
             carrierTrunk: "JIO_SIP_DELHI_ROHINI",
-            engine: "WhisperFlo Acoustic Security Rail",
+            engine: "Gnani.ai Acoustic Security Rail",
             codec: "OPUS_HD_48KHZ",
             latencyMs: 142,
             confidence: 0.992,
@@ -925,7 +925,7 @@ const SCENARIO_3: Scenario = {
           fiduciaryCeiling: "ACTIVE",
           abdmPrescriptionLocking: "ACTIVE",
           noMedicalAdviceProtocol: "ACTIVE",
-          whisperfloAcousticTripwire: "TRIGGERED"
+          gnaniAcousticTripwire: "TRIGGERED"
         }
       },
       fiduciary: { ...BASE_FIDUCIARY_LEDGER, requestedDebitInr: 0, headroomRemainingInr: 4500 },
@@ -946,14 +946,14 @@ const SCENARIO_3: Scenario = {
           timestamp: "08:30:18.432 IST",
           speaker: "system",
           lane: "tripwire",
-          speakerLabel: "WhisperFlo Acoustic Firewall",
+          speakerLabel: "Gnani.ai Acoustic Firewall",
           content: "⚡ TRIPWIRE FIRED (182ms latency): Mentee SIP trunk muted. IP/Device fingerprint blacklisted permanently. Senior line preserved.",
           webhookPayload: {
-            eventId: "WF_EVT_FIREWALL_SEVER",
+            eventId: "GNANI_EVT_FIREWALL_SEVER",
             timestamp: "2026-10-12T08:30:18.432+05:30",
-            callSid: "WF_CALL_FRAUD_TRIP_01",
-            carrierTrunk: "WHISPERFLO_SECURITY_GATEWAY",
-            engine: "WhisperFlo-Guardian-v2",
+            callSid: "GNANI_CALL_FRAUD_TRIP_01",
+            carrierTrunk: "GNANI_SECURITY_GATEWAY",
+            engine: "Gnani.ai-Guardian-v2",
             codec: "INTERNAL_FILTER",
             latencyMs: 182,
             confidence: 1.0,
@@ -971,11 +971,11 @@ const SCENARIO_3: Scenario = {
           speakerLabel: "Sambandh Voice Agent",
           content: "Uncle, lagta hai line me network issue aa gaya hai. Chaliye pehle aapki subah ki dawaiyon ki baat kar lete hain. Poha kaisa bana tha aaj?",
           webhookPayload: {
-            eventId: "WF_EVT_TTS_304",
+            eventId: "GNANI_EVT_TTS_304",
             timestamp: "2026-10-12T08:30:22.100+05:30",
-            callSid: "WF_CALL_FRAUD_TRIP_01",
+            callSid: "GNANI_CALL_FRAUD_TRIP_01",
             carrierTrunk: "JIO_SIP_DELHI_ROHINI",
-            engine: "WhisperFlo Neural TTS (Calming)",
+            engine: "Gnani.ai Neural TTS (Calming)",
             codec: "OPUS_HD_48KHZ",
             latencyMs: 116,
             confidence: 0.99,
@@ -995,7 +995,7 @@ const SCENARIO_3: Scenario = {
           fiduciaryCeiling: "ACTIVE",
           abdmPrescriptionLocking: "ACTIVE",
           noMedicalAdviceProtocol: "ACTIVE",
-          whisperfloAcousticTripwire: "TRIGGERED"
+          gnaniAcousticTripwire: "TRIGGERED"
         }
       },
       fiduciary: { ...BASE_FIDUCIARY_LEDGER, requestedDebitInr: 0, headroomRemainingInr: 4500 },
@@ -1019,7 +1019,7 @@ const SCENARIO_3: Scenario = {
           speakerLabel: "Telegram Security Rail (@SambandhCareBot)",
           content: "🚨 Telegram Security Alert dispatched to Priya Sharma (@priya_sharma_care). Caller blacklisted. Senior safe and calm.",
           webhookPayload: {
-            eventId: "WF_EVT_TG_SEC_881",
+            eventId: "GNANI_EVT_TG_SEC_881",
             timestamp: "2026-10-12T08:31:00.120+05:30",
             callSid: "TELEGRAM_SECURITY_ALERT",
             carrierTrunk: "TELEGRAM_MTPROTO_API",
@@ -1043,7 +1043,7 @@ const SCENARIO_3: Scenario = {
           fiduciaryCeiling: "ACTIVE",
           abdmPrescriptionLocking: "ACTIVE",
           noMedicalAdviceProtocol: "ACTIVE",
-          whisperfloAcousticTripwire: "TRIGGERED"
+          gnaniAcousticTripwire: "TRIGGERED"
         }
       },
       fiduciary: { ...BASE_FIDUCIARY_LEDGER, requestedDebitInr: 0, headroomRemainingInr: 4500 },
@@ -1055,7 +1055,7 @@ const SCENARIO_3: Scenario = {
         timestamp: "08:31 AM IST",
         headline: "🛡️ Security Tripwire Alert: Solicitation Blocked",
         participants: "Sambandh Security Rail & Unknown Caller (Vicky)",
-        topicSummary: "At 08:30 AM, an unverified mentee probe ('Vicky') requested a ₹5,000 transfer via UPI and asked if Papa lives alone. WhisperFlo semantic filters intercepted the request in 182ms.",
+        topicSummary: "At 08:30 AM, an unverified mentee probe ('Vicky') requested a ₹5,000 transfer via UPI and asked if Papa lives alone. Gnani.ai semantic filters intercepted the request in 182ms.",
         adherenceStatus: "Papa was gracefully shielded from panic and completed his morning check-in calmly.",
         fulfillmentStatus: "Action Taken: Caller permanently blacklisted across carrier trunks. Whitelist lock enabled for Papa's phone line.",
         sentimentBadge: "Safe & Shielded (Acoustic Filter Active)",
@@ -1109,9 +1109,9 @@ const SCENARIO_4: Scenario = {
           speakerLabel: "Pharmacy Rail & Price Ledger",
           content: "Dispense Quote: 90-day bulk packs for Telmisartan 40mg + Metformin 500mg. Quote Total: ₹5,600.00. Pre-Authorized Monthly Ceiling: ₹4,500.00. Delta: +₹1,100.00.",
           webhookPayload: {
-            eventId: "WF_EVT_PHARM_QUOTE_889",
+            eventId: "GNANI_EVT_PHARM_QUOTE_889",
             timestamp: "2026-10-12T08:31:40.210+05:30",
-            callSid: "WF_CALL_FID_EXC_01",
+            callSid: "GNANI_CALL_FID_EXC_01",
             carrierTrunk: "SYSTEM_INTERNAL_EVENT",
             engine: "Pharmacy-Pricing-Engine",
             codec: "REST_HTTPS_JSON",
@@ -1133,7 +1133,7 @@ const SCENARIO_4: Scenario = {
           fiduciaryCeiling: "BREACHED",
           abdmPrescriptionLocking: "ACTIVE",
           noMedicalAdviceProtocol: "ACTIVE",
-          whisperfloAcousticTripwire: "ACTIVE"
+          gnaniAcousticTripwire: "ACTIVE"
         }
       },
       fiduciary: {
@@ -1162,7 +1162,7 @@ const SCENARIO_4: Scenario = {
           speakerLabel: "Telegram Step-Up Rail (@SambandhCareBot)",
           content: "💳 Interactive Fiduciary Step-Up Card routed to Priya Sharma (@priya_sharma_care). Awaiting 1-tap UPI signature.",
           webhookPayload: {
-            eventId: "WF_EVT_TG_STEPUP_441",
+            eventId: "GNANI_EVT_TG_STEPUP_441",
             timestamp: "2026-10-12T08:32:00.410+05:30",
             callSid: "TELEGRAM_BOT_DISPATCH",
             carrierTrunk: "TELEGRAM_MTPROTO_API",
@@ -1186,7 +1186,7 @@ const SCENARIO_4: Scenario = {
           fiduciaryCeiling: "BREACHED",
           abdmPrescriptionLocking: "ACTIVE",
           noMedicalAdviceProtocol: "ACTIVE",
-          whisperfloAcousticTripwire: "ACTIVE"
+          gnaniAcousticTripwire: "ACTIVE"
         }
       },
       fiduciary: {
@@ -1255,11 +1255,11 @@ const SCENARIO_5: Scenario = {
           speakerLabel: "Sambandh Voice Agent",
           content: "Uncle, subah ki chai ke baad laal BP wali goli le li thi?",
           webhookPayload: {
-            eventId: "WF_EVT_TTS_501",
+            eventId: "GNANI_EVT_TTS_501",
             timestamp: "2026-10-12T08:30:40.110+05:30",
-            callSid: "WF_CALL_CLINICAL_ESC_01",
+            callSid: "GNANI_CALL_CLINICAL_ESC_01",
             carrierTrunk: "JIO_SIP_DELHI_ROHINI",
-            engine: "WhisperFlo Neural TTS",
+            engine: "Gnani.ai Neural TTS",
             codec: "OPUS_HD_48KHZ",
             latencyMs: 114,
             confidence: 0.99,
@@ -1277,11 +1277,11 @@ const SCENARIO_5: Scenario = {
           speakerLabel: "Ramesh Chandra (Senior)",
           content: "Nahi beta... aaj subah se seene me thoda dabav sa lag raha hai, aur paseena aa raha hai. Socha thodi der let jau...",
           webhookPayload: {
-            eventId: "WF_EVT_ASR_502",
+            eventId: "GNANI_EVT_ASR_502",
             timestamp: "2026-10-12T08:30:55.300+05:30",
-            callSid: "WF_CALL_CLINICAL_ESC_01",
+            callSid: "GNANI_CALL_CLINICAL_ESC_01",
             carrierTrunk: "JIO_SIP_DELHI_ROHINI",
-            engine: "WhisperFlo Streaming STT",
+            engine: "Gnani.ai Streaming STT",
             codec: "OPUS_HD_48KHZ",
             latencyMs: 124,
             confidence: 0.985,
@@ -1302,7 +1302,7 @@ const SCENARIO_5: Scenario = {
           fiduciaryCeiling: "ACTIVE",
           abdmPrescriptionLocking: "ACTIVE",
           noMedicalAdviceProtocol: "ESCALATED",
-          whisperfloAcousticTripwire: "ACTIVE"
+          gnaniAcousticTripwire: "ACTIVE"
         }
       },
       fiduciary: { ...BASE_FIDUCIARY_LEDGER, requestedDebitInr: 0, headroomRemainingInr: 4500 },
@@ -1326,11 +1326,11 @@ const SCENARIO_5: Scenario = {
           speakerLabel: "Sambandh Voice Agent",
           content: "Ramesh Uncle, aap bilkul chinta mat kijiye, aaram se sofe par baith jaiye aur ghoont-ghoont paani pijiye. Hum Priya beti ko abhi message kar rahe hain. Aap aaram kijiye.",
           webhookPayload: {
-            eventId: "WF_EVT_TTS_503",
+            eventId: "GNANI_EVT_TTS_503",
             timestamp: "2026-10-12T08:31:02.150+05:30",
-            callSid: "WF_CALL_CLINICAL_ESC_01",
+            callSid: "GNANI_CALL_CLINICAL_ESC_01",
             carrierTrunk: "JIO_SIP_DELHI_ROHINI",
-            engine: "WhisperFlo Neural TTS (Gentle & Comforting)",
+            engine: "Gnani.ai Neural TTS (Gentle & Comforting)",
             codec: "OPUS_HD_48KHZ",
             latencyMs: 115,
             confidence: 0.99,
@@ -1350,7 +1350,7 @@ const SCENARIO_5: Scenario = {
           fiduciaryCeiling: "ACTIVE",
           abdmPrescriptionLocking: "ACTIVE",
           noMedicalAdviceProtocol: "ESCALATED",
-          whisperfloAcousticTripwire: "ACTIVE"
+          gnaniAcousticTripwire: "ACTIVE"
         }
       },
       fiduciary: { ...BASE_FIDUCIARY_LEDGER, requestedDebitInr: 0, headroomRemainingInr: 4500 },
@@ -1374,7 +1374,7 @@ const SCENARIO_5: Scenario = {
           speakerLabel: "Telegram Emergency Rail (@SambandhCareBot)",
           content: "🚨 URGENT CLINICAL ALERT delivered to Priya Sharma (@priya_sharma_care). Papa reported chest heaviness. 1-tap call button active.",
           webhookPayload: {
-            eventId: "WF_EVT_TG_EMERGENCY_99",
+            eventId: "GNANI_EVT_TG_EMERGENCY_99",
             timestamp: "2026-10-12T08:31:15.200+05:30",
             callSid: "TELEGRAM_EMERGENCY_DISPATCH",
             carrierTrunk: "TELEGRAM_MTPROTO_API",
@@ -1398,7 +1398,7 @@ const SCENARIO_5: Scenario = {
           fiduciaryCeiling: "ACTIVE",
           abdmPrescriptionLocking: "ACTIVE",
           noMedicalAdviceProtocol: "ESCALATED",
-          whisperfloAcousticTripwire: "ACTIVE"
+          gnaniAcousticTripwire: "ACTIVE"
         }
       },
       fiduciary: { ...BASE_FIDUCIARY_LEDGER, requestedDebitInr: 0, headroomRemainingInr: 4500 },

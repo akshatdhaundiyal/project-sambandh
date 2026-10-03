@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTelemetry } from '../../context/TelemetryContext';
-import { X, Copy, Check, Terminal, Zap, ShieldAlert } from 'lucide-react';
+import { X, Copy, Check, Terminal, Zap } from 'lucide-react';
 
 export const WebhookModal: React.FC = () => {
   const { selectedWebhook, closeWebhookModal } = useTelemetry();
@@ -24,7 +24,7 @@ export const WebhookModal: React.FC = () => {
           <div className="flex items-center gap-2">
             <Terminal className="w-4 h-4 text-cyan-400" />
             <span className="font-mono text-xs font-bold text-slate-200 uppercase tracking-wider">
-              WhisperFlo Raw Webhook Payload
+              Gnani.ai Telephony Webhook Payload
             </span>
             <span className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-cyan-950 text-cyan-300 border border-cyan-800">
               {selectedWebhook.eventId}
@@ -34,7 +34,7 @@ export const WebhookModal: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={handleCopy}
-              className="flex items-center gap-1 px-2.5 py-1 text-xs font-mono rounded bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors border border-slate-700"
+              className="flex items-center gap-1 px-2.5 py-1 text-xs font-mono rounded bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors border border-slate-700 cursor-pointer"
               title="Copy JSON Payload"
             >
               {copied ? (
@@ -51,7 +51,7 @@ export const WebhookModal: React.FC = () => {
             </button>
             <button
               onClick={closeWebhookModal}
-              className="p-1 text-slate-400 hover:text-slate-200 rounded hover:bg-slate-800 transition-colors"
+              className="p-1 text-slate-400 hover:text-slate-200 rounded hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>

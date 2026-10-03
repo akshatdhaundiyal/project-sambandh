@@ -22,7 +22,7 @@ export const RecommendedPromptsModal: React.FC<RecommendedPromptsModalProps> = (
   isOpen,
   onClose
 }) => {
-  const { triggerSimulationPreset, setIsMentorshipModalOpen } = useTelemetry();
+  const { triggerSimulationPreset, setActiveTab } = useTelemetry();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -140,7 +140,7 @@ export const RecommendedPromptsModal: React.FC<RecommendedPromptsModalProps> = (
           <div
             onClick={() => {
               onClose();
-              setIsMentorshipModalOpen(true);
+              setActiveTab('youth');
             }}
             className="p-3.5 rounded-2xl bg-white border border-[#E2D7C5] hover:border-amber-400 hover:shadow-xs transition-all cursor-pointer flex items-center justify-between gap-3 group"
           >

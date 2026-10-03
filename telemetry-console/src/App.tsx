@@ -8,30 +8,27 @@ import { CaregiverTelemetryConsole } from './components/DualPane/CaregiverTeleme
 import { ConversationToolTree } from './components/ExecutionTree/ConversationToolTree';
 import { JudgeStepApiPane } from './components/DualPane/JudgeStepApiPane';
 import { RailApiInspectorModal } from './components/Modals/RailApiInspectorModal';
-import { WebhookModal } from './components/Column1Voice/WebhookModal';
+import { WebhookModal } from './components/Modals/WebhookModal';
 import { FullStateDrawer } from './components/Modals/FullStateDrawer';
 import { AudioSnippetModal } from './components/Modals/AudioSnippetModal';
-import { IntermediaryMentorshipModal } from './components/Modals/IntermediaryMentorshipModal';
 import { SettingsModal } from './components/Modals/SettingsModal';
+import { SystemPromptModal } from './components/Modals/SystemPromptModal';
+import { YouthWisdomPortal } from './components/YouthView/YouthWisdomPortal';
 
 export const AppContent: React.FC = () => {
-  const { activeTab } = useTelemetry();
+  const { activeTab, isSystemPromptModalOpen, setIsSystemPromptModalOpen } = useTelemetry();
 
   // Mobile sub-view toggles for small screens (< lg)
   const [elderMobileView, setElderMobileView] = useState<'phone' | 'stream'>('stream');
   const [caregiverMobileView, setCaregiverMobileView] = useState<'phone' | 'telemetry'>('telemetry');
-  const [judgeMobileView, setJudgeMobileView] = useState<'tree' | 'api'>('api');
-
   // Check active tab (including backward compatibility with legacy tab IDs)
   const isElderTab = activeTab === 'elder' || activeTab === 'elder-app';
   const isCaregiverTab =
     activeTab === 'caregiver' ||
     activeTab === 'caregiver-telegram' ||
-    activeTab === 'medical-records';
-  const isJudgeTab =
-    activeTab === 'judge' ||
-    activeTab === 'judge-tree' ||
-    activeTab === 'dual-pane';
+    activeTab === 'medical-records' ||
+    activeTab === 'judge';
+  const isYouthTab = activeTab === 'youth';
 
   return (
     <div className="h-screen bg-[#FAF8F5] text-stone-900 flex flex-col font-sans selection:bg-teal-700 selection:text-white antialiased transition-colors overflow-hidden">
@@ -114,7 +111,7 @@ export const AppContent: React.FC = () => {
                       Live Rail Payloads
                     </span>
                   </div>
-                  <span className="text-xs text-stone-400 font-mono">WhisperFlo · ABDM · MedGemma · Pine Labs · Delhivery</span>
+                  <span className="text-xs text-stone-400 font-mono">Gnani.ai · ABDM · MedGemma · Pine Labs · Delhivery</span>
                 </div>
                 <JudgeStepApiPane />
               </div>
@@ -176,82 +173,14 @@ export const AppContent: React.FC = () => {
         )}
 
         {/* ========================================================================= */}
-        {/* TAB 3: JUDGE TELEMETRY & RAILS (50/50 Dual Pane: Tool Tree + API Inspector) */}
+        {/* TAB 3: YOUTH & WISDOM BRIDGE (Intergenerational Mentorship & Safety Gate) */}
         {/* ========================================================================= */}
-        {isJudgeTab && (
-          <div className="flex-1 p-2.5 sm:p-4 max-w-[1920px] w-full mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-3 sm:gap-4 h-full min-h-0 overflow-hidden">
-            {/* Mobile View Switcher (< lg screens) */}
-            <div className="lg:hidden flex items-center bg-[#EFECE6] p-1 rounded-2xl border border-[#DFDAD1] shadow-2xs mb-1 shrink-0">
-              <button
-                type="button"
-                onClick={() => setJudgeMobileView('tree')}
-                className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                  judgeMobileView === 'tree'
-                    ? 'bg-white text-stone-900 shadow-xs border border-stone-200'
-                    : 'text-stone-600 hover:text-stone-900'
-                }`}
-              >
-                <span>🌳</span>
-                <span>Conversation & Tool Tree</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setJudgeMobileView('api')}
-                className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                  judgeMobileView === 'api'
-                    ? 'bg-white text-stone-900 shadow-xs border border-stone-200'
-                    : 'text-stone-600 hover:text-stone-900'
-                }`}
-              >
-                <span>⚡</span>
-                <span>Rail APIs & Telemetry</span>
-              </button>
-            </div>
 
-            {/* Left Column (50%): Conversation & Causal Tool Tree */}
-            <section
-              className={`flex-col h-full overflow-hidden ${
-                judgeMobileView === 'tree' ? 'flex' : 'hidden lg:flex'
-              }`}
-            >
-              <div className="flex items-baseline justify-between px-1 mb-2 shrink-0">
-                <div className="flex items-center gap-2">
-                  <h2 className="font-serif text-base font-semibold text-stone-900 tracking-tight">
-                    Autonomous Causal Decision & Tool Tree
-                  </h2>
-                  <span className="text-[11px] font-mono font-medium text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                    Live Graph
-                  </span>
-                </div>
-                <span className="text-xs text-stone-400 font-mono">DAG Execution</span>
-              </div>
-
-              <div className="flex-1 bg-white border border-[#E7E2DB] rounded-3xl p-4 overflow-hidden flex flex-col shadow-xs">
-                <ConversationToolTree />
-              </div>
-            </section>
-
-            {/* Right Column (50%): Live Current Step API / Vector & Guardrail Inspector */}
-            <section
-              className={`flex-col h-full min-h-[500px] overflow-hidden ${
-                judgeMobileView === 'api' ? 'flex' : 'hidden lg:flex'
-              }`}
-            >
-              <div className="flex items-baseline justify-between px-1 mb-2 shrink-0">
-                <div className="flex items-center gap-2">
-                  <h2 className="font-serif text-base font-semibold text-stone-900 tracking-tight">
-                    Fiduciary Rail Telemetry & API Inspector
-                  </h2>
-                  <span className="text-[11px] font-mono font-medium text-teal-800 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200">
-                    L3 Autonomous
-                  </span>
-                </div>
-                <span className="text-xs text-stone-400 font-mono">ABDM · MedGemma · Pine Labs · Delhivery</span>
-              </div>
-
-              <JudgeStepApiPane />
-            </section>
-          </div>
+        {/* ========================================================================= */}
+        {/* TAB 4: YOUTH & WISDOM BRIDGE (Intergenerational Mentorship & Safety Gate) */}
+        {/* ========================================================================= */}
+        {isYouthTab && (
+          <YouthWisdomPortal />
         )}
       </main>
 
@@ -260,8 +189,11 @@ export const AppContent: React.FC = () => {
       <WebhookModal />
       <FullStateDrawer />
       <AudioSnippetModal />
-      <IntermediaryMentorshipModal />
       <SettingsModal />
+      <SystemPromptModal
+        isOpen={isSystemPromptModalOpen}
+        onClose={() => setIsSystemPromptModalOpen(false)}
+      />
     </div>
   );
 };

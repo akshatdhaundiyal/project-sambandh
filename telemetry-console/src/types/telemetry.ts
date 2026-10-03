@@ -16,11 +16,60 @@ export type NavigationTab =
   | 'elder'
   | 'caregiver'
   | 'judge'
+  | 'youth'
   | 'dual-pane'
   | 'elder-app'
   | 'medical-records'
   | 'judge-tree'
   | 'caregiver-telegram';
+
+export interface YouthPersona {
+  id: string;
+  name: string;
+  avatar: string;
+  age: number;
+  education: string;
+  institution: string;
+  trustScore: number;
+  isVerified: boolean;
+  statusBadge: string;
+}
+
+export interface YouthQuestionPreset {
+  id: string;
+  category: 'GENUINE' | 'MALICIOUS';
+  domainTopic: string;
+  title: string;
+  questionText: string;
+  suggestedYouthId: string;
+  expectedVerdict: 'SAFE' | 'BLOCKED';
+  violationType?: string;
+  curatedSpeechHindi?: string;
+  mockElderAnswer?: string;
+}
+
+export interface MentorshipExchangeItem {
+  id: string;
+  seniorId: string;
+  youthId: string;
+  youthName: string;
+  youthAvatar: string;
+  youthBio: string;
+  questionText: string;
+  category: 'GENUINE' | 'MALICIOUS';
+  domainTopic: string;
+  status: 'DRAFT' | 'PENDING_REVIEW' | 'APPROVED' | 'BLOCKED' | 'VOICED_IN_CALL' | 'ANSWERED';
+  safetyVerdict?: 'SAFE' | 'BLOCKED';
+  safetyConfidence?: number;
+  safetyCategory?: string;
+  safetyExplanation?: string;
+  curatedSpeechHindi?: string;
+  elderAnswerText?: string;
+  elderAnswerAudioUrl?: string;
+  submittedAt?: string;
+  reviewedAt?: string;
+  answeredAt?: string;
+}
 
 export interface HealthLockerDocument {
   id: string;
@@ -213,6 +262,12 @@ export interface SeniorProfile {
     voiceprintConfidence: number;
   };
   vocation: string;
+  personalityNotes?: string;
+  healthBaseline?: string;
+  familyContext?: string;
+  preferredAddress?: string;
+  doctorName?: string;
+  doctorClinic?: string;
   conversationMode?: 'UNSCRIPTED_DYNAMIC' | 'SCRIPTED_BENCHMARK';
   backgroundContext?: string;
   caregiver: {
@@ -223,6 +278,15 @@ export interface SeniorProfile {
     telegramChatId: string;
     monthlySpendingCapInr: number;
   };
+}
+
+export interface ElderOpinionTopic {
+  id: string;
+  headline: string;
+  locality: string;
+  agentPrompt: string;
+  elderContextHint?: string;
+  isActive?: boolean;
 }
 
 export interface MedicationItem {
@@ -273,7 +337,7 @@ export interface LogisticsState {
   status: 'IDLE' | 'PROCESSING' | 'DISPATCHED' | 'HELD';
 }
 
-export interface WhisperFloWebhook {
+export interface GnaniVoiceWebhook {
   eventId: string;
   timestamp: string;
   callSid: string;
@@ -316,7 +380,7 @@ export interface ConversationTurn {
   content: string;
   hindiText?: string;
   hinglishText?: string;
-  webhookPayload?: WhisperFloWebhook;
+  webhookPayload?: GnaniVoiceWebhook;
   modelUsed?: string;
   isFailover?: boolean;
   providerBadge?: string;
@@ -326,7 +390,7 @@ export interface GuardrailStatus {
   fiduciaryCeiling: 'ACTIVE' | 'WARNING' | 'BREACHED';
   abdmPrescriptionLocking: 'ACTIVE' | 'WARNING';
   noMedicalAdviceProtocol: 'ACTIVE' | 'ESCALATED';
-  whisperfloAcousticTripwire: 'ACTIVE' | 'TRIGGERED';
+  gnaniAcousticTripwire: 'ACTIVE' | 'TRIGGERED';
 }
 
 export interface ReasoningStep {
