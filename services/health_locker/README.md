@@ -34,6 +34,21 @@ Raw Clinical Slips / Lab PDFs / Doctor Audio
 
 ---
 
+## Dependency & Environment Management (with `uv`)
+
+This service uses [`uv`](https://github.com/astral-sh/uv) for fast, deterministic Python virtual environment and dependency management.
+
+### Setup Environment
+```bash
+# Sync dependencies and create .venv automatically:
+uv sync
+
+# Or add a new package:
+uv add <package-name>
+```
+
+---
+
 ## Local Testing Guide
 
 ### 1. Database Setup (Local PostgreSQL -> Supabase Ready)
@@ -61,19 +76,19 @@ export USE_LOCAL_MEDGEMMA=1
 ```
 The client forwards extraction and generation requests to your local MedGemma endpoint.
 
-### 3. Ingesting Clinical Bundles
+### 3. Ingesting Clinical Bundles with `uv`
 Run the dry-run CLI to verify parsing and chunking:
 ```bash
-python services/health_locker/ingest.py --dry-run
+uv run python ingest.py --dry-run
 ```
 To upsert into Pinecone with active keys:
 ```bash
 export PINECONE_API_KEY=your_key
-python services/health_locker/ingest.py
+uv run python ingest.py
 ```
 
-### 4. Deploying to Modal
+### 4. Deploying to Modal with `uv`
 ```bash
-modal deploy services/health_locker/modal_app.py
+uv run modal deploy modal_app.py
 ```
 This deploys the `sambandh-health-locker` app and outputs your web endpoint URL, which you can paste into `telemetry-console/.env` as `VITE_MODAL_HEALTH_LOCKER_URL`.
