@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   Calendar,
@@ -16,9 +16,11 @@ import {
   CreditCard,
   Smile,
   ShieldCheck,
-  Play
+  Play,
+  Database
 } from 'lucide-react';
 import { useTelemetry } from '../../context/TelemetryContext';
+import { fetchCallSummaries } from '../../services/healthLockerService';
 
 interface CallSummaryItem {
   id: string;
@@ -44,18 +46,7 @@ interface CallSummaryHistorySheetProps {
   onPlayAudioSnippet?: (text: string) => void;
 }
 
-export const CallSummaryHistorySheet: React.FC<CallSummaryHistorySheetProps> = ({
-  isOpen,
-  onClose,
-  onPlayAudioSnippet
-}) => {
-  const { callStatus, speakTurn } = useTelemetry();
-  const [selectedSummaryId, setSelectedSummaryId] = useState<string>('summary-today');
-  const [playingId, setPlayingId] = useState<string | null>(null);
-
-  if (!isOpen) return null;
-
-  const summaries: CallSummaryItem[] = [
+const FALLBACK_SUMMARIES: CallSummaryItem[] = [
     {
       id: 'summary-today',
       date: 'Today, Oct 03, 2026',
@@ -164,7 +155,35 @@ export const CallSummaryHistorySheet: React.FC<CallSummaryHistorySheetProps> = (
       audioDuration: '0:38',
       vitalsSnippet: 'BP: 110/78 mmHg · Glucose: 102 mg/dL'
     }
-  ];
+];
+
+export const CallSummaryHistorySheet: React.FC<CallSummaryHistorySheetProps> = ({
+  isOpen,
+  onClose,
+  onPlayAudioSnippet
+}) => {
+  const { speakTurn } = useTelemetry();
+  const [selectedSummaryId, setSelectedSummaryId] = useState<string>('summary-today');
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [summaries, setSummaries] = useState<CallSummaryItem[]>(FALLBACK_SUMMARIES);
+  const [isFromPostgres, setIsFromPostgres] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchCallSummaries('SENIOR_RAMESH_001')
+        .then((rows) => {
+          if (rows && rows.length > 0) {
+            setSummaries(rows as CallSummaryItem[]);
+            setIsFromPostgres(true);
+          }
+        })
+        .catch((err) => {
+          console.debug('Failed to fetch call summaries from PostgreSQL:', err);
+        });
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
 
   const handlePlayAudio = (summary: CallSummaryItem) => {
     if (playingId === summary.id) {
@@ -233,8 +252,14 @@ export const CallSummaryHistorySheet: React.FC<CallSummaryHistorySheetProps> = (
             <h3 className="font-serif font-bold text-xs sm:text-sm text-stone-900 leading-tight">
               Call Summaries & Emotional History
             </h3>
-            <p className="text-[10px] text-stone-500 font-mono">
-              Ramesh Chandra Ji · 5-Day Longitudinal Archive
+            <p className="text-[10px] text-stone-500 font-mono flex items-center gap-1.5">
+              <span>Ramesh Chandra Ji · 5-Day Archive</span>
+              {isFromPostgres && (
+                <span className="text-[9px] text-emerald-800 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200 font-bold flex items-center gap-0.5">
+                  <Database className="w-2.5 h-2.5" />
+                  <span>PGSQL Live</span>
+                </span>
+              )}
             </p>
           </div>
         </div>
