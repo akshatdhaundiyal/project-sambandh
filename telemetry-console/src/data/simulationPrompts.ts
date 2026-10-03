@@ -49,6 +49,27 @@ export const resolvePresetNodes = (preset: SimulationPreset): ToolExecutionNode[
 
 export const SIMULATION_PRESETS: SimulationPreset[] = [
   {
+    id: 'sim-health-locker',
+    category: 'companion',
+    icon: '📋',
+    buttonLabel: 'Doctor ne kya bola?',
+    scenarioTitle: 'Health Locker: MedGemma RAG & Doctor Advice Recall',
+    badge: 'ABDM Health Locker + MedGemma 4B',
+    railBadges: ['Health Locker RAG', 'MedGemma Co-Pilot'],
+    railSummary: 'Semantic retrieval over doctor prescription & metabolic panel ➔ Plain-language Awadhi synthesis of Telmisartan morning cadence and dietary salt restrictions',
+    tagline: 'Ramesh asks about his cardiologist instructions. Triggers ABDM Health Locker retrieval and MedGemma clinical co-pilot synthesis.',
+    speaker: 'senior',
+    speakerLabel: 'Ramesh Chandra (Elder Inquirer)',
+    devanagariPrompt: 'बेटा, वो डॉक्टर शर्मा जी ने पिछली बार बीपी की दवाई और नमक के बारे में क्या समझाया था? ज़रा याद दिला दो।',
+    hinglishPrompt: '[Beta, wo Dr. Sharma ji ne pichli baar BP ki dawai aur namak ke baare me kya samjhaya tha? Zara yaad dila do.]',
+    promptText: 'बेटा, वो डॉक्टर शर्मा जी ने पिछली बार बीपी की दवाई और नमक के बारे में क्या समझाया था? ज़रा याद दिला दो। [Beta, wo Dr. Sharma ji ne pichli baar BP ki dawai aur namak ke baare me kya samjhaya tha? Zara yaad dila do.]',
+    expectedNodeTypes: [
+      { scenarioId: 'scenario-1', nodeType: 'health_locker_query' },
+      { scenarioId: 'scenario-1', nodeType: 'medgemma_analysis' }
+    ],
+    reasoningNote: 'Retrieved Dr. V. K. Sharma 10 Sep prescription and low-sodium directive. Synthesized non-prescriptive, explanatory reassurance.'
+  },
+  {
     id: 'sim-refill',
     category: 'refill',
     icon: '💊',

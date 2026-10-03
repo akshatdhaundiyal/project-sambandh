@@ -24,12 +24,16 @@ import {
   ChevronUp,
   Copy,
   Check,
-  Layers
+  Layers,
+  Bot,
+  ShieldCheck
 } from 'lucide-react';
+import { getTimeContext } from '../../data/conversationalSparks';
 import { getActiveHindiVoiceSource } from '../../utils/speechService';
 import { SIMULATION_PRESETS } from '../../data/simulationPrompts';
 
 export const SeniorCallCard: React.FC = () => {
+  const timeCtx = getTimeContext();
   const {
     scenarios,
     activeScenario,
@@ -43,7 +47,11 @@ export const SeniorCallCard: React.FC = () => {
     resetScenario,
     setActiveTab,
     foldedMemory,
-    triggerSimulationPreset
+    triggerSimulationPreset,
+    openApiDrawerForCurrentStep,
+    preCallAgency,
+    requestPreCallApproval,
+    resolvePreCallAgency
   } = useTelemetry();
 
   const [isMemoryExpanded, setIsMemoryExpanded] = React.useState<boolean>(false);
@@ -85,7 +93,7 @@ export const SeniorCallCard: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] sm:text-[11px] font-semibold text-stone-700 bg-stone-100 px-2 sm:px-2.5 py-0.5 rounded-full border border-stone-200">
-                Morning Routine · 08:30 IST
+                {timeCtx.period} Routine · {timeCtx.timeStr} IST
               </span>
             </div>
             <h2 className="text-lg sm:text-2xl font-serif font-bold text-stone-900 leading-snug mt-0.5">
@@ -98,66 +106,110 @@ export const SeniorCallCard: React.FC = () => {
           </div>
         </div>
 
-        {/* Call State Indicator */}
-        {callStatus === 'idle' ? (
-          <div className="bg-[#FAF8F5] px-3.5 py-2 rounded-2xl border border-[#E7E2DB] text-right shrink-0">
-            <div className="text-[11px] font-semibold text-stone-500 flex items-center justify-end gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-              <span>Awaiting Call</span>
+        {/* Right Section: Live Rail API Peek Button + Call State Indicator */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={openApiDrawerForCurrentStep}
+            className="flex items-center gap-1.5 px-3 py-2 bg-[#FAF8F5] hover:bg-stone-100 border border-[#E7E2DB] text-stone-800 rounded-2xl shadow-2xs text-xs font-bold transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-emerald-600"
+            title="Inspect live underlying rail API exchange (WhisperFlo, ABDM, Pine Labs, Delhivery, MedGemma)"
+            aria-label="View live rail API payload"
+          >
+            <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+            <span className="hidden sm:inline">Live Rail API</span>
+            <span className="sm:hidden">API</span>
+          </button>
+
+          {/* Call State Indicator */}
+          {callStatus === 'idle' ? (
+            <div className="bg-[#FAF8F5] px-3.5 py-2 rounded-2xl border border-[#E7E2DB] text-right shrink-0">
+              <div className="text-[11px] font-semibold text-stone-500 flex items-center justify-end gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span>Awaiting Call</span>
+              </div>
+              <span className="text-xs font-medium text-stone-700 mt-0.5 block">
+                Jio Trunk Standby
+              </span>
             </div>
-            <span className="text-xs font-medium text-stone-700 mt-0.5 block">
-              Jio Trunk Standby
-            </span>
-          </div>
-        ) : callStatus === 'active' ? (
-          <div className="bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-300 text-right shrink-0 shadow-2xs">
-            <div className="text-[11px] font-bold text-emerald-800 flex items-center justify-end gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
-              <span>Call in Progress</span>
+          ) : callStatus === 'calling' ? (
+            <div className="bg-amber-50 px-4 py-2 rounded-2xl border border-amber-300 text-right shrink-0 shadow-2xs">
+              <div className="text-[11px] font-bold text-amber-800 flex items-center justify-end gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                <span>Ringing Phone</span>
+              </div>
+              <span className="text-xs font-mono font-bold text-amber-950 mt-0.5 block">
+                +91 98101 23456
+              </span>
             </div>
-            <div className="flex items-center gap-1.5 mt-0.5 justify-end">
-              <Clock className="w-4 h-4 text-emerald-700" />
-              <span className="text-base sm:text-lg font-mono font-bold text-emerald-950">
+          ) : callStatus === 'active' ? (
+            <div className="bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-300 text-right shrink-0 shadow-2xs">
+              <div className="text-[11px] font-bold text-emerald-800 flex items-center justify-end gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+                <span>Call in Progress</span>
+              </div>
+              <div className="flex items-center gap-1.5 mt-0.5 justify-end">
+                <Clock className="w-4 h-4 text-emerald-700" />
+                <span className="text-base sm:text-lg font-mono font-bold text-emerald-950">
+                  {formatTime(callDurationSeconds)}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-stone-100 px-4 py-2 rounded-2xl border border-stone-200 text-right shrink-0">
+              <span className="text-[11px] font-semibold text-stone-500 block">
+                Call Completed
+              </span>
+              <span className="text-sm font-mono font-bold text-stone-700 mt-0.5 block">
                 {formatTime(callDurationSeconds)}
               </span>
             </div>
-          </div>
-        ) : (
-          <div className="bg-stone-100 px-4 py-2 rounded-2xl border border-stone-200 text-right shrink-0">
-            <span className="text-[11px] font-semibold text-stone-500 block">
-              Call Completed
-            </span>
-            <span className="text-sm font-mono font-bold text-stone-700 mt-0.5 block">
-              {formatTime(callDurationSeconds)}
-            </span>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      {/* CALL INITIATION / ONGOING CALL SECTION */}
+      {/* CALL STATUS BANNER (SLIMMED DOWN) */}
       {callStatus === 'idle' ? (
-        /* IDLE STATE: Dignified Call Start Action Card */
-        <div className="bg-[#FAF8F5] border border-[#E7E2DB] rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
-          <div className="space-y-1 max-w-md">
-            <h3 className="font-serif font-bold text-sm sm:text-base text-stone-900 flex items-center gap-2">
-              <span>Initiate Morning Check-in Call</span>
-              <span className="text-[10px] font-medium text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                Jio PSTN Trunk
-              </span>
-            </h3>
-            <p className="text-xs text-stone-600 leading-relaxed">
-              Connects with Ramesh Ji over telecom trunk. The autonomous agent will inquire about morning vitals and medication runway while executing clinical guardrails.
-            </p>
+        <div className="bg-[#FAF8F5] border border-[#E7E2DB] rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            <span className="font-serif font-bold text-stone-900">
+              {timeCtx.timeStr} IST Scheduled Check-In Session
+            </span>
+            <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+              Ready
+            </span>
           </div>
-
-          <div className="flex items-center gap-2.5">
-            {/* Start Call Primary Button */}
+          <div className="flex items-center gap-2 text-stone-500 text-[11px]">
+            <span>Connect via Elder Phone on left</span>
             <button
+              type="button"
               onClick={startCall}
-              className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold text-xs sm:text-sm shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+              className="px-3 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg font-bold text-xs shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <PhoneCall className="w-4 h-4 fill-current" />
-              <span>Connect Call</span>
+              <PhoneCall className="w-3 h-3 fill-current" />
+              <span>Connect</span>
+            </button>
+          </div>
+        </div>
+      ) : callStatus === 'calling' ? (
+        <div className="bg-amber-50/90 border border-amber-300 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3 text-xs animate-pulse">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span>
+            <span className="font-serif font-bold text-amber-950">
+              Ringing Ramesh Ji's Jio PSTN Trunk (+91 98101 23456)...
+            </span>
+            <span className="text-[10px] font-mono font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
+              Awaiting Pickup
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-amber-900 text-[11px] font-medium">
+            <span>Waiting for Papa to tap Accept on phone</span>
+            <button
+              type="button"
+              onClick={startCall}
+              className="px-3 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg font-bold text-xs shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <PhoneCall className="w-3 h-3 fill-current" />
+              <span>Accept Now</span>
             </button>
           </div>
         </div>
@@ -330,7 +382,7 @@ export const SeniorCallCard: React.FC = () => {
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-extrabold text-xs sm:text-sm text-stone-900">
-                    Morning Call Completed ({formatTime(callDurationSeconds)})
+                    Companion Call Completed ({formatTime(callDurationSeconds)})
                   </span>
                   <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200">
                     Closed-Loop Verified

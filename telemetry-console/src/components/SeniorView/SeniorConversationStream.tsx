@@ -2,11 +2,14 @@ import React, { useRef, useEffect, useState } from 'react';
 import { useTelemetry } from '../../context/TelemetryContext';
 import { stopSpeech } from '../../utils/speechService';
 import { hinglishToDevanagari, isDevanagari } from '../../utils/hinglishTransliterator';
-import { Heart, Volume2, VolumeX, Send, Radio, Sparkles, Settings2, Languages, Mic, MicOff, FileCode } from 'lucide-react';
+import { Heart, Volume2, VolumeX, Send, Radio, Sparkles, Settings2, Languages, Mic, MicOff, FileCode, Phone } from 'lucide-react';
 import type { ConversationTurn } from '../../types/telemetry';
 import { HindiSpeechRecognizer, isSpeechRecognitionSupported } from '../../utils/speechRecognitionService';
+import { RecommendedPromptsModal } from './RecommendedPromptsModal';
+import { getTimeContext } from '../../data/conversationalSparks';
 
 export const SeniorConversationStream: React.FC = () => {
+  const timeCtx = getTimeContext();
   const {
     allTurnsSoFar,
     activeTtsEngine,
@@ -14,12 +17,14 @@ export const SeniorConversationStream: React.FC = () => {
     speakTurn,
     injectCustomTurn,
     callStatus,
+    startCall,
     openSettingsModal
   } = useTelemetry();
 
   const [customInputText, setCustomInputText] = useState('');
   const [customSpeaker, setCustomSpeaker] = useState<'senior' | 'agent'>('senior');
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
+  const [isPromptsModalOpen, setIsPromptsModalOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [wasVoiceInput, setWasVoiceInput] = useState(false);
   const [speechError, setSpeechError] = useState<string | null>(null);
@@ -153,7 +158,7 @@ export const SeniorConversationStream: React.FC = () => {
 
   return (
     <>
-      <div className="bg-white border border-[#E7E2DB] rounded-3xl p-4 sm:p-5 shadow-xs h-[460px] sm:h-[490px] flex flex-col min-h-0 overflow-hidden text-stone-900 transition-all">
+      <div className="bg-white border border-[#E7E2DB] rounded-3xl p-4 sm:p-5 shadow-xs h-[520px] sm:h-[550px] min-h-[460px] flex flex-col min-h-0 overflow-hidden text-stone-900 transition-all">
         {/* Title & Engine Status */}
         <div className="flex items-center justify-between pb-3.5 border-b border-[#E7E2DB] mb-3 flex-wrap gap-2">
           <div className="flex items-center gap-2.5">
@@ -162,13 +167,26 @@ export const SeniorConversationStream: React.FC = () => {
             </div>
             <div>
               <h3 className="font-serif font-bold text-sm sm:text-base text-stone-900">
-                Morning Dialogue Stream
+                Live Dialogue Stream
               </h3>
-              <p className="text-xs text-stone-500">Awadhi-Hindi Companion Telephony</p>
+              <p className="text-xs text-stone-500">
+                Awadhi-Hindi Companion Telephony · {timeCtx.period} Session ({timeCtx.timeStr})
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
+            {/* Simulation Scenarios Popup Trigger */}
+            <button
+              type="button"
+              onClick={() => setIsPromptsModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs transition-all cursor-pointer ring-2 ring-amber-400/20 active:scale-95"
+              title="Open Simulation Scenarios & Benchmark Prompts Modal"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
+              <span>⚡ Test Scenarios (6)</span>
+            </button>
+
             {/* Audio & Telephony Settings Shortcut */}
             <button
               onClick={() => openSettingsModal('telephony')}
@@ -199,23 +217,60 @@ export const SeniorConversationStream: React.FC = () => {
         {/* Conversation Bubbles Stream */}
         <div ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-auto space-y-3.5 pr-1.5 scrollbar-thin">
           {conversationTurns.length === 0 ? (
-            <div className="h-44 flex flex-col items-center justify-center text-stone-400 text-sm space-y-2 text-center p-4">
-              <div className="w-12 h-12 rounded-2xl bg-stone-100 flex items-center justify-center text-2xl">
-                ☕
+            <div className="h-full min-h-[300px] flex flex-col items-center justify-center p-6 text-center space-y-4">
+              <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-800 shadow-2xs">
+                <Phone className="w-7 h-7 stroke-[1.8] text-amber-700 animate-pulse" />
               </div>
-              <p className="font-bold text-stone-700">
-                {callStatus === 'idle'
-                  ? 'Waiting for 08:30 AM morning call to begin...'
-                  : 'Connecting with Ramesh Chandra over Jio PSTN...'}
-              </p>
-              <p className="text-xs text-stone-500 max-w-sm">
-                {callStatus === 'idle'
-                  ? 'Click [📞 Start Morning Call] above to connect and trigger the conversation!'
-                  : 'Dialing +91 98101 23456...'}
-              </p>
+
+              <div className="space-y-1.5 max-w-sm">
+                <span className="text-[10px] font-mono font-medium text-stone-500 bg-stone-100 px-3 py-1 rounded-full border border-stone-200 shadow-2xs inline-block mb-1">
+                  {timeCtx.timeStr} IST · {timeCtx.sessionName}
+                </span>
+                <h4 className="font-serif font-bold text-base text-stone-900">
+                  Telephony Session Standby
+                </h4>
+                <p className="text-xs text-stone-500 leading-relaxed font-sans">
+                  The companion call with Ramesh Ji has not started yet. When the call connects, live bilingual conversation turns and speech will stream here in real time.
+                </p>
+              </div>
+
+              {/* Waiting on Phone Pickup Indicator */}
+              <div className="w-full max-w-md p-3 rounded-2xl bg-amber-50/80 border border-amber-200/90 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-amber-950">
+                <div className="flex items-center gap-2 text-left">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping shrink-0"></span>
+                  <span className="font-medium text-[11px]">
+                    Waiting for call pickup on Ramesh Ji's phone on the left...
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={startCall}
+                  className="w-full sm:w-auto px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shrink-0 active:scale-95"
+                >
+                  <Phone className="w-3.5 h-3.5 fill-current" />
+                  <span>Connect Now</span>
+                </button>
+              </div>
+
+              {/* 1-Click Simulation Scenario Trigger */}
+              <button
+                type="button"
+                onClick={() => setIsPromptsModalOpen(true)}
+                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-amber-900 bg-amber-100/60 hover:bg-amber-100 border border-amber-200/80 flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
+                <span>Or Select a 1-Click Simulation Scenario (6)</span>
+              </button>
             </div>
           ) : (
-            conversationTurns.map((turn) => {
+            <div className="space-y-3.5">
+              {/* Session Time Badge */}
+              <div className="flex items-center justify-center my-1">
+                <span className="text-[10px] font-mono font-medium text-stone-500 bg-stone-100 px-3 py-1 rounded-full border border-stone-200 shadow-2xs">
+                  {timeCtx.timeStr} IST · {timeCtx.sessionName}
+                </span>
+              </div>
+              {conversationTurns.map((turn) => {
               const isPapa = turn.speaker === 'senior';
               const isAgent = turn.speaker === 'agent';
               const isSpeakingThis = currentlySpeakingTurnId === turn.id;
@@ -326,7 +381,8 @@ export const SeniorConversationStream: React.FC = () => {
                   </div>
                 </div>
               );
-            })
+            })}
+            </div>
           )}
         </div>
 
@@ -461,6 +517,12 @@ export const SeniorConversationStream: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Pop-up Simulation Benchmarks & Prompts Modal */}
+      <RecommendedPromptsModal
+        isOpen={isPromptsModalOpen}
+        onClose={() => setIsPromptsModalOpen(false)}
+      />
     </>
   );
 };

@@ -124,6 +124,58 @@ export const TelegramLogo: React.FC<BrandLogoProps> = ({ className = "w-5 h-5", 
   </svg>
 );
 
+// 🧠 MedGemma 4B / Google DeepMind Clinical Emblem Logo
+export const MedGemmaLogo: React.FC<BrandLogoProps> = ({ className = "w-5 h-5", size }) => (
+  <svg
+    viewBox="0 0 32 32"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    style={size ? { width: size, height: size } : undefined}
+  >
+    <rect width="32" height="32" rx="8" fill="url(#medgemma-grad)" />
+    {/* DeepMind Gemma Geometric Clinical Star */}
+    <path
+      d="M16 6L18.8 12.2L25 15L18.8 17.8L16 24L13.2 17.8L7 15L13.2 12.2L16 6Z"
+      fill="#FFFFFF"
+    />
+    <circle cx="16" cy="15" r="2.5" fill="#C084FC" />
+    <defs>
+      <linearGradient id="medgemma-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#6D28D9" />
+        <stop offset="1" stopColor="#4338CA" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
+// 📶 Reliance Jio PSTN Telephony Trunk Official Logo
+export const JioLogo: React.FC<BrandLogoProps> = ({ className = "w-5 h-5", size }) => (
+  <svg
+    viewBox="0 0 32 32"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    style={size ? { width: size, height: size } : undefined}
+  >
+    <rect width="32" height="32" rx="8" fill="#00579E" />
+    {/* Jio Circle Emblem */}
+    <circle cx="16" cy="16" r="10" fill="#E41C38" />
+    <text
+      x="16"
+      y="19"
+      textAnchor="middle"
+      fontSize="9"
+      fontFamily="sans-serif"
+      fontWeight="900"
+      fill="#FFFFFF"
+      letterSpacing="-0.5"
+    >
+      Jio
+    </text>
+  </svg>
+);
+
 // 🚨 Acoustic Fraud Tripwire Security Logo
 export const TripwireLogo: React.FC<BrandLogoProps> = ({ className = "w-5 h-5", size }) => (
   <svg
@@ -150,3 +202,4 @@ export const TripwireLogo: React.FC<BrandLogoProps> = ({ className = "w-5 h-5", 
     />
   </svg>
 );
+

@@ -13,11 +13,94 @@ export type AgentStateMachinePhase =
   | 'CLINICAL_ESCALATION';
 
 export type NavigationTab =
+  | 'elder'
+  | 'caregiver'
+  | 'judge'
   | 'dual-pane'
   | 'elder-app'
   | 'medical-records'
   | 'judge-tree'
   | 'caregiver-telegram';
+
+export interface HealthLockerDocument {
+  id: string;
+  seniorId?: string;
+  title: string;
+  category: 'prescription' | 'lab_report' | 'consultation' | 'caregiver_note';
+  doctorName?: string;
+  date: string;
+  rawText: string;
+  fileUrl?: string;
+  summary?: string;
+  keyEntities?: {
+    drugs?: string[];
+    vitals?: Record<string, string>;
+    warnings?: string[];
+  };
+}
+
+export interface HealthLockerMedicationDose {
+  id: string;
+  seniorId: string;
+  documentId?: string;
+  drugName: string;
+  brandName?: string;
+  strength: string;
+  cadence: string;
+  timingInstructions: string;
+  currentStockUnits: number;
+  dailyConsumption: number;
+  runwayDays: number;
+  refillThresholdDays: number;
+  unitPriceInr: number;
+  status: 'ACTIVE' | 'PAUSED' | 'COMPLETED' | 'DISCONTINUED';
+}
+
+export interface HealthLockerVitalLevel {
+  id: string;
+  seniorId: string;
+  documentId?: string;
+  vitalType: 'creatinine' | 'blood_pressure_systolic' | 'blood_pressure_diastolic' | 'hba1c' | 'fasting_blood_sugar' | 'pulse';
+  valueNumeric: number;
+  unit: string;
+  recordedDate: string;
+  isNormal: boolean;
+  referenceRange: string;
+  trendDirection: 'STABLE' | 'RISING' | 'FALLING' | 'FLUCTUATING';
+  notes?: string;
+}
+
+export interface HealthLockerQueryRequest {
+  query: string;
+  seniorId: string;
+  callerRole: 'elder' | 'caregiver' | 'judge';
+  mode?: 'auto' | 'structured' | 'deep_recall';
+}
+
+export interface HealthLockerQueryResponse {
+  analysis: string;
+  retrieved_chunks: Array<{
+    document_id?: string;
+    title?: string;
+    date?: string;
+    content?: string;
+    metadata?: Record<string, any>;
+    score?: number;
+    source?: string;
+    count?: number;
+  }>;
+  sources: string[];
+  structured_doses?: HealthLockerMedicationDose[];
+  structured_vitals?: HealthLockerVitalLevel[];
+  latency_ms: number;
+  tokens_evaluated: number;
+  data_source: string;
+  guardrail_status: {
+    is_non_prescriptive: boolean;
+    zero_diagnosis_passed: boolean;
+    tripwire_triggered: boolean;
+  };
+}
 
 export interface MedicalIssue {
   id: string;
@@ -42,6 +125,26 @@ export interface InventoryOrder {
   eta: string;
 }
 
+export type PreCallAgencyStatus =
+  | 'idle'
+  | 'awaiting_approval'
+  | 'caregiver_calling'
+  | 'agent_approved'
+  | 'snoozed';
+
+export interface PreCallAgencyRequest {
+  id: string;
+  timestamp: string;
+  seniorName: string;
+  seniorPhone: string;
+  scheduledTimeIst: string;
+  status: PreCallAgencyStatus;
+  caregiverName: string;
+  caregiverDecision?: 'caregiver_direct' | 'agent_approved' | 'snooze_30m';
+  caregiverNotes?: string;
+  clinicalBriefingSnippet: string;
+}
+
 export interface CaregiverConfig {
   elderHomeAddress: string;
   elderPinCode: string;
@@ -50,6 +153,7 @@ export interface CaregiverConfig {
   nearestPharmacyPinCode: string;
   nearestPharmacyEmail: string;
   orderTotalLimitInr: number;
+  preCallAgencyMode?: 'always_ask' | 'auto_call';
 }
 
 export interface ElderTopicOfInterest {
@@ -273,7 +377,7 @@ export interface ExecutionTreeNode {
   id: string;
   stepIndex: number;
   title: string;
-  type: 'conversation' | 'tool' | 'tripwire' | 'decision';
+  type: 'conversation' | 'tool' | 'tripwire' | 'decision' | 'health_locker_query' | 'medgemma_analysis';
   lane?: 'lane1' | 'lane2' | 'system' | 'tripwire';
   toolName?: string;
   statusText?: string;

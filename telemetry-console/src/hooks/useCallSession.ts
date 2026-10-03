@@ -27,6 +27,27 @@ export const useCallSession = () => {
     setCallDurationSeconds(0);
   };
 
+  const initiateIncomingCall = () => {
+    stopSpeech();
+    if (pacingTimeoutRef.current) clearTimeout(pacingTimeoutRef.current);
+    setCallStatus('calling');
+    setCallDurationSeconds(0);
+  };
+
+  const acceptCall = () => {
+    stopSpeech();
+    if (pacingTimeoutRef.current) clearTimeout(pacingTimeoutRef.current);
+    setCallStatus('active');
+    setCallDurationSeconds(0);
+  };
+
+  const declineCall = () => {
+    stopSpeech();
+    if (pacingTimeoutRef.current) clearTimeout(pacingTimeoutRef.current);
+    setCallStatus('idle');
+    setCallDurationSeconds(0);
+  };
+
   const endCall = () => {
     stopSpeech();
     if (pacingTimeoutRef.current) clearTimeout(pacingTimeoutRef.current);
@@ -46,6 +67,9 @@ export const useCallSession = () => {
     callDurationSeconds,
     pacingTimeoutRef,
     beginCall,
+    initiateIncomingCall,
+    acceptCall,
+    declineCall,
     endCall,
     resetCallState
   };

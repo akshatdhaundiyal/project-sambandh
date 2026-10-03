@@ -10,15 +10,28 @@ import {
   FileSpreadsheet,
   Zap,
   PhoneCall,
-  AlertTriangle
+  AlertTriangle,
+  Clock
 } from 'lucide-react';
 
 export const TelegramReceptor: React.FC = () => {
-  const { currentStep, handleTelegramAction, telegramActionFeedback } = useTelemetry();
+  const {
+    currentStep,
+    handleTelegramAction,
+    telegramActionFeedback,
+    preCallAgency,
+    resolvePreCallAgency
+  } = useTelemetry();
   const msg = currentStep.telegramMessage;
 
   const getButtonIcon = (action: string) => {
     switch (action) {
+      case 'PRECALL_CALL_MYSELF':
+        return <PhoneCall className="w-3.5 h-3.5" />;
+      case 'PRECALL_APPROVE_AI':
+        return <Bot className="w-3.5 h-3.5" />;
+      case 'PRECALL_SNOOZE_30M':
+        return <Clock className="w-3.5 h-3.5" />;
       case 'PLAY_AUDIO':
         return <Headphones className="w-3.5 h-3.5" />;
       case 'VIEW_LEDGER':
@@ -79,15 +92,103 @@ export const TelegramReceptor: React.FC = () => {
       )}
 
       {/* Chat pane */}
-      <div className="flex-1 overflow-y-auto p-3 bg-slate-950/90 flex flex-col justify-end space-y-2">
+      <div className="flex-1 overflow-y-auto p-3 bg-slate-950/90 flex flex-col justify-end space-y-3">
+        {/* Pre-Call Caregiver Agency Prompt Bubble */}
+        {preCallAgency && (
+          <div className="bg-sky-950/70 border border-sky-600/60 rounded-xl p-3.5 shadow-lg text-xs font-sans text-slate-200 space-y-2.5 animate-fadeIn shrink-0">
+            <div className="flex items-center justify-between border-b border-sky-800/60 pb-2">
+              <span className="font-bold text-sky-200 flex items-center gap-1.5 text-xs">
+                <span>🔔</span> Pre-Call Caregiver Agency Gate
+              </span>
+              <span className="text-[10px] font-mono text-sky-300">{preCallAgency.timestamp}</span>
+            </div>
+
+            <div className="space-y-1.5 text-[11px] leading-relaxed">
+              <p className="text-slate-200 font-medium">
+                Namaste Priya! Today's <strong>{preCallAgency.scheduledTimeIst}</strong> check-in with <strong>{preCallAgency.seniorName}</strong> is scheduled.
+              </p>
+              <div className="bg-slate-900/90 p-2 rounded-lg border border-slate-800 text-[10px] font-mono text-slate-300 space-y-0.5">
+                <div>Clinical Snapshot: <span className="text-emerald-400 font-semibold">{preCallAgency.clinicalBriefingSnippet}</span></div>
+                <div>Protocol: <span className="text-amber-400 font-bold uppercase">{preCallAgency.status.replace('_', ' ')}</span></div>
+              </div>
+              <p className="text-slate-300">
+                Would you like to speak with Papa directly yourself today, or should Sambandh AI conduct the morning companionship & adherence check-in?
+              </p>
+            </div>
+
+            {preCallAgency.status === 'awaiting_approval' && (
+              <div className="space-y-1.5 pt-1 border-t border-sky-800/40">
+                <span className="text-[10px] font-mono text-sky-300 uppercase tracking-wider block">
+                  Select Caregiver Option:
+                </span>
+                <div className="grid grid-cols-1 gap-1.5">
+                  <button
+                    onClick={() => resolvePreCallAgency('caregiver_direct')}
+                    className="w-full py-2 px-3 rounded-lg text-xs font-mono font-semibold flex items-center justify-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white shadow-xs transition-all cursor-pointer"
+                  >
+                    <PhoneCall className="w-3.5 h-3.5" />
+                    <span>📞 I Will Call Papa Myself Today</span>
+                  </button>
+
+                  <button
+                    onClick={() => resolvePreCallAgency('agent_approved')}
+                    className="w-full py-2 px-3 rounded-lg text-xs font-mono font-semibold flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-500 text-white shadow-xs transition-all cursor-pointer"
+                  >
+                    <Bot className="w-3.5 h-3.5" />
+                    <span>🤖 Sambandh AI Can Call Papa</span>
+                  </button>
+
+                  <button
+                    onClick={() => resolvePreCallAgency('snooze_30m')}
+                    className="w-full py-1.5 px-3 rounded-lg text-xs font-mono font-semibold flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-all cursor-pointer"
+                  >
+                    <span>⏰ Snooze Check-In by 30 Mins</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {preCallAgency.status === 'caregiver_calling' && (
+              <div className="p-2 rounded-lg bg-emerald-950/80 border border-emerald-500/50 text-[11px] font-mono text-emerald-300 flex items-center justify-between">
+                <span>✓ Calling Papa directly (+91 98101 23456)</span>
+                <button
+                  onClick={() => resolvePreCallAgency('agent_approved')}
+                  className="text-[10px] underline text-sky-300 hover:text-white cursor-pointer"
+                >
+                  Delegate to AI instead
+                </button>
+              </div>
+            )}
+
+            {preCallAgency.status === 'agent_approved' && (
+              <div className="p-2 rounded-lg bg-sky-950/80 border border-sky-500/50 text-[11px] font-mono text-sky-300 flex items-center justify-between">
+                <span>✓ Pre-approved for Sambandh AI call</span>
+                <span className="text-[10px] text-emerald-400 font-bold">● ACTIVE</span>
+              </div>
+            )}
+
+            {preCallAgency.status === 'snoozed' && (
+              <div className="p-2 rounded-lg bg-amber-950/80 border border-amber-500/50 text-[11px] font-mono text-amber-300 flex items-center justify-between">
+                <span>⏰ Snoozed by 30 minutes</span>
+                <button
+                  onClick={() => resolvePreCallAgency('agent_approved')}
+                  className="text-[10px] underline text-amber-300 hover:text-white cursor-pointer"
+                >
+                  Trigger now
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
         {!msg ? (
-          <div className="h-44 flex flex-col items-center justify-center text-slate-500 text-xs font-mono space-y-2">
-            <Bot className="w-6 h-6 text-slate-600 animate-pulse" />
+          <div className="h-32 flex flex-col items-center justify-center text-slate-500 text-xs font-mono space-y-1.5">
+            <Bot className="w-5 h-5 text-slate-600 animate-pulse" />
             <span className="text-center px-4">
-              Awaiting post-interaction brief trigger...
+              Caregiver Concierge Active
               <br />
               <span className="text-[10px] text-slate-600">
-                (Telegram card dispatches upon call conclusion or safety escalation)
+                (Telegram cards update on call events, authorizations & briefings)
               </span>
             </span>
           </div>

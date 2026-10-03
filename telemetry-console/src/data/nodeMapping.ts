@@ -6,7 +6,10 @@ import {
   WHISPERFLO_DIAL_EXCHANGE,
   ABDM_RUNWAY_EXCHANGE,
   TELEGRAM_DISPATCH_EXCHANGE,
-  NETMEDS_PHARMACY_ORDER_EXCHANGE
+  NETMEDS_PHARMACY_ORDER_EXCHANGE,
+  HEALTH_LOCKER_QUERY_EXCHANGE,
+  MEDGEMMA_ANALYSIS_EXCHANGE,
+  CAREGIVER_PRECALL_APPROVAL_EXCHANGE
 } from './apiExchanges';
 
 export type ToolNodeType =
@@ -17,7 +20,10 @@ export type ToolNodeType =
   | 'pharmacy'
   | 'fiduciary'
   | 'logistics'
-  | 'caregiver';
+  | 'caregiver'
+  | 'health_locker_query'
+  | 'medgemma_analysis'
+  | 'caregiver_precall_consent';
 
 export interface CatalogNodeType {
   type: ToolNodeType;
@@ -31,6 +37,26 @@ export interface CatalogNodeType {
 }
 
 export const NODE_CATALOG_LIST: CatalogNodeType[] = [
+  {
+    type: 'health_locker_query',
+    title: 'ABDM Health Locker & Pinecone RAG',
+    brandName: 'PostgreSQL / Pinecone VectorStore',
+    shortName: 'Health Locker',
+    tagline: 'Top-3 semantic clinical chunk retrieval filtered by senior ABHA identifier',
+    brandColor: '#0D9488',
+    accentBg: 'bg-teal-50 text-teal-900',
+    borderClass: 'border-teal-200'
+  },
+  {
+    type: 'medgemma_analysis',
+    title: 'Google MedGemma 4B Clinical Co-Pilot',
+    brandName: 'Google MedGemma-4B-IT',
+    shortName: 'MedGemma Co-Pilot',
+    tagline: 'Analytical clinical co-pilot strictly enforcing Zero-Diagnosis & Non-Prescriptive rules',
+    brandColor: '#7E22CE',
+    accentBg: 'bg-purple-50 text-purple-900',
+    borderClass: 'border-purple-200'
+  },
   {
     type: 'llm',
     title: 'L3 Cognitive Reasoning Engine',
@@ -108,6 +134,16 @@ export const NODE_CATALOG_LIST: CatalogNodeType[] = [
     shortName: 'Telegram Bot',
     tagline: 'Family briefing, audio wisdom story & 1-tap consent cards',
     brandColor: '#24A1DE',
+    accentBg: 'bg-sky-50 text-sky-900',
+    borderClass: 'border-sky-200'
+  },
+  {
+    type: 'caregiver_precall_consent',
+    title: 'Pre-Call Caregiver Agency Gate',
+    brandName: 'Telegram Caregiver Agency Rail',
+    shortName: 'Pre-Call Consent',
+    tagline: 'Dispatches interactive option for child to call directly or approve Sambandh AI check-in',
+    brandColor: '#0284C7',
     accentBg: 'bg-sky-50 text-sky-900',
     borderClass: 'border-sky-200'
   }
@@ -260,6 +296,38 @@ export const SCENARIO_NODE_REGISTRY: Record<string, ToolExecutionNode[]> = {
       apiExchange: TELEGRAM_DISPATCH_EXCHANGE,
       reasoningSnippet: 'Priya reassured on high vitality, verified adherence, and doorstep delivery.',
       brandColor: '#24A1DE'
+    },
+    {
+      id: 'node-s1-hl',
+      stepIndex: 3,
+      nodeType: 'health_locker_query',
+      brandName: 'ABDM Health Locker & Pinecone RAG',
+      toolName: 'pinecone_vector_search',
+      title: 'Health Locker Semantic Chunk Retrieval',
+      actionSummary: 'Retrieved top-3 clinical chunks from Dr. V. K. Sharma cardiology record and Metropolis lab report.',
+      timestamp: '08:32:10 IST',
+      status: 'SUCCESS',
+      statusCode: '200 OK (142ms)',
+      latencyMs: 142,
+      apiExchange: HEALTH_LOCKER_QUERY_EXCHANGE,
+      reasoningSnippet: 'Queried vector store filtered by senior_id: SENIOR_RAMESH_001. Top score: 0.892 (Metropolis Renal Profile).',
+      brandColor: '#0D9488'
+    },
+    {
+      id: 'node-s1-mg',
+      stepIndex: 3,
+      nodeType: 'medgemma_analysis',
+      brandName: 'Google MedGemma 4B',
+      toolName: 'medgemma_clinical_copilot',
+      title: 'MedGemma 4B Clinical Co-Pilot Reasoning',
+      actionSummary: 'Synthesized plain-language adherence and dietary guidance. Zero-Diagnosis & Non-Prescriptive rules passed.',
+      timestamp: '08:32:15 IST',
+      status: 'SUCCESS',
+      statusCode: '200 OK (184ms)',
+      latencyMs: 184,
+      apiExchange: MEDGEMMA_ANALYSIS_EXCHANGE,
+      reasoningSnippet: 'Non-prescriptive explanation of Telmisartan 40mg morning timing and low-sodium restrictions.',
+      brandColor: '#7E22CE'
     }
   ],
 
@@ -480,4 +548,9 @@ export const getNodesForScenarioStep = (
   }
   const nodes = SCENARIO_NODE_REGISTRY[scenarioId] || SCENARIO_NODE_REGISTRY['scenario-1'];
   return nodes.filter(n => n.stepIndex <= stepIndex);
+};
+
+// Returns full scenario execution node chain for observer inspection
+export const getAllNodesForScenario = (scenarioId: string): ToolExecutionNode[] => {
+  return SCENARIO_NODE_REGISTRY[scenarioId] || SCENARIO_NODE_REGISTRY['scenario-1'] || [];
 };

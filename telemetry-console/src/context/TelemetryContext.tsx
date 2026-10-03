@@ -6,7 +6,7 @@
  * - useTripwireGuard: Acoustic tripwire safety rail and scam interception
  * - useExecutionNodes: Dynamic node graph, deduplication, and domain rail detection
  */
-import React, { createContext, useContext, useState, useRef, useMemo, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useRef, useMemo, useCallback, ReactNode } from 'react';
 import {
   Scenario,
   ScenarioStep,
@@ -22,7 +22,9 @@ import {
   MoodCallEntry,
   CaregiverConfig,
   ElderTopicOfInterest,
-  PromptSliceStatus
+  PromptSliceStatus,
+  PreCallAgencyRequest,
+  PreCallAgencyStatus
 } from '../types/telemetry';
 import { DEFAULT_MODEL_ID, SUPPORTED_LLM_MODELS } from '../data/models';
 import { speakDialogueTurn, stopSpeech } from '../utils/speechService';
@@ -33,6 +35,7 @@ import {
   ChatMessage,
   generateContextualCompanionResponse
 } from '../services/llmService';
+import { healthLockerService } from '../services/healthLockerService';
 import { ToolExecutionNode } from '../data/nodeMapping';
 import { SIMULATION_PRESETS } from '../data/simulationPrompts';
 import {
@@ -49,6 +52,7 @@ import {
 } from '../data/keywords';
 import {
   RANDOM_COMPANION_GREETINGS,
+  getRandomCompanionGreeting,
   INITIAL_ELDER_TOPICS
 } from '../data/conversationalSparks';
 import {
@@ -107,6 +111,9 @@ interface TelemetryContextType {
   // 6-Point Workflow State & Functions
   callStatus: CallStatus;
   startCall: () => void;
+  initiateIncomingCall: () => void;
+  acceptCall: () => void;
+  declineCall: () => void;
   endCall: () => void;
   callDurationSeconds: number;
   autoSpeak: boolean;
@@ -136,6 +143,8 @@ interface TelemetryContextType {
   dynamicExecutionNodes: ToolExecutionNode[];
   triggerSimulationPreset: (presetId: string) => void;
   clearDynamicNodes: () => void;
+  triggerHealthLockerRAG: (query: string, role?: 'elder' | 'caregiver') => Promise<string>;
+  openApiDrawerForCurrentStep: () => void;
 
   // Medical Dossier, Live Inventory & Orders State
   medicalIssues: MedicalIssue[];
@@ -159,6 +168,11 @@ interface TelemetryContextType {
   startTranscriberMode: () => void;
   stopTranscriberMode: () => void;
   syncTranscriberToEhr: () => void;
+
+  // Caregiver Pre-Call Agency & Direct Dialing Gate
+  preCallAgency: PreCallAgencyRequest;
+  requestPreCallApproval: () => void;
+  resolvePreCallAgency: (decision: 'caregiver_direct' | 'agent_approved' | 'snooze_30m', customNote?: string) => void;
 }
 
 /**
@@ -273,6 +287,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     callStatus,
     callDurationSeconds,
     beginCall,
+    initiateIncomingCall,
     endCall: endCallSession,
     resetCallState
   } = useCallSession();
@@ -300,12 +315,14 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     addUniqueNodes,
     seedInitialCallNode,
     createLlmNode,
+    createHealthLockerNodes,
+    createPreCallApprovalNode,
     detectDomainNodes,
     triggerPresetNodes
   } = useExecutionNodes();
 
-  // Navigation & Modals
-  const [activeTab, setActiveTab] = useState<NavigationTab>('dual-pane');
+  // Navigation & Modals (Defaults to Tab 1: Elder Screen)
+  const [activeTab, setActiveTab] = useState<NavigationTab>('elder');
   const [selectedWebhook, setSelectedWebhook] = useState<WhisperFloWebhook | null>(null);
   const [selectedApiExchange, setSelectedApiExchange] = useState<HttpApiExchange | null>(null);
   const [isStateDrawerOpen, setIsStateDrawerOpen] = useState<boolean>(false);
@@ -321,6 +338,24 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     setSettingsActiveTab(tab);
     setIsSettingsModalOpen(true);
   };
+
+  const triggerHealthLockerRAG = useCallback(async (query: string, role: 'elder' | 'caregiver' = 'elder'): Promise<string> => {
+    const res = await healthLockerService.queryHealthLocker({
+      query,
+      seniorId: 'SENIOR_RAMESH_001',
+      callerRole: role,
+      mode: 'auto'
+    });
+    const nodes = createHealthLockerNodes(query, res.latency_ms, res.analysis);
+    addUniqueNodes(nodes);
+    return res.analysis;
+  }, [createHealthLockerNodes, addUniqueNodes]);
+
+  const openApiDrawerForCurrentStep = useCallback(() => {
+    if (currentStepApiExchange) {
+      setSelectedApiExchange(currentStepApiExchange);
+    }
+  }, [currentStepApiExchange]);
 
   // Medical Dossier State
   const [medicalIssues, setMedicalIssues] = useState<MedicalIssue[]>([
@@ -456,6 +491,31 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
       return updated;
     });
   };
+
+  // Pre-Call Caregiver Agency & Consent State
+  const [preCallAgency, setPreCallAgency] = useState<PreCallAgencyRequest>({
+    id: 'precall-req-001',
+    timestamp: '08:20 AM IST',
+    seniorName: 'Ramesh Chandra (Papa)',
+    seniorPhone: '+91 98101 23456',
+    scheduledTimeIst: '08:30 AM IST',
+    status: 'awaiting_approval',
+    caregiverName: 'Priya Sharma (Daughter)',
+    clinicalBriefingSnippet: 'Omron BP 128/82 mmHg · Telmisartan 40mg (6 days stock runway) · High vitality'
+  });
+
+  const requestPreCallApproval = useCallback(() => {
+    setPreCallAgency(prev => ({
+      ...prev,
+      id: `precall-req-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
+      status: 'awaiting_approval',
+      caregiverDecision: undefined,
+      caregiverNotes: undefined
+    }));
+    setTelegramActionFeedback('🔔 Pre-Call Agency Prompt Dispatched to Priya (@priya_sharma_care). Awaiting choice: Direct Call vs AI Delegated.');
+    setTimeout(() => setTelegramActionFeedback(null), 4500);
+  }, []);
 
   // Longitudinal Emotional Memory Across 3-4 Subsequent Calls
   const [moodHistory, setMoodHistory] = useState<MoodCallEntry[]>([
@@ -810,7 +870,10 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         if (result?.text) {
           const modelDisplayName = result.modelUsed || selectedModelConfig.name;
           const isFailover = Boolean(result.isFailover);
-          const providerBadge = result.providerBadge;
+          const isClinicalQuery = /(doctor|dawai|goli|creatinine|bp|sharma|prescription|parcha|kab leni|medicine)/i.test(content);
+          const baseBadge = isFailover ? '⚡ Local Fallback' : `${selectedModelConfig.provider.toUpperCase()} Fast-Inference`;
+          const effectiveBadge = isClinicalQuery ? '📋 Health Locker Verified (MedGemma RAG)' : baseBadge;
+
           const agentTurn: ConversationTurn = {
             id: `agent-reply-${Date.now()}`,
             timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
@@ -820,7 +883,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
             content: result.text,
             modelUsed: modelDisplayName,
             isFailover,
-            providerBadge
+            providerBadge: effectiveBadge
           };
           setConversationTurns(prev => [...prev, agentTurn]);
 
@@ -832,7 +895,8 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
             result.text
           );
           const domainNodes = detectDomainNodes(content + ' ' + result.text);
-          addUniqueNodes([llmNode, ...domainNodes]);
+          const hlNodes = isClinicalQuery ? createHealthLockerNodes(content, 184, result.text) : [];
+          addUniqueNodes([llmNode, ...domainNodes, ...hlNodes]);
 
           // If medication fulfillment cascade was triggered, register the active order
           if (domainNodes.some(n => n.nodeType === 'pharmacy')) {
@@ -908,8 +972,8 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
       acousticTripwire: false
     });
 
-    // Random companion greeting from curated authentic pool
-    const randomGreeting = RANDOM_COMPANION_GREETINGS[Math.floor(Math.random() * RANDOM_COMPANION_GREETINGS.length)];
+    // Random companion greeting from curated authentic pool matching current time of day
+    const randomGreeting = getRandomCompanionGreeting();
 
     const greetingTurn: ConversationTurn = {
       id: `greeting-turn-${Date.now()}`,
@@ -930,6 +994,18 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     }
   };
 
+  const acceptCall = () => {
+    startCall();
+  };
+
+  const declineCall = () => {
+    stopSpeech();
+    if (speechAdvanceTimeoutRef.current) clearTimeout(speechAdvanceTimeoutRef.current);
+    resetCallState();
+    setTelegramActionFeedback("📴 Call Declined: Ramesh Ji was unable to take the call. Next check-in scheduled in 30 mins.");
+    setTimeout(() => setTelegramActionFeedback(null), 4000);
+  };
+
   const endCall = () => {
     stopSpeech();
     if (speechAdvanceTimeoutRef.current) clearTimeout(speechAdvanceTimeoutRef.current);
@@ -946,6 +1022,44 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     setCurrentlySpeakingTurnId(null);
     setTelegramActionFeedback(null);
   };
+
+  const resolvePreCallAgency = useCallback((
+    decision: 'caregiver_direct' | 'agent_approved' | 'snooze_30m',
+    customNote?: string
+  ) => {
+    const node = createPreCallApprovalNode(decision);
+    addUniqueNodes([node]);
+
+    if (decision === 'caregiver_direct') {
+      setPreCallAgency(prev => ({
+        ...prev,
+        status: 'caregiver_calling',
+        caregiverDecision: decision,
+        caregiverNotes: customNote || "Priya: 'I will call Papa myself today. Automated AI call suspended.'"
+      }));
+      setTelegramActionFeedback("📞 Direct Call Mode: Priya is speaking with Papa directly (+91 98101 23456). AI dialing suspended.");
+    } else if (decision === 'agent_approved') {
+      setPreCallAgency(prev => ({
+        ...prev,
+        status: 'agent_approved',
+        caregiverDecision: decision,
+        caregiverNotes: customNote || "Priya: 'Approved Sambandh AI morning companionship call.'"
+      }));
+      setTelegramActionFeedback("🤖 Pre-Call Consent Captured: Priya approved Sambandh AI check-in. Ringing Ramesh Ji's phone over Jio PSTN...");
+      // Trigger incoming call ringing on elder's phone
+      initiateIncomingCall();
+    } else if (decision === 'snooze_30m') {
+      setPreCallAgency(prev => ({
+        ...prev,
+        status: 'snoozed',
+        caregiverDecision: decision,
+        caregiverNotes: customNote || "Priya requested a 30-minute delay."
+      }));
+      setTelegramActionFeedback("⏰ Check-In Postponed: Snoozed by 30 minutes. Next notification scheduled for 09:00 AM IST.");
+    }
+
+    setTimeout(() => setTelegramActionFeedback(null), 4500);
+  }, [createPreCallApprovalNode, addUniqueNodes, initiateIncomingCall]);
 
   const setScenarioById = (id: string) => {
     stopSpeech();
@@ -1013,7 +1127,16 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
   const closeApiExchangeModal = () => setSelectedApiExchange(null);
 
   const handleTelegramAction = (action: string) => {
-    if (action === 'PLAY_AUDIO') {
+    if (action === 'PRECALL_CALL_MYSELF') {
+      resolvePreCallAgency('caregiver_direct');
+      return;
+    } else if (action === 'PRECALL_APPROVE_AI') {
+      resolvePreCallAgency('agent_approved');
+      return;
+    } else if (action === 'PRECALL_SNOOZE_30M') {
+      resolvePreCallAgency('snooze_30m');
+      return;
+    } else if (action === 'PLAY_AUDIO') {
       setIsAudioSnippetOpen(true);
       setTelegramActionFeedback("🎧 Playing Papa's 30s Railway Wisdom snippet...");
     } else if (action === 'APPROVE_UPI_5600') {
@@ -1081,6 +1204,28 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     return JSON.stringify(fullState, null, 2);
   };
 
+  // Accumulate turns from scenario steps up to currentStepIndex
+  const scenarioTurnsSoFar = useMemo(() => {
+    const turns: ConversationTurn[] = [];
+    for (let i = 0; i <= currentStepIndex && i < activeScenario.steps.length; i++) {
+      turns.push(...activeScenario.steps[i].turns);
+    }
+    return turns;
+  }, [activeScenario, currentStepIndex]);
+
+  // Dialogue turns stream in real time once call is answered/active, or when live custom turns are injected.
+  // In idle state, returns [] so no premature dummy messages are rendered before call starts.
+  // When call has ended, preserves completed turns for full post-call audit.
+  const effectiveTurns = useMemo(() => {
+    if (conversationTurns.length > 0) {
+      return conversationTurns;
+    }
+    if (callStatus === 'active' || callStatus === 'ended' || isPlaying) {
+      return scenarioTurnsSoFar;
+    }
+    return [];
+  }, [conversationTurns, callStatus, isPlaying, scenarioTurnsSoFar]);
+
   return (
     <TelemetryContext.Provider
       value={{
@@ -1088,7 +1233,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         activeScenario,
         currentStepIndex,
         currentStep,
-        allTurnsSoFar: conversationTurns,
+        allTurnsSoFar: effectiveTurns,
         isPlaying,
         pacing,
         activeTab,
@@ -1124,6 +1269,9 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         // 6-Point Workflow State & Functions
         callStatus,
         startCall,
+        initiateIncomingCall,
+        acceptCall,
+        declineCall,
         endCall,
         callDurationSeconds,
         autoSpeak,
@@ -1154,6 +1302,8 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         dynamicExecutionNodes,
         triggerSimulationPreset,
         clearDynamicNodes,
+        triggerHealthLockerRAG,
+        openApiDrawerForCurrentStep,
 
         // Medical Dossier, Live Inventory & Orders State
         medicalIssues,
@@ -1176,7 +1326,12 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
 
         // Caregiver Pre-Fed Configuration (Routing, Address & Limits)
         caregiverConfig,
-        updateCaregiverConfig
+        updateCaregiverConfig,
+
+        // Caregiver Pre-Call Agency & Direct Dialing Gate
+        preCallAgency,
+        requestPreCallApproval,
+        resolvePreCallAgency
       }}
     >
       {children}

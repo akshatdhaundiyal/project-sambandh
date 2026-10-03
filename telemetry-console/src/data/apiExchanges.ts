@@ -534,5 +534,153 @@ export const NETMEDS_PHARMACY_ORDER_EXCHANGE: HttpApiExchange = {
   }
 };
 
+export const HEALTH_LOCKER_QUERY_EXCHANGE: HttpApiExchange = {
+  railName: "ABDM Health Locker & Pinecone RAG Rail",
+  method: "POST",
+  endpoint: "https://modal.run/sambandh-health-locker/query_health_locker",
+  schemaStandard: "ABDM FHIR M3 & LangChain PineconeVectorStore v1.0",
+  headers: {
+    "Authorization": "Bearer [MODAL_OR_LOCAL_AUTH_TOKEN]",
+    "Content-Type": "application/json",
+    "X-Senior-ABHA": "91-8273-1928-4491",
+    "X-Caller-Role": "caregiver"
+  },
+  requestBody: {
+    "query": "Creatinine trajectory and active BP medications",
+    "senior_id": "SENIOR_RAMESH_001",
+    "caller_role": "caregiver",
+    "mode": "auto",
+    "top_k": 3
+  },
+  responseStatus: 200,
+  responseStatusText: "OK",
+  responseLatencyMs: 142,
+  responseHeaders: {
+    "Content-Type": "application/json",
+    "X-Engine": "PostgreSQL-LangChain-Pinecone",
+    "X-Similarity-Metric": "Cosine-Distance-384"
+  },
+  responseBody: {
+    "status": "SUCCESS",
+    "retrieved_chunks": [
+      {
+        "document_id": "DOC_LAB_2026_0905",
+        "category": "lab_report",
+        "title": "Comprehensive Metabolic & Renal Profile",
+        "score": 0.892,
+        "content_snippet": "Serum Creatinine: 1.10 mg/dL (Ref: 0.70 - 1.30 mg/dL) - NORMAL. eGFR: >75 mL/min."
+      },
+      {
+        "document_id": "DOC_RX_2026_0910",
+        "category": "prescription",
+        "title": "Cardiology Follow-Up Prescription",
+        "score": 0.865,
+        "content_snippet": "Continue Telmisartan 40mg (1 OD morning post breakfast). Salt restriction advised."
+      }
+    ],
+    "sources": [
+      "Metropolis Metabolic Lab Report (05 Sep 2026)",
+      "Dr. V. K. Sharma Cardiology Prescription (10 Sep 2026)"
+    ],
+    "structured_vitals": [
+      { "vitalType": "creatinine", "valueNumeric": 1.10, "unit": "mg/dL", "trend": "STABLE" }
+    ],
+    "latency_ms": 142
+  }
+};
 
+export const MEDGEMMA_ANALYSIS_EXCHANGE: HttpApiExchange = {
+  railName: "Google MedGemma 4B Clinical Co-Pilot Rail",
+  method: "POST",
+  endpoint: "http://localhost:11434/api/generate (Ollama Local) / http://localhost:8001/api/query",
+  schemaStandard: "MedGemma-4B Guardrailed Inference Protocol (Ollama :11434)",
+  headers: {
+    "Content-Type": "application/json",
+    "X-Model-Id": "medgemma:4b",
+    "X-Inference-Engine": "Ollama (CUDA Flash-Attention)",
+    "X-Postgres-ABDM-Sync": "Verified (Port 5434)"
+  },
+  requestBody: {
+    "model": "medgemma:4b",
+    "prompt": "Caregiver asks: Can Papa take extra salty pickle with dinner? Evaluate against low-sodium directive.",
+    "system": "You are Google MedGemma 4B, an expert clinical AI co-pilot for Sambandh Health Locker. Patient: Ramesh Chandra (72/M, Lucknow). Active Rx: Telmisartan 40mg (1 OD morning), Metformin 500mg (half tab BD). Strict low-sodium diet (<2g/day).",
+    "options": {
+      "temperature": 0.2,
+      "num_predict": 128
+    }
+  },
+  responseStatus: 200,
+  responseStatusText: "OK",
+  responseLatencyMs: 2313,
+  responseHeaders: {
+    "Content-Type": "application/json",
+    "X-Tokens-Evaluated": "47",
+    "X-Device": "NVIDIA CUDA GPU (Flash Attention)"
+  },
+  responseBody: {
+    "response": "No, Papa should avoid salty pickles with dinner due to his hypertension and the need for a low-sodium diet (<2g/day). High sodium intake can raise blood pressure and counter the therapeutic efficacy of Telmisartan 40mg.",
+    "model": "medgemma:4b",
+    "eval_count": 47,
+    "latency_ms": 2313,
+    "data_source": "Google MedGemma 4B (Ollama Local :11434)",
+    "guardrail_status": {
+      "is_non_prescriptive": true,
+      "zero_diagnosis_passed": true,
+      "tripwire_triggered": false
+    }
+  }
+};
 
+export const CAREGIVER_PRECALL_APPROVAL_EXCHANGE: HttpApiExchange = {
+  railName: "Telegram Caregiver Pre-Call Agency Rail",
+  method: "POST",
+  endpoint: "https://api.telegram.org/bot6829104:AAFn_sambandh/sendMessage",
+  schemaStandard: "Telegram Bot API v7.2 - Pre-Call Caregiver Consent Protocol",
+  headers: {
+    "Authorization": "Bearer [TELEGRAM_BOT_TOKEN_SAMBANDH]",
+    "Content-Type": "application/json",
+    "X-Consent-Protocol": "CAREGIVER_AGENCY_V1"
+  },
+  requestBody: {
+    "chat_id": 9812491,
+    "recipient": "Priya Sharma (@priya_sharma_care)",
+    "notification_type": "PRE_CALL_AGENCY_GATE",
+    "scheduled_time_ist": "08:30 IST",
+    "senior_profile": {
+      "name": "Ramesh Chandra",
+      "relationship": "Father",
+      "phone": "+91 98101 23456",
+      "clinical_vitals_summary": "Omron BP 128/82 mmHg, Telmisartan stock: 6 days runway"
+    },
+    "message": "Namaste Priya. Today's 08:30 AM morning check-in with Papa is scheduled. Would you like to call him directly yourself today, or should Sambandh AI conduct the morning check-in?",
+    "reply_markup": {
+      "inline_keyboard": [
+        [
+          { "text": "📞 I will call Papa myself today", "callback_data": "PRECALL_CALL_MYSELF" },
+          { "text": "🤖 Approve Sambandh AI Call", "callback_data": "PRECALL_APPROVE_AI" }
+        ],
+        [
+          { "text": "⏰ Snooze check-in by 30 mins", "callback_data": "PRECALL_SNOOZE_30M" }
+        ]
+      ]
+    }
+  },
+  responseStatus: 200,
+  responseStatusText: "OK",
+  responseLatencyMs: 88,
+  responseHeaders: {
+    "Content-Type": "application/json",
+    "X-Telegram-Message-Id": "MSG_PRECALL_991823"
+  },
+  responseBody: {
+    "ok": true,
+    "result": {
+      "message_id": 991823,
+      "date": 1728711600,
+      "status": "DELIVERED_TO_CAREGIVER",
+      "caregiver_action_captured": "AGENT_AUTONOMOUS_CALL_APPROVED",
+      "consent_timestamp": "08:28:14 IST",
+      "agency_policy": "CAREGIVER_DELEGATED_TO_AI"
+    }
+  }
+};

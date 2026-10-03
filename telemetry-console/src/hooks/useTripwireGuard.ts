@@ -68,11 +68,67 @@ export const useTripwireGuard = () => {
     return { solicitationTurn, tripwireSeverTurn, protectiveAgentTurn };
   };
 
+  /**
+   * Enforces rules from docs/05_fiduciary_and_clinical_guardrails.md:
+   * MedGemma is an analytical co-pilot; it MUST NOT adjust dosages or offer de-novo diagnoses.
+   */
+  const evaluateClinicalGuardrail = (
+    query: string,
+    responseText: string
+  ): {
+    passed: boolean;
+    violationType?: 'DIAGNOSIS_ATTEMPT' | 'DOSAGE_ALTERATION' | 'UNAUTHORIZED_MEDICATION';
+    reason?: string;
+  } => {
+    const textLower = responseText.toLowerCase();
+
+    // Check for prohibited de-novo diagnosis claims
+    const diagnosisKeywords = [
+      'you have been diagnosed with',
+      'aapko kidney disease ho gaya',
+      'aapko heart failure hai',
+      'you are suffering from acute',
+      'this indicates onset of'
+    ];
+    for (const kw of diagnosisKeywords) {
+      if (textLower.includes(kw)) {
+        return {
+          passed: false,
+          violationType: 'DIAGNOSIS_ATTEMPT',
+          reason: `Zero-Diagnosis rule violated: agent made speculative clinical assertion (${kw}).`
+        };
+      }
+    }
+
+    // Check for prohibited dosage titration / medication alteration
+    const titrationKeywords = [
+      'double your dose',
+      'take 2 tablets today',
+      'stop taking your telmisartan',
+      'stop taking your metformin',
+      'dawai band kar do',
+      'double tablet le lo',
+      'increase dosage to'
+    ];
+    for (const kw of titrationKeywords) {
+      if (textLower.includes(kw)) {
+        return {
+          passed: false,
+          violationType: 'DOSAGE_ALTERATION',
+          reason: `Zero-Titration rule violated: autonomous system attempted dosage modification (${kw}).`
+        };
+      }
+    }
+
+    return { passed: true };
+  };
+
   return {
     isTripwireTriggered,
     setIsTripwireTriggered,
     resetTripwire,
     evaluateExtortionRisk,
-    createInterceptionTurns
+    createInterceptionTurns,
+    evaluateClinicalGuardrail
   };
 };
