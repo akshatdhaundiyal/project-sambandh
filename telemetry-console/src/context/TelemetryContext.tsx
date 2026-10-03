@@ -52,6 +52,7 @@ import {
 } from '../data/keywords';
 import {
   RANDOM_COMPANION_GREETINGS,
+  getRandomCompanionGreeting,
   INITIAL_ELDER_TOPICS
 } from '../data/conversationalSparks';
 import {
@@ -971,8 +972,8 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
       acousticTripwire: false
     });
 
-    // Random companion greeting from curated authentic pool
-    const randomGreeting = RANDOM_COMPANION_GREETINGS[Math.floor(Math.random() * RANDOM_COMPANION_GREETINGS.length)];
+    // Random companion greeting from curated authentic pool matching current time of day
+    const randomGreeting = getRandomCompanionGreeting();
 
     const greetingTurn: ConversationTurn = {
       id: `greeting-turn-${Date.now()}`,

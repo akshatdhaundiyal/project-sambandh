@@ -6,8 +6,10 @@ import { Heart, Volume2, VolumeX, Send, Radio, Sparkles, Settings2, Languages, M
 import type { ConversationTurn } from '../../types/telemetry';
 import { HindiSpeechRecognizer, isSpeechRecognitionSupported } from '../../utils/speechRecognitionService';
 import { RecommendedPromptsModal } from './RecommendedPromptsModal';
+import { getTimeContext } from '../../data/conversationalSparks';
 
 export const SeniorConversationStream: React.FC = () => {
+  const timeCtx = getTimeContext();
   const {
     allTurnsSoFar,
     activeTtsEngine,
@@ -165,9 +167,11 @@ export const SeniorConversationStream: React.FC = () => {
             </div>
             <div>
               <h3 className="font-serif font-bold text-sm sm:text-base text-stone-900">
-                Morning Dialogue Stream
+                Live Dialogue Stream
               </h3>
-              <p className="text-xs text-stone-500">Awadhi-Hindi Companion Telephony</p>
+              <p className="text-xs text-stone-500">
+                Awadhi-Hindi Companion Telephony · {timeCtx.period} Session ({timeCtx.timeStr})
+              </p>
             </div>
           </div>
 
@@ -213,64 +217,26 @@ export const SeniorConversationStream: React.FC = () => {
         {/* Conversation Bubbles Stream */}
         <div ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-auto space-y-3.5 pr-1.5 scrollbar-thin">
           {conversationTurns.length === 0 ? (
-            <div className="space-y-3.5 pt-1">
-              {/* Session Time Badge */}
-              <div className="flex items-center justify-center my-1">
-                <span className="text-[10px] font-mono font-medium text-stone-500 bg-stone-100 px-3 py-1 rounded-full border border-stone-200 shadow-2xs">
-                  08:30 AM IST · Morning Routine Telephony Session
-                </span>
+            <div className="h-full min-h-[300px] flex flex-col items-center justify-center p-6 text-center space-y-4">
+              <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-800 shadow-2xs">
+                <Phone className="w-7 h-7 stroke-[1.8] text-amber-700 animate-pulse" />
               </div>
 
-              {/* Pari's Standby Greeting Bubble */}
-              <div className="flex gap-2.5 flex-row animate-in fade-in duration-300">
-                <div className="w-8 h-8 rounded-xl shrink-0 flex items-center justify-center font-bold text-xs shadow-2xs bg-emerald-100 border border-emerald-300 text-emerald-900">
-                  🌿
-                </div>
-
-                <div className="max-w-[85%] rounded-2xl p-3.5 shadow-2xs text-xs leading-relaxed bg-[#F4F9F6] border border-[#D5EADB] text-stone-900 space-y-1.5">
-                  <div className="flex items-center justify-between gap-2.5">
-                    <span className="text-xs font-semibold text-emerald-900 font-serif">
-                      Pari · परी (AI Voice Companion)
-                    </span>
-                    <span className="text-[9px] font-mono text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                      Standby
-                    </span>
-                  </div>
-
-                  <p className="text-sm font-serif font-bold text-stone-900 leading-snug">
-                    "नमस्ते रमेश जी! शुभ प्रभात। सुबह की चाय-नाश्ता हो गया आपका? बालकनी में बैठे हैं क्या?"
-                  </p>
-                  <p className="text-[11px] text-stone-500 italic">
-                    [Namaste Ramesh Ji! Good morning. Had your morning tea and breakfast? Sitting in the balcony?]
-                  </p>
-
-                  <div className="pt-1 flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => speakTurn({
-                        id: 'preview-greeting',
-                        timestamp: '08:30 IST',
-                        speaker: 'agent',
-                        lane: 'lane1',
-                        speakerLabel: 'Pari (Agent)',
-                        content: 'नमस्ते रमेश जी! शुभ प्रभात। सुबह की चाय-नाश्ता हो गया आपका? बालकनी में बैठे हैं क्या?'
-                      })}
-                      className="px-2.5 py-1 bg-white hover:bg-stone-50 text-emerald-800 rounded-lg text-[11px] font-medium border border-emerald-200 shadow-2xs flex items-center gap-1 cursor-pointer transition-colors"
-                      title="Play Audio Preview"
-                    >
-                      <Volume2 className="w-3.5 h-3.5 text-emerald-700" />
-                      <span>Listen Preview</span>
-                    </button>
-                    <span className="text-[10px] text-stone-400">
-                      Awadhi-Hindi Neural Dialect
-                    </span>
-                  </div>
-                </div>
+              <div className="space-y-1.5 max-w-sm">
+                <span className="text-[10px] font-mono font-medium text-stone-500 bg-stone-100 px-3 py-1 rounded-full border border-stone-200 shadow-2xs inline-block mb-1">
+                  {timeCtx.timeStr} IST · {timeCtx.sessionName}
+                </span>
+                <h4 className="font-serif font-bold text-base text-stone-900">
+                  Telephony Session Standby
+                </h4>
+                <p className="text-xs text-stone-500 leading-relaxed font-sans">
+                  The companion call with Ramesh Ji has not started yet. When the call connects, live bilingual conversation turns and speech will stream here in real time.
+                </p>
               </div>
 
               {/* Waiting on Phone Pickup Indicator */}
-              <div className="p-3 rounded-2xl bg-amber-50/80 border border-amber-200/90 flex items-center justify-between gap-3 text-xs text-amber-950">
-                <div className="flex items-center gap-2">
+              <div className="w-full max-w-md p-3 rounded-2xl bg-amber-50/80 border border-amber-200/90 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-amber-950">
+                <div className="flex items-center gap-2 text-left">
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping shrink-0"></span>
                   <span className="font-medium text-[11px]">
                     Waiting for call pickup on Ramesh Ji's phone on the left...
@@ -279,15 +245,32 @@ export const SeniorConversationStream: React.FC = () => {
                 <button
                   type="button"
                   onClick={startCall}
-                  className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+                  className="w-full sm:w-auto px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shrink-0 active:scale-95"
                 >
-                  <Phone className="w-3 h-3 fill-current" />
+                  <Phone className="w-3.5 h-3.5 fill-current" />
                   <span>Connect Now</span>
                 </button>
               </div>
+
+              {/* 1-Click Simulation Scenario Trigger */}
+              <button
+                type="button"
+                onClick={() => setIsPromptsModalOpen(true)}
+                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-amber-900 bg-amber-100/60 hover:bg-amber-100 border border-amber-200/80 flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
+                <span>Or Select a 1-Click Simulation Scenario (6)</span>
+              </button>
             </div>
           ) : (
-            conversationTurns.map((turn) => {
+            <div className="space-y-3.5">
+              {/* Session Time Badge */}
+              <div className="flex items-center justify-center my-1">
+                <span className="text-[10px] font-mono font-medium text-stone-500 bg-stone-100 px-3 py-1 rounded-full border border-stone-200 shadow-2xs">
+                  {timeCtx.timeStr} IST · {timeCtx.sessionName}
+                </span>
+              </div>
+              {conversationTurns.map((turn) => {
               const isPapa = turn.speaker === 'senior';
               const isAgent = turn.speaker === 'agent';
               const isSpeakingThis = currentlySpeakingTurnId === turn.id;
@@ -398,7 +381,8 @@ export const SeniorConversationStream: React.FC = () => {
                   </div>
                 </div>
               );
-            })
+            })}
+            </div>
           )}
         </div>
 

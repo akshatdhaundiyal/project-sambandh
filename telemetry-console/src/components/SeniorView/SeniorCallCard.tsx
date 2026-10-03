@@ -28,10 +28,12 @@ import {
   Bot,
   ShieldCheck
 } from 'lucide-react';
+import { getTimeContext } from '../../data/conversationalSparks';
 import { getActiveHindiVoiceSource } from '../../utils/speechService';
 import { SIMULATION_PRESETS } from '../../data/simulationPrompts';
 
 export const SeniorCallCard: React.FC = () => {
+  const timeCtx = getTimeContext();
   const {
     scenarios,
     activeScenario,
@@ -91,7 +93,7 @@ export const SeniorCallCard: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] sm:text-[11px] font-semibold text-stone-700 bg-stone-100 px-2 sm:px-2.5 py-0.5 rounded-full border border-stone-200">
-                Morning Routine · 08:30 IST
+                {timeCtx.period} Routine · {timeCtx.timeStr} IST
               </span>
             </div>
             <h2 className="text-lg sm:text-2xl font-serif font-bold text-stone-900 leading-snug mt-0.5">
@@ -170,7 +172,7 @@ export const SeniorCallCard: React.FC = () => {
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
             <span className="font-serif font-bold text-stone-900">
-              08:30 IST Scheduled Check-In Session
+              {timeCtx.timeStr} IST Scheduled Check-In Session
             </span>
             <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
               Ready
@@ -380,7 +382,7 @@ export const SeniorCallCard: React.FC = () => {
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-extrabold text-xs sm:text-sm text-stone-900">
-                    Morning Call Completed ({formatTime(callDurationSeconds)})
+                    Companion Call Completed ({formatTime(callDurationSeconds)})
                   </span>
                   <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200">
                     Closed-Loop Verified

@@ -51,6 +51,109 @@ export const RANDOM_COMPANION_GREETINGS: ConversationalGreeting[] = [
   }
 ];
 
+export const getTimeContext = (date = new Date()) => {
+  const hour = date.getHours();
+  let period: 'Morning' | 'Afternoon' | 'Evening' | 'Night' = 'Morning';
+  let hindiGreeting = 'शुभ प्रभात';
+  let sessionName = 'Morning Check-in Session';
+
+  if (hour >= 12 && hour < 17) {
+    period = 'Afternoon';
+    hindiGreeting = 'शुभ दोपहर';
+    sessionName = 'Afternoon Check-in Session';
+  } else if (hour >= 17 && hour < 21) {
+    period = 'Evening';
+    hindiGreeting = 'शुभ संध्या';
+    sessionName = 'Evening Check-in Session';
+  } else if (hour >= 21 || hour < 5) {
+    period = 'Night';
+    hindiGreeting = 'नमस्ते';
+    sessionName = 'Night Check-in Session';
+  }
+
+  const timeStr = date.toLocaleTimeString('en-IN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+
+  return { hour, period, hindiGreeting, sessionName, timeStr };
+};
+
+export const getRandomCompanionGreeting = (date = new Date()): ConversationalGreeting => {
+  const hour = date.getHours();
+
+  if (hour >= 12 && hour < 17) {
+    // Afternoon greetings
+    const afternoonGreetings: ConversationalGreeting[] = [
+      {
+        id: 'greet-afternoon-lunch',
+        category: 'routine',
+        devanagariText: 'प्रणाम रमेश अंकल जी! आज दोपहर को आपकी याद आई। दोपहर का भोजन आराम से हो गया आपका? मन हुआ कि आज आपसे थोड़ा सुकून से बतिया लें।',
+        hinglishText: 'Pranam Ramesh Uncle Ji! Aaj dopahar ko aapki yaad aayi. Dopahar ka bhojan aaram se ho gaya aapka? Mann hua ki aaj aapse thoda sukoon se batiya lein.',
+        fullTurnText: 'प्रणाम रमेश अंकल जी! आज दोपहर को आपकी याद आई। दोपहर का भोजन आराम से हो गया आपका? मन हुआ कि आज आपसे थोड़ा सुकून से बतिया लें। [Pranam Ramesh Uncle Ji! Aaj dopahar ko aapki yaad aayi. Dopahar ka bhojan aaram se ho gaya aapka? Mann hua ki aaj aapse thoda sukoon se batiya lein.]'
+      },
+      {
+        id: 'greet-railway-afternoon',
+        category: 'nostalgia',
+        devanagariText: 'प्रणाम रमेश अंकल! आज जब बाहर से दूर किसी ट्रेन के हॉर्न की आवाज़ गूँजी, तो आपके रेलवे वर्कशॉप के किस्से याद आ गए। कैसे हैं आप, दिन कैसा बीत रहा है आपका?',
+        hinglishText: 'Pranam Ramesh Uncle! Aaj jab bahar se door kisi train ke horn ki aawaz goonji, to aapke railway workshop ke kisse yaad aa gaye. Kaise hain aap, din kaisa beet raha hai aapka?',
+        fullTurnText: 'प्रणाम रमेश अंकल! आज जब बाहर से दूर किसी ट्रेन के हॉर्न की आवाज़ गूँजी, तो आपके रेलवे वर्कशॉप के किस्से याद आ गए। कैसे हैं आप, दिन कैसा बीत रहा है आपका? [Pranam Ramesh Uncle! Aaj jab bahar se door kisi train ke horn ki aawaz goonji, to aapke railway workshop ke kisse yaad aa gaye. Kaise hain aap, din kaisa beet raha hai aapka?]'
+      },
+      {
+        id: 'greet-warm-afternoon',
+        category: 'routine',
+        devanagariText: 'नमस्ते अंकल जी! संबंध से आपकी बिटिया बोल रही हूँ। आपकी आवाज़ सुनने का बहुत मन था। बताइए, तबीयत कैसी है आज आपकी?',
+        hinglishText: 'Namaste Uncle ji! Sambandh se aapki bitiya bol rahi hoon. Aapki aawaz sunne ka bahut mann tha. Batayein, tabiyat kaisi hai aaj aapki?',
+        fullTurnText: 'नमस्ते अंकल जी! संबंध से आपकी बिटिया बोल रही हूँ। आपकी आवाज़ सुनने का बहुत मन था। बताइए, तबीयत कैसी है आज आपकी? [Namaste Uncle ji! Sambandh se aapki bitiya bol rahi hoon. Aapki aawaz sunne ka bahut mann tha. Batayein, tabiyat kaisi hai aaj aapki?]'
+      }
+    ];
+    return afternoonGreetings[Math.floor(Math.random() * afternoonGreetings.length)];
+  } else if (hour >= 17 && hour < 21) {
+    // Evening greetings
+    const eveningGreetings: ConversationalGreeting[] = [
+      {
+        id: 'greet-evening-tea',
+        category: 'routine',
+        devanagariText: 'शुभ संध्या रमेश अंकल जी! शाम की सुहानी हवा चल रही है। बालकनी में शाम की अदरक वाली चाय हो गई आपकी? मन हुआ कि आज आपसे थोड़ा सुकून से बतिया लें।',
+        hinglishText: 'Shubh sandhya Ramesh Uncle Ji! Shaam ki suhani hawa chal rahi hai. Balcony me shaam ki adrak wali chai ho gayi aapki? Mann hua ki aaj aapse thoda sukoon se batiya lein.',
+        fullTurnText: 'शुभ संध्या रमेश अंकल जी! शाम की सुहानी हवा चल रही है। बालकनी में शाम की अदरक वाली चाय हो गई आपकी? मन हुआ कि आज आपसे थोड़ा सुकून से बतिया लें। [Shubh sandhya Ramesh Uncle Ji! Shaam ki suhani hawa chal rahi hai. Balcony me shaam ki adrak wali chai ho gayi aapki? Mann hua ki aaj aapse thoda sukoon se batiya lein.]'
+      },
+      {
+        id: 'greet-evening-walk',
+        category: 'local_news',
+        devanagariText: 'नमस्ते अंकल जी! आज शाम जापानी पार्क में सैर करने का मन हुआ या आज घर पर ही आराम फरमाया? बताइए, आज का दिन कैसा रहा आपका?',
+        hinglishText: 'Namaste Uncle Ji! Aaj shaam Japanese Park me sair karne ka mann hua ya aaj ghar par hi aaram farmaya? Batayein, aaj ka din kaisa raha aapka?',
+        fullTurnText: 'नमस्ते अंकल जी! आज शाम जापानी पार्क में सैर करने का मन हुआ या आज घर पर ही आराम फरमाया? बताइए, आज का दिन कैसा रहा आपका? [Namaste Uncle Ji! Aaj shaam Japanese Park me sair karne ka mann hua ya aaj ghar par hi aaram farmaya? Batayein, aaj ka din kaisa raha aapka?]'
+      }
+    ];
+    return eveningGreetings[Math.floor(Math.random() * eveningGreetings.length)];
+  } else if (hour >= 21 || hour < 5) {
+    // Night greetings
+    const nightGreetings: ConversationalGreeting[] = [
+      {
+        id: 'greet-night-routine',
+        category: 'routine',
+        devanagariText: 'प्रणाम रमेश अंकल जी! रात का भोजन हो गया आपका? सोने से पहले सोचा एक बार आपसे बात कर लूँ और आपकी खैरियत जान लूँ। बताइए, आज दिन कैसा रहा?',
+        hinglishText: 'Pranam Ramesh Uncle Ji! Raat ka bhojan ho gaya aapka? Sone se pehle socha ek baar aapse बात kar loon aur aapki khairiyat jaan loon. Batayein, aaj din kaisa raha?',
+        fullTurnText: 'प्रणाम रमेश अंकल जी! रात का भोजन हो गया आपका? सोने से पहले सोचा एक बार आपसे बात कर लूँ और आपकी खैरियत जान लूँ। बताइए, आज दिन कैसा रहा? [Pranam Ramesh Uncle Ji! Raat ka bhojan ho gaya aapka? Sone se pehle socha ek baar aapse baat kar loon aur aapki khairiyat jaan loon. Batayein, aaj din kaisa raha?]'
+      },
+      {
+        id: 'greet-night-warmth',
+        category: 'routine',
+        devanagariText: 'नमस्ते अंकल जी! संबंध से आपकी बिटिया बोल रही हूँ। बस आपकी खैरियत पूछने और रात की दवाई की याद दिलाने के लिए फ़ोन किया। तबीयत बिल्कुल ठीक है ना आपकी?',
+        hinglishText: 'Namaste Uncle ji! Sambandh se aapki bitiya bol rahi hoon. Bas aapki khairiyat poochhne aur raat ki dawai ki yaad dilane ke liye phone kiya. Tabiyat bilkul theek hai na aapki?',
+        fullTurnText: 'नमस्ते अंकल जी! संबंध से आपकी बिटिया बोल रही हूँ। बस आपकी खैरियत पूछने और रात की दवाई की याद दिलाने के लिए फ़ोन किया। तबीयत बिल्कुल ठीक है ना आपकी? [Namaste Uncle ji! Sambandh se aapki bitiya bol rahi hoon. Bas aapki khairiyat poochhne aur raat ki dawai ki yaad dilane ke liye phone kiya. Tabiyat bilkul theek hai na aapki?]'
+      }
+    ];
+    return nightGreetings[Math.floor(Math.random() * nightGreetings.length)];
+  } else {
+    // Morning greetings
+    return RANDOM_COMPANION_GREETINGS[Math.floor(Math.random() * RANDOM_COMPANION_GREETINGS.length)];
+  }
+};
+
+
 export interface LocalNewsOpinionTopic {
   id: string;
   headline: string;

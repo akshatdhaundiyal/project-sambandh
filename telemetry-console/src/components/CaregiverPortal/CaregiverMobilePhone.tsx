@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTelemetry } from '../../context/TelemetryContext';
 import { CallSummaryHistorySheet } from './CallSummaryHistorySheet';
+import { getTimeContext } from '../../data/conversationalSparks';
 import {
   queryHealthLocker,
   getLockerDocuments,
@@ -52,6 +53,7 @@ interface CaregiverMobilePhoneProps {
 }
 
 export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUploadClick }) => {
+  const timeCtx = getTimeContext();
   const {
     currentStep,
     activeScenario,
@@ -317,7 +319,7 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                     <div className="flex items-center justify-between text-[11px]">
                       <span className="font-bold text-stone-900 flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                        <span>Morning Call Agency Gate</span>
+                        <span>Pre-Call Agency Gate ({timeCtx.period})</span>
                       </span>
                       <span
                         className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded border ${
@@ -378,7 +380,7 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                       <div className="flex items-center justify-between text-[11px] text-sky-800 bg-sky-50/80 p-2 rounded-xl border border-sky-200">
                         <span className="font-medium flex items-center gap-1.5">
                           <CheckCircle2 className="w-3.5 h-3.5 text-sky-600 shrink-0" />
-                          <span>Pari authorized for morning check-in</span>
+                          <span>Pari authorized for {timeCtx.period.toLowerCase()} check-in</span>
                         </span>
                         <button
                           type="button"
@@ -1115,10 +1117,10 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                 <div className="p-3 bg-white rounded-2xl border border-[#DFDAD1] flex items-center justify-between shadow-2xs">
                   <div>
                     <span className="text-xs font-serif font-bold text-stone-900 block">
-                      Scheduled Morning Window
+                      Scheduled Daily Check-In Window
                     </span>
                     <span className="text-[10px] text-stone-500">
-                      Pari daily companion check-in
+                      Pari companion check-in ({timeCtx.period})
                     </span>
                   </div>
                   <span className="font-mono font-bold text-xs text-stone-800 bg-[#FAF8F5] px-2.5 py-1 rounded-xl border border-stone-200">
