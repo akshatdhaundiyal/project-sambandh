@@ -51,9 +51,9 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
   const latestTurn = conversationTurns[conversationTurns.length - 1];
 
   return (
-    <div className={standalonePhoneOnly ? "flex justify-center w-full py-2 sm:py-4 px-1 sm:px-2" : "flex flex-col lg:flex-row items-center justify-center gap-6 py-2 sm:py-4 px-1 sm:px-2 max-w-6xl mx-auto"}>
+    <div className={standalonePhoneOnly ? "flex justify-center items-start w-full pt-0 pb-2 px-1" : "flex flex-col lg:flex-row items-start justify-center gap-6 pt-0 pb-3 px-1 sm:px-2 max-w-6xl mx-auto"}>
       {/* Mobile Device Frame (iPhone 16 Pro Style) */}
-      <div className="w-full max-w-[390px] h-[780px] sm:h-[844px] max-h-[88vh] bg-stone-900 rounded-[40px] sm:rounded-[52px] p-2.5 sm:p-3.5 shadow-2xl ring-1 ring-stone-800 relative flex flex-col shrink-0 select-none">
+      <div className="w-full max-w-[390px] h-[740px] sm:h-[780px] max-h-[calc(100vh-5.5rem)] bg-stone-900 rounded-[40px] sm:rounded-[48px] p-2.5 sm:p-3 shadow-2xl ring-1 ring-stone-800 relative flex flex-col shrink-0 select-none">
         {/* Dynamic Island / Earpiece */}
         <div className="absolute top-4 sm:top-6 left-1/2 -translate-x-1/2 w-28 h-5 sm:h-6 bg-black rounded-full z-50 flex items-center justify-between px-2.5">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>

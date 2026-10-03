@@ -34,9 +34,9 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
   const [activeTab, setActiveTab] = useState<'stream' | 'overview'>('stream');
 
   return (
-    <div className="flex flex-col items-center justify-center py-2 sm:py-4 px-1 sm:px-2 w-full">
+    <div className="flex flex-col items-center justify-start pt-0 pb-2 px-1 w-full">
       {/* Mobile Device Frame (iPhone 16 Pro Style) */}
-      <div className="w-full max-w-[390px] h-[780px] sm:h-[844px] max-h-[88vh] bg-stone-900 rounded-[40px] sm:rounded-[52px] p-2.5 sm:p-3.5 shadow-2xl ring-1 ring-stone-800 relative flex flex-col shrink-0 select-none">
+      <div className="w-full max-w-[390px] h-[740px] sm:h-[780px] max-h-[calc(100vh-5.5rem)] bg-stone-900 rounded-[40px] sm:rounded-[48px] p-2.5 sm:p-3 shadow-2xl ring-1 ring-stone-800 relative flex flex-col shrink-0 select-none">
         {/* Dynamic Island */}
         <div className="absolute top-4 sm:top-6 left-1/2 -translate-x-1/2 w-28 h-5 sm:h-6 bg-black rounded-full z-50 flex items-center justify-between px-2.5">
           <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>

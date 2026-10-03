@@ -24,7 +24,7 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#E7E2DB] shadow-xs px-3 sm:px-4 py-2 sm:py-2.5 transition-colors">
+    <header className="sticky top-0 z-40 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#E7E2DB] shadow-xs px-3 sm:px-4 py-2 sm:py-2.5 transition-colors shrink-0">
       <div className="max-w-[1920px] mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4">
         {/* Top Row on Mobile / Left Section on Desktop */}
         <div className="flex items-center justify-between w-full md:w-auto">

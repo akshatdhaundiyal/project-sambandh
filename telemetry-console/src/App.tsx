@@ -37,17 +37,17 @@ export const AppContent: React.FC = () => {
     activeTab === 'dual-pane';
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-stone-900 flex flex-col font-sans selection:bg-teal-700 selection:text-white antialiased transition-colors">
+    <div className="h-screen bg-[#FAF8F5] text-stone-900 flex flex-col font-sans selection:bg-teal-700 selection:text-white antialiased transition-colors overflow-hidden">
       {/* Top Clean Senior-Friendly Header */}
       <Header />
 
       {/* Main Tabbed Views */}
-      <main className="flex-1 w-full overflow-hidden flex flex-col">
+      <main className="flex-1 w-full overflow-hidden flex flex-col min-h-0">
         {/* ========================================================================= */}
         {/* TAB 1: ELDER COMPANION (Split Layout: Phone on Left, Stream on Right)     */}
         {/* ========================================================================= */}
         {isElderTab && (
-          <div className="flex-1 p-2 sm:p-4 max-w-[1920px] w-full mx-auto flex flex-col lg:flex-row gap-4 overflow-hidden">
+          <div className="flex-1 p-2 sm:p-4 max-w-[1920px] w-full mx-auto flex flex-col lg:flex-row gap-4 h-full min-h-0 overflow-hidden">
             {/* Mobile View Switcher (< lg screens) */}
             <div className="lg:hidden flex items-center bg-[#EFECE6] p-1 rounded-2xl border border-[#DFDAD1] shadow-2xs mb-1 shrink-0">
               <button
@@ -76,22 +76,22 @@ export const AppContent: React.FC = () => {
               </button>
             </div>
 
-            {/* Left Column: Fixed-Width Elder Mobile Phone Chassis */}
+            {/* Left Column: Fixed-Width Elder Mobile Phone Chassis (Fixed Toward Top) */}
             <div
-              className={`w-full lg:w-[390px] shrink-0 overflow-y-auto flex items-center justify-center ${
+              className={`w-full lg:w-[390px] xl:w-[410px] shrink-0 self-start lg:sticky lg:top-0 flex items-start justify-center overflow-visible z-10 ${
                 elderMobileView === 'phone' ? 'flex' : 'hidden lg:flex'
               }`}
             >
               <ElderMobilePhone standalonePhoneOnly={true} />
             </div>
 
-            {/* Right Column: Live Conversation Stream & Call Controls */}
+            {/* Right Column: Live Conversation Stream & Call Controls (Flexible & Scrollable) */}
             <section
-              className={`flex-1 flex-col gap-3.5 h-full overflow-y-auto pr-1 scrollbar-thin ${
+              className={`flex-1 min-w-0 flex-col gap-3.5 h-full min-h-0 overflow-y-auto pr-1 sm:pr-2 scrollbar-thin ${
                 elderMobileView === 'stream' ? 'flex' : 'hidden lg:flex'
               }`}
             >
-              <div className="flex items-baseline justify-between px-1">
+              <div className="flex items-baseline justify-between px-1 shrink-0">
                 <div className="flex items-center gap-2">
                   <h2 className="font-serif text-base font-semibold text-stone-900 tracking-tight">
                     Ramesh Ji's Morning Companion
@@ -115,7 +115,7 @@ export const AppContent: React.FC = () => {
         {/* TAB 2: CAREGIVER HUB (Chassis on Left, MedGemma Locker Dossier on Right)   */}
         {/* ========================================================================= */}
         {isCaregiverTab && (
-          <div className="flex-1 p-2 sm:p-4 max-w-[1920px] w-full mx-auto flex flex-col lg:flex-row gap-4 overflow-hidden">
+          <div className="flex-1 p-2 sm:p-4 max-w-[1920px] w-full mx-auto flex flex-col lg:flex-row gap-4 h-full min-h-0 overflow-hidden">
             {/* Mobile View Switcher (< lg screens) */}
             <div className="lg:hidden flex items-center bg-[#EFECE6] p-1 rounded-2xl border border-[#DFDAD1] shadow-2xs mb-1 shrink-0">
               <button
@@ -144,18 +144,18 @@ export const AppContent: React.FC = () => {
               </button>
             </div>
 
-            {/* Left Column: Fixed-Width Caregiver Mobile Phone Chassis */}
+            {/* Left Column: Fixed-Width Caregiver Mobile Phone Chassis (Fixed Toward Top) */}
             <div
-              className={`w-full lg:w-[390px] shrink-0 overflow-y-auto flex items-center justify-center ${
+              className={`w-full lg:w-[390px] xl:w-[410px] shrink-0 self-start lg:sticky lg:top-0 flex items-start justify-center overflow-visible z-10 ${
                 caregiverMobileView === 'phone' ? 'flex' : 'hidden lg:flex'
               }`}
             >
               <CaregiverMobilePhone />
             </div>
 
-            {/* Right Column: Unified MedGemma Query Console & Clinical Dossier */}
+            {/* Right Column: Unified MedGemma Query Console & Clinical Dossier (Flexible & Scrollable) */}
             <section
-              className={`flex-1 flex-col h-full min-w-0 overflow-hidden ${
+              className={`flex-1 min-w-0 flex-col h-full min-h-0 overflow-hidden ${
                 caregiverMobileView === 'dossier' ? 'flex' : 'hidden lg:flex'
               }`}
             >
@@ -168,7 +168,7 @@ export const AppContent: React.FC = () => {
         {/* TAB 3: JUDGE TELEMETRY & RAILS (50/50 Dual Pane: Tool Tree + API Inspector) */}
         {/* ========================================================================= */}
         {isJudgeTab && (
-          <div className="flex-1 p-2.5 sm:p-4 max-w-[1920px] w-full mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-3 sm:gap-4 overflow-hidden">
+          <div className="flex-1 p-2.5 sm:p-4 max-w-[1920px] w-full mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-3 sm:gap-4 h-full min-h-0 overflow-hidden">
             {/* Mobile View Switcher (< lg screens) */}
             <div className="lg:hidden flex items-center bg-[#EFECE6] p-1 rounded-2xl border border-[#DFDAD1] shadow-2xs mb-1 shrink-0">
               <button
