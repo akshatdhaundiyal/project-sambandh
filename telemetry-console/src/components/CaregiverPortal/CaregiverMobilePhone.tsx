@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTelemetry } from '../../context/TelemetryContext';
-import { TelegramReceptor } from '../Column3Rails/TelegramReceptor';
+import { CallSummaryHistorySheet } from './CallSummaryHistorySheet';
 import {
   queryHealthLocker,
   getLockerDocuments,
@@ -39,7 +39,12 @@ import {
   Cpu,
   Layers,
   FileText,
-  AlertCircle
+  AlertCircle,
+  Play,
+  Volume2,
+  VolumeX,
+  Truck,
+  Calendar
 } from 'lucide-react';
 
 interface CaregiverMobilePhoneProps {
@@ -57,6 +62,8 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
     requestPreCallApproval,
     cashWallet,
     topUpCashWallet,
+    callStatus,
+    speakTurn,
     isTranscriberActive,
     transcriberTranscript,
     startTranscriberMode,
@@ -66,6 +73,28 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
 
   const profile = activeScenario.initialSeniorProfile;
   const [activeTab, setActiveTab] = useState<'stream' | 'locker' | 'guardrails'>('stream');
+  const [isHistorySheetOpen, setIsHistorySheetOpen] = useState(false);
+  const [isPlayingSummaryAudio, setIsPlayingSummaryAudio] = useState(false);
+
+  const handlePlaySummaryAudio = () => {
+    if (isPlayingSummaryAudio) {
+      window.speechSynthesis?.cancel();
+      setIsPlayingSummaryAudio(false);
+    } else {
+      setIsPlayingSummaryAudio(true);
+      speakTurn({
+        id: 'caregiver-summary-audio',
+        timestamp: '08:34 IST',
+        speaker: 'senior',
+        lane: 'lane1',
+        speakerLabel: 'Ramesh Chandra (Papa)',
+        content: 'बेटा, 1982 में जब हम दिल्ली डिवीजन में सिग्नल इंस्पेक्टर थे... उस समय मैकेनिकल लीवर फ्रेम हुआ करता था। हाथ से खींचना पड़ता था भारी लीवर।'
+      });
+      setTimeout(() => {
+        setIsPlayingSummaryAudio(false);
+      }, 8000);
+    }
+  };
 
   // Health Locker State
   const [searchQuery, setSearchQuery] = useState('');
@@ -246,8 +275,8 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                   : 'text-stone-600 hover:text-stone-900'
               }`}
             >
-              <span>💬</span>
-              <span>Agency & Bot</span>
+              <span>🏠</span>
+              <span>Dashboard</span>
             </button>
             <button
               type="button"
@@ -363,9 +392,314 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                   </div>
                 )}
 
-                {/* Telegram Bot Feed */}
-                <div className="h-[430px] rounded-2xl bg-white border border-[#DFDAD1] overflow-hidden flex flex-col shadow-2xs">
-                  <TelegramReceptor />
+                {/* 2. Daily Call Summary & Family Briefing Card (Click to open History Archive) */}
+                <div
+                  onClick={() => setIsHistorySheetOpen(true)}
+                  className="p-3.5 rounded-2xl bg-gradient-to-br from-white via-white to-amber-50/50 border border-[#DFDAD1] space-y-2.5 shadow-2xs hover:shadow-xs hover:border-amber-300 transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between text-[11px]">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-6 h-6 rounded-lg bg-amber-100/80 text-amber-900 flex items-center justify-center text-xs">
+                        📻
+                      </span>
+                      <span className="font-serif font-bold text-stone-900 text-xs">
+                        Daily Call Summary
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <span
+                        className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded border ${
+                          callStatus === 'ended'
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                            : callStatus === 'active'
+                            ? 'bg-sky-50 text-sky-800 border-sky-300 animate-pulse'
+                            : 'bg-stone-50 text-stone-600 border-stone-200'
+                        }`}
+                      >
+                        {callStatus === 'ended'
+                          ? 'FRESH DISPATCH (08:34)'
+                          : callStatus === 'active'
+                          ? 'IN PROGRESS...'
+                          : 'YESTERDAY (08:31)'}
+                      </span>
+                      <ChevronRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-0.5 transition-transform" />
+                    </div>
+                  </div>
+
+                  {/* Summary Content Body */}
+                  {callStatus === 'ended' ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-stone-900 leading-tight">
+                          Railway Signal Lore & Telma-40 Adherence
+                        </span>
+                        <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                          🌿 Cheerful (94%)
+                        </span>
+                      </div>
+
+                      <p className="text-[11px] text-stone-600 leading-relaxed font-sans">
+                        "Papa was in high spirits sitting in the balcony with morning tea, sharing memories from his 1982 railway signal interlocking days. Telma-40 confirmed taken with water."
+                      </p>
+
+                      {/* Interactive Audio Story Preview Snippet */}
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePlaySummaryAudio();
+                        }}
+                        className="p-2 rounded-xl bg-amber-50/90 border border-amber-200 flex items-center justify-between gap-2 hover:bg-amber-100/80 transition-colors"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <button
+                            type="button"
+                            className="w-6 h-6 rounded-full bg-amber-700 text-white flex items-center justify-center shrink-0 shadow-2xs"
+                          >
+                            {isPlayingSummaryAudio ? (
+                              <VolumeX className="w-3 h-3" />
+                            ) : (
+                              <Play className="w-3 h-3 fill-current ml-0.5" />
+                            )}
+                          </button>
+                          <div className="min-w-0">
+                            <span className="text-[10px] font-bold text-amber-950 block truncate">
+                              Play Papa's Voice Story (0:42)
+                            </span>
+                            <span className="text-[9px] text-amber-800/80 truncate block">
+                              "बेटा, 1982 में जब हम दिल्ली डिवीजन में..."
+                            </span>
+                          </div>
+                        </div>
+                        <span className="text-[9px] font-mono text-amber-700 bg-amber-100 px-1 py-0.2 rounded font-bold shrink-0">
+                          Awadhi
+                        </span>
+                      </div>
+                    </div>
+                  ) : callStatus === 'active' || callStatus === 'calling' ? (
+                    <div className="p-2.5 rounded-xl bg-sky-50 border border-sky-200 space-y-1">
+                      <div className="flex items-center justify-between text-[10px] text-sky-900 font-bold">
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping"></span>
+                          <span>Telephony Session Active</span>
+                        </span>
+                        <span className="font-mono text-sky-700">Jio PSTN +91 98101 23456</span>
+                      </div>
+                      <p className="text-[11px] text-sky-800 leading-snug">
+                        Companion checking in on morning tea, BP pill adherence, and railway nostalgia...
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-stone-800 leading-tight">
+                          Gandhi Jayanti Walk & Knee Stiffness Review
+                        </span>
+                        <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-sky-50 text-sky-800 border border-sky-200">
+                          ☕ Calm (88%)
+                        </span>
+                      </div>
+
+                      <p className="text-[11px] text-stone-600 leading-relaxed font-sans">
+                        "Papa completed a 25-minute gentle walk in Japanese Park with Sharma Ji. Reported mild knee stiffness; warm water compress advised. Full BP pill compliance."
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Call-to-action prompt */}
+                  <div className="pt-1.5 border-t border-stone-100 flex items-center justify-between text-[10px]">
+                    <span className="text-teal-700 font-bold group-hover:underline flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      <span>View Past 5 Call Summaries Archive</span>
+                    </span>
+                    <span className="text-stone-400 font-mono">100% Adherence Trend</span>
+                  </div>
+                </div>
+
+                {/* 3. Papa's Live Health & Pill Adherence Runway */}
+                <div className="p-3.5 rounded-2xl bg-white border border-[#DFDAD1] space-y-3 shadow-2xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-serif font-bold text-stone-900 flex items-center gap-1.5">
+                      <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
+                      <span>Papa's Vitals & Pill Runway</span>
+                    </span>
+                    <span className="text-[9px] font-mono text-emerald-800 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                      Omron BLE Synced
+                    </span>
+                  </div>
+
+                  {/* Vitals Grid: Blood Pressure & Glucose */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200/80 space-y-0.5">
+                      <div className="flex items-center justify-between text-[10px] text-stone-500">
+                        <span>Blood Pressure</span>
+                        <span className="text-emerald-700 font-bold">Good</span>
+                      </div>
+                      <span className="text-base font-black text-stone-900 font-mono tracking-tight block">
+                        112/80
+                      </span>
+                      <span className="text-[9px] text-stone-400">mmHg · 08:15 AM IST</span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200/80 space-y-0.5">
+                      <div className="flex items-center justify-between text-[10px] text-stone-500">
+                        <span>Blood Glucose</span>
+                        <span className="text-emerald-700 font-bold">Normal</span>
+                      </div>
+                      <span className="text-base font-black text-stone-900 font-mono tracking-tight block">
+                        104
+                      </span>
+                      <span className="text-[9px] text-stone-400">mg/dL · Post-tea normal</span>
+                    </div>
+                  </div>
+
+                  {/* Pill Runway Progress Bars */}
+                  <div className="space-y-2 pt-1 border-t border-stone-100">
+                    <div>
+                      <div className="flex items-center justify-between text-[10px] mb-1">
+                        <span className="font-bold text-stone-800">Telmisartan 40mg (BP)</span>
+                        <span className="font-mono text-amber-700 font-bold bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
+                          ⚠️ 4 Days (Refill Active)
+                        </span>
+                      </div>
+                      <div className="w-full h-2 rounded-full bg-stone-100 overflow-hidden">
+                        <div className="h-full bg-amber-500 rounded-full w-[16%]"></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between text-[10px] mb-1">
+                        <span className="font-bold text-stone-800">Metformin 500mg (Sugar)</span>
+                        <span className="font-mono text-emerald-800 font-bold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                          ✅ 22 Days (Safe)
+                        </span>
+                      </div>
+                      <div className="w-full h-2 rounded-full bg-stone-100 overflow-hidden">
+                        <div className="h-full bg-emerald-500 rounded-full w-[73%]"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('locker')}
+                    className="w-full py-1.5 bg-[#FAF8F5] hover:bg-stone-100 border border-stone-200 rounded-xl text-[10px] font-bold text-stone-700 flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                  >
+                    <span>Inspect ABDM Prescriptions & Labs</span>
+                    <ChevronRight className="w-3 h-3 text-stone-400" />
+                  </button>
+                </div>
+
+                {/* 4. Care Budget & Active Delivery Tracking */}
+                <div className="p-3.5 rounded-2xl bg-white border border-[#DFDAD1] space-y-3 shadow-2xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-serif font-bold text-stone-900 flex items-center gap-1.5">
+                      <Wallet className="w-3.5 h-3.5 text-teal-600" />
+                      <span>Fiduciary Care Budget & Orders</span>
+                    </span>
+                    <span className="text-[10px] font-mono text-teal-800 font-bold">
+                      Pine Labs · ₹4,500 Cap
+                    </span>
+                  </div>
+
+                  {/* Monthly Budget Spend Bar */}
+                  <div className="bg-[#FAF8F5] p-2.5 rounded-xl border border-stone-200/80 space-y-1.5">
+                    <div className="flex items-center justify-between text-[10px]">
+                      <span className="text-stone-500">Monthly Auto-Refill Spending:</span>
+                      <span className="font-mono font-bold text-stone-900">
+                        ₹840.00 / ₹4,500.00
+                      </span>
+                    </div>
+                    <div className="w-full h-2 rounded-full bg-stone-200 overflow-hidden">
+                      <div className="h-full bg-teal-600 rounded-full w-[19%]"></div>
+                    </div>
+                    <span className="text-[9px] text-stone-500 block">
+                      ₹3,660.00 pre-approved headroom available without disturbing Priya
+                    </span>
+                  </div>
+
+                  {/* Active Delivery Status */}
+                  <div className="p-2.5 rounded-xl bg-white border border-stone-200/90 flex items-center justify-between gap-2 shadow-2xs">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-700 shrink-0">
+                        <Truck className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[11px] font-bold text-stone-900 block truncate">
+                          Telmisartan 40mg (30 Tablets)
+                        </span>
+                        <span className="text-[9px] font-mono text-stone-500 truncate block">
+                          Delhivery CMU DLV-98234-DEL · Today 4:00 PM
+                        </span>
+                      </div>
+                    </div>
+
+                    <span className="text-[9px] font-mono font-bold text-rose-800 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 shrink-0 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
+                      <span>IN TRANSIT</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* 5. Primary Care Circle & Quick Dial */}
+                <div className="p-3.5 rounded-2xl bg-white border border-[#DFDAD1] space-y-2.5 shadow-2xs">
+                  <span className="text-xs font-serif font-bold text-stone-900 block">
+                    Primary Care Circle
+                  </span>
+
+                  <div className="space-y-1.5">
+                    {/* Papa Direct Dial */}
+                    <div className="p-2 rounded-xl bg-[#FAF8F5] border border-stone-200 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">👴🏼</span>
+                        <div>
+                          <span className="text-xs font-bold text-stone-900 block leading-tight">
+                            Ramesh Chandra (Papa)
+                          </span>
+                          <span className="text-[9px] text-stone-500 font-mono">+91 98101 23456</span>
+                        </div>
+                      </div>
+                      <a
+                        href="tel:+919810123456"
+                        className="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-bold shadow-2xs flex items-center gap-1 transition-colors"
+                      >
+                        <Phone className="w-3 h-3" />
+                        <span>Call Papa</span>
+                      </a>
+                    </div>
+
+                    {/* Dr. Arvind Saxena */}
+                    <div className="p-2 rounded-xl bg-[#FAF8F5] border border-stone-200 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">👨‍⚕️</span>
+                        <div>
+                          <span className="text-xs font-bold text-stone-900 block leading-tight">
+                            Dr. Arvind Saxena
+                          </span>
+                          <span className="text-[9px] text-stone-500">Cardiology Specialist · Apollo Rohini</span>
+                        </div>
+                      </div>
+                      <span className="text-[9px] font-mono text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                        Online
+                      </span>
+                    </div>
+
+                    {/* Apollo DarkStore */}
+                    <div className="p-2 rounded-xl bg-[#FAF8F5] border border-stone-200 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">💊</span>
+                        <div>
+                          <span className="text-xs font-bold text-stone-900 block leading-tight">
+                            Apollo Pharmacy DarkStore
+                          </span>
+                          <span className="text-[9px] text-stone-500">Sector 11 Rohini · Partner Rail</span>
+                        </div>
+                      </div>
+                      <span className="text-[9px] font-mono text-teal-700 font-bold bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200">
+                        Active SLA
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -794,6 +1128,12 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
               </div>
             )}
           </div>
+
+          {/* Call Summary History Sheet Modal (Within phone bezel) */}
+          <CallSummaryHistorySheet
+            isOpen={isHistorySheetOpen}
+            onClose={() => setIsHistorySheetOpen(false)}
+          />
         </div>
       </div>
     </div>
