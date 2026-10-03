@@ -27,11 +27,28 @@ interface ElderMobilePhoneProps {
 }
 
 export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePhoneOnly = false }) => {
-  const { currentStep, activeScenario, allTurnsSoFar } = useTelemetry();
+  const {
+    currentStep,
+    activeScenario,
+    allTurnsSoFar,
+    callStatus,
+    startCall,
+    endCall,
+    callDurationSeconds
+  } = useTelemetry();
   const profile = activeScenario.initialSeniorProfile;
   const [activeScreen, setActiveScreen] = useState<'dashboard' | 'call'>('dashboard');
   const [isMuted, setIsMuted] = useState(false);
   const [speakerOn, setSpeakerOn] = useState(true);
+
+  // Sync activeScreen with live callStatus
+  React.useEffect(() => {
+    if (callStatus === 'active') {
+      setActiveScreen('call');
+    } else if (callStatus === 'idle') {
+      setActiveScreen('dashboard');
+    }
+  }, [callStatus]);
 
   const formatTime = (totalSeconds: number) => {
     const mins = Math.floor(totalSeconds / 60);
@@ -176,30 +193,63 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                 </div>
               </div>
 
-              {/* Active Morning Call Card Banner */}
-              <div className="bg-gradient-to-tr from-emerald-800 to-emerald-950 text-white rounded-3xl p-4 shadow-md">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Live Morning Companion Call
-                  </span>
-                  <span className="text-xs font-mono font-bold text-emerald-200">
-                    {formatTime(currentStep.callDurationSeconds)}
-                  </span>
+              {/* Morning Companion Call Action Card */}
+              {callStatus === 'idle' ? (
+                <div className="bg-gradient-to-tr from-stone-900 via-stone-800 to-stone-900 text-white rounded-3xl p-4 shadow-lg border border-stone-700/80 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      <span className="text-xs font-serif font-bold text-stone-100">
+                        Morning Companion Check-in
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-mono font-bold text-emerald-300 bg-emerald-950/90 px-2 py-0.5 rounded-full border border-emerald-800/80">
+                      08:30 IST Ready
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-stone-300 leading-relaxed">
+                    Pari is ready to check in on your morning vitals, breakfast, and today's railway stories.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      startCall();
+                      setActiveScreen('call');
+                    }}
+                    className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+                  >
+                    <Phone className="w-4 h-4 fill-current" />
+                    <span>Connect Morning Call with Pari</span>
+                  </button>
                 </div>
+              ) : (
+                <div className="bg-gradient-to-tr from-emerald-900 to-emerald-950 text-white rounded-3xl p-4 shadow-md border border-emerald-700/60 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-emerald-200 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                      <span>Morning Call in Progress</span>
+                    </span>
+                    <span className="text-xs font-mono font-bold text-emerald-300 tabular-nums">
+                      {formatTime(callDurationSeconds)}
+                    </span>
+                  </div>
 
-                <p className="text-xs text-emerald-100 line-clamp-2 italic mb-3">
-                  "{latestTurn ? latestTurn.content : 'Namaste Ramesh Uncle, aaj subah ka chai-nashta ho gaya?'}"
-                </p>
+                  <p className="text-xs text-emerald-100 line-clamp-2 italic">
+                    "{latestTurn ? latestTurn.content : 'Namaste Ramesh Uncle, aaj subah ka chai-nashta ho gaya?'}"
+                  </p>
 
-                <button
-                  onClick={() => setActiveScreen('call')}
-                  className="w-full py-2 bg-emerald-500 hover:bg-emerald-400 text-stone-950 text-xs font-extrabold rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-1.5"
-                >
-                  <Phone className="w-3.5 h-3.5 fill-current" />
-                  <span>Switch to Full Call View</span>
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveScreen('call')}
+                    className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-stone-950 text-xs font-extrabold rounded-2xl shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Phone className="w-3.5 h-3.5 fill-current" />
+                    <span>Open In-Call Screen</span>
+                  </button>
+                </div>
+              )}
 
               {/* Connected Specialists Row */}
               <div className="space-y-2">
@@ -312,8 +362,13 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
 
                 {/* End Call Button in Soft Coral/Red */}
                 <button
-                  onClick={() => setActiveScreen('dashboard')}
-                  className="w-13 h-13 rounded-full bg-rose-600 hover:bg-rose-700 flex items-center justify-center text-white shadow-lg transition-colors"
+                  type="button"
+                  onClick={() => {
+                    endCall();
+                    setActiveScreen('dashboard');
+                  }}
+                  className="w-13 h-13 rounded-full bg-rose-600 hover:bg-rose-700 flex items-center justify-center text-white shadow-lg transition-colors cursor-pointer active:scale-95"
+                  title="End Call"
                 >
                   <PhoneOff className="w-5 h-5" />
                 </button>

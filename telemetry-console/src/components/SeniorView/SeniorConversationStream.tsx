@@ -5,6 +5,7 @@ import { hinglishToDevanagari, isDevanagari } from '../../utils/hinglishTranslit
 import { Heart, Volume2, VolumeX, Send, Radio, Sparkles, Settings2, Languages, Mic, MicOff, FileCode } from 'lucide-react';
 import type { ConversationTurn } from '../../types/telemetry';
 import { HindiSpeechRecognizer, isSpeechRecognitionSupported } from '../../utils/speechRecognitionService';
+import { RecommendedPromptsModal } from './RecommendedPromptsModal';
 
 export const SeniorConversationStream: React.FC = () => {
   const {
@@ -20,6 +21,7 @@ export const SeniorConversationStream: React.FC = () => {
   const [customInputText, setCustomInputText] = useState('');
   const [customSpeaker, setCustomSpeaker] = useState<'senior' | 'agent'>('senior');
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
+  const [isPromptsModalOpen, setIsPromptsModalOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [wasVoiceInput, setWasVoiceInput] = useState(false);
   const [speechError, setSpeechError] = useState<string | null>(null);
@@ -169,6 +171,17 @@ export const SeniorConversationStream: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
+            {/* Simulation Scenarios Popup Trigger */}
+            <button
+              type="button"
+              onClick={() => setIsPromptsModalOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-[#FAF8F5] hover:bg-[#F5EFE6] text-stone-800 border border-[#DFDAD1] shadow-2xs transition-all cursor-pointer"
+              title="Open Simulation Scenarios & Benchmark Prompts"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-700" />
+              <span>Test Scenarios (6)</span>
+            </button>
+
             {/* Audio & Telephony Settings Shortcut */}
             <button
               onClick={() => openSettingsModal('telephony')}
@@ -461,6 +474,12 @@ export const SeniorConversationStream: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Pop-up Simulation Benchmarks & Prompts Modal */}
+      <RecommendedPromptsModal
+        isOpen={isPromptsModalOpen}
+        onClose={() => setIsPromptsModalOpen(false)}
+      />
     </>
   );
 };

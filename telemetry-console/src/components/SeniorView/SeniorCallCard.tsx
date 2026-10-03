@@ -154,97 +154,28 @@ export const SeniorCallCard: React.FC = () => {
         </div>
       </div>
 
-      {/* CALL INITIATION / ONGOING CALL SECTION */}
+      {/* CALL STATUS BANNER (SLIMMED DOWN) */}
       {callStatus === 'idle' ? (
-        /* IDLE STATE: Dignified Call Start Action Card */
-        <div className="bg-[#FAF8F5] border border-[#E7E2DB] rounded-2xl p-4 flex flex-col gap-3">
-          {/* Pre-Call Caregiver Agency Consent Banner */}
-          <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-white border border-[#DFDAD1] text-xs">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
-              <span className="font-semibold text-stone-900 flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-sky-600" />
-                <span>Caregiver Agency Gate (Priya):</span>
-              </span>
-              <span className={`px-2 py-0.5 rounded-md font-mono text-[10px] font-bold uppercase ${
-                preCallAgency.status === 'awaiting_approval'
-                  ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                  : preCallAgency.status === 'caregiver_calling'
-                  ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
-                  : preCallAgency.status === 'agent_approved'
-                  ? 'bg-sky-100 text-sky-900 border border-sky-300'
-                  : 'bg-stone-200 text-stone-800'
-              }`}>
-                {preCallAgency.status.replace('_', ' ')}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {preCallAgency.status === 'awaiting_approval' && (
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => resolvePreCallAgency('caregiver_direct')}
-                    className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 font-bold text-[11px] cursor-pointer"
-                  >
-                    📞 Priya Calls Direct
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => resolvePreCallAgency('agent_approved')}
-                    className="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-200 font-bold text-[11px] cursor-pointer"
-                  >
-                    🤖 Approve AI Call
-                  </button>
-                </div>
-              )}
-
-              {preCallAgency.status === 'caregiver_calling' && (
-                <div className="flex items-center gap-2 text-[11px]">
-                  <span className="text-emerald-700 font-medium">Priya is speaking with Papa now</span>
-                  <button
-                    type="button"
-                    onClick={() => requestPreCallApproval()}
-                    className="underline text-stone-500 hover:text-stone-900 font-bold cursor-pointer"
-                  >
-                    Reset
-                  </button>
-                </div>
-              )}
-
-              <button
-                type="button"
-                onClick={() => setActiveTab('caregiver')}
-                className="text-[11px] text-sky-700 hover:text-sky-900 underline font-medium cursor-pointer"
-              >
-                View in Caregiver Hub →
-              </button>
-            </div>
+        <div className="bg-[#FAF8F5] border border-[#E7E2DB] rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            <span className="font-serif font-bold text-stone-900">
+              08:30 IST Scheduled Check-In Session
+            </span>
+            <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+              Ready
+            </span>
           </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
-            <div className="space-y-1 max-w-md">
-              <h3 className="font-serif font-bold text-sm sm:text-base text-stone-900 flex items-center gap-2">
-                <span>Initiate Morning Check-in Call</span>
-                <span className="text-[10px] font-medium text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                  Jio PSTN Trunk
-                </span>
-              </h3>
-              <p className="text-xs text-stone-600 leading-relaxed">
-                Connects with Ramesh Ji over telecom trunk. The autonomous agent will inquire about morning vitals and medication runway while executing clinical guardrails.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2.5">
-              {/* Start Call Primary Button */}
-              <button
-                onClick={startCall}
-                className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold text-xs sm:text-sm shadow-xs transition-all flex items-center gap-2 cursor-pointer"
-              >
-                <PhoneCall className="w-4 h-4 fill-current" />
-                <span>Connect Call</span>
-              </button>
-            </div>
+          <div className="flex items-center gap-2 text-stone-500 text-[11px]">
+            <span>Connect via Elder Phone on left</span>
+            <button
+              type="button"
+              onClick={startCall}
+              className="px-3 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg font-bold text-xs shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <PhoneCall className="w-3 h-3 fill-current" />
+              <span>Connect</span>
+            </button>
           </div>
         </div>
       ) : callStatus === 'active' ? (
