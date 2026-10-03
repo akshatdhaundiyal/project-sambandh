@@ -161,9 +161,22 @@ let CACHED_VITALS: HealthLockerVitalLevel[] = [
 ];
 
 // ==============================================================================
-// Database Health & Live Status
+// Database & MedGemma Health & Live Status
 // ==============================================================================
-export async function checkDatabaseHealth(): Promise<{ connected: boolean; engine: string; tables_count: number; host: string }> {
+export interface DatabaseHealthStatus {
+  connected: boolean;
+  engine: string;
+  tables_count: number;
+  host: string;
+  medgemma?: {
+    available: boolean;
+    model: string;
+    url: string;
+    all_models?: string[];
+  };
+}
+
+export async function checkDatabaseHealth(): Promise<DatabaseHealthStatus> {
   try {
     const res = await fetch(`${API_BASE_URL}/health`, { signal: AbortSignal.timeout(2000) });
     if (res.ok) {
@@ -172,7 +185,13 @@ export async function checkDatabaseHealth(): Promise<{ connected: boolean; engin
         connected: data.database?.connected ?? true,
         engine: data.database?.engine || 'PostgreSQL 15 (Docker)',
         tables_count: data.database?.tables_count || 8,
-        host: data.database?.host || 'localhost:5434'
+        host: data.database?.host || 'localhost:5434',
+        medgemma: data.medgemma ? {
+          available: !!data.medgemma.available,
+          model: data.medgemma.model || 'medgemma:4b',
+          url: data.medgemma.url || 'http://localhost:11434',
+          all_models: data.medgemma.all_models || []
+        } : undefined
       };
     }
   } catch (err) {
@@ -183,6 +202,27 @@ export async function checkDatabaseHealth(): Promise<{ connected: boolean; engin
     engine: 'In-Memory Mirror',
     tables_count: 8,
     host: 'localhost:5434'
+  };
+}
+
+export async function checkMedGemmaStatus(): Promise<{ available: boolean; model: string; url: string }> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/medgemma/health`, { signal: AbortSignal.timeout(2000) });
+    if (res.ok) {
+      const data = await res.json();
+      return {
+        available: !!data.medgemma?.available,
+        model: data.medgemma?.model || 'medgemma:4b',
+        url: data.medgemma?.url || 'http://localhost:11434'
+      };
+    }
+  } catch (err) {
+    console.debug('MedGemma health check failed:', err);
+  }
+  return {
+    available: false,
+    model: 'medgemma:4b',
+    url: 'http://localhost:11434'
   };
 }
 
@@ -414,7 +454,7 @@ export async function queryHealthLocker(request: HealthLockerQueryRequest): Prom
         caller_role: request.callerRole || 'caregiver',
         mode: request.mode || 'auto'
       }),
-      signal: AbortSignal.timeout(3000)
+      signal: AbortSignal.timeout(25000)
     });
 
     if (res.ok) {
@@ -456,6 +496,7 @@ export async function queryHealthLocker(request: HealthLockerQueryRequest): Prom
 
 export const healthLockerService = {
   checkDatabaseHealth,
+  checkMedGemmaStatus,
   fetchLockerDocuments,
   getLockerDocuments,
   fetchMedicationDoses,

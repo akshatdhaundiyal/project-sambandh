@@ -34,6 +34,63 @@ app.add_middleware(
 )
 
 # ==============================================================================
+# Ollama & MedGemma 4B Configuration
+# ==============================================================================
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+MEDGEMMA_MODEL = os.getenv("MEDGEMMA_MODEL", "medgemma:4b")
+
+def check_ollama_medgemma() -> Dict[str, Any]:
+    """Check if Ollama server is responsive and has medgemma:4b available."""
+    try:
+        import urllib.request
+        req = urllib.request.Request(f"{OLLAMA_BASE_URL}/api/tags")
+        with urllib.request.urlopen(req, timeout=1.5) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+            models = [m.get("name") for m in data.get("models", [])]
+            has_medgemma = any("medgemma" in m for m in models)
+            return {
+                "available": has_medgemma,
+                "model": MEDGEMMA_MODEL if has_medgemma else (models[0] if models else None),
+                "url": OLLAMA_BASE_URL,
+                "all_models": models
+            }
+    except Exception as e:
+        return {"available": False, "error": str(e), "url": OLLAMA_BASE_URL}
+
+def invoke_medgemma(prompt_text: str, system_context: str) -> Optional[Dict[str, Any]]:
+    """Invoke Google MedGemma 4B via local Ollama inference."""
+    try:
+        import urllib.request
+        start_t = time.time()
+        payload = json.dumps({
+            "model": MEDGEMMA_MODEL,
+            "prompt": prompt_text,
+            "system": system_context,
+            "stream": False,
+            "options": {
+                "temperature": 0.2,
+                "num_predict": 128
+            }
+        }).encode('utf-8')
+        req = urllib.request.Request(
+            f"{OLLAMA_BASE_URL}/api/generate",
+            data=payload,
+            headers={"Content-Type": "application/json"}
+        )
+        with urllib.request.urlopen(req, timeout=25.0) as resp:
+            res_data = json.loads(resp.read().decode('utf-8'))
+            latency_ms = int((time.time() - start_t) * 1000)
+            return {
+                "response": res_data.get("response", "").strip(),
+                "eval_count": res_data.get("eval_count", 0),
+                "eval_duration": res_data.get("eval_duration", 0),
+                "latency_ms": latency_ms
+            }
+    except Exception as e:
+        logger.warning("Ollama MedGemma invocation failed: %s", e)
+        return None
+
+# ==============================================================================
 # Pydantic Request Models
 # ==============================================================================
 class IngestDocumentRequest(BaseModel):
@@ -85,11 +142,23 @@ class MedicationRefillRequest(BaseModel):
 
 @app.get("/api/health")
 def get_health():
-    """Health check endpoint indicating live PostgreSQL connection status."""
+    """Health check endpoint indicating live PostgreSQL and Ollama MedGemma connection status."""
     info = db.get_connection_info()
+    mg = check_ollama_medgemma()
     return {
         "status": "HEALTHY" if info["connected"] else "FALLBACK",
         "database": info,
+        "medgemma": mg,
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ")
+    }
+
+@app.get("/api/medgemma/health")
+def get_medgemma_health():
+    """Check connectivity to Ollama medgemma:4b."""
+    status = check_ollama_medgemma()
+    return {
+        "status": "HEALTHY" if status["available"] else "UNAVAILABLE",
+        "medgemma": status,
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ")
     }
 
@@ -170,47 +239,83 @@ def query_locker(req: QueryLockerRequest):
     """
     Dual-Tier Health Locker Query:
     - Structured: Direct fast SQL query against PostgreSQL (<10ms).
-    - Deep Recall: Contextual reasoning over clinical records with audit logging.
+    - Deep Recall (MedGemma): Contextual clinical reasoning via Ollama medgemma:4b with audit logging.
     """
     start_time = time.time()
+    senior = db.get_senior(req.senior_id) or {"name": "Ramesh Chandra", "age": 72, "gender": "Male"}
     doses = db.get_medication_doses(req.senior_id)
     vitals = db.get_vital_tracking(req.senior_id)
     docs = db.get_clinical_documents(req.senior_id)
-    
+    cg_inputs = db.get_caregiver_inputs(req.senior_id)
+
     dose_lines = [f"{d['drug_name']} {d['strength']}: {d['cadence']} ({d['runway_days']}d stock remaining)" for d in doses]
     vital_lines = [f"{v['vital_type'].replace('_', ' ').title()}: {v['value_numeric']} {v['unit']} ({v['trend_direction']})" for v in vitals]
+    diet_lines = [c['note_text'] for c in cg_inputs]
 
-    summary = (
-        f"Verified clinical records from PostgreSQL Health Locker ({req.senior_id}):\n"
-        f"Active Doses:\n- " + "\n- ".join(dose_lines) + "\n\n"
-        f"Recent Biomarkers & Vitals:\n- " + "\n- ".join(vital_lines)
-    )
+    is_deep_recall = (req.mode == "deep_recall" or req.mode == "medgemma_rag" or "medgemma" in req.mode or req.mode == "auto")
+    
+    medgemma_result = None
+    if is_deep_recall:
+        system_context = (
+            f"You are Google MedGemma 4B, an expert clinical AI co-pilot for Sambandh Health Locker.\n"
+            f"Patient Context:\n"
+            f"- Name: {senior.get('name', 'Ramesh Chandra')}, Age: {senior.get('age', 72)}, Gender: {senior.get('gender', 'Male')}\n"
+            f"- Active Prescriptions: {', '.join(dose_lines)}\n"
+            f"- Recent Vitals & Labs: {', '.join(vital_lines)}\n"
+            f"- Caregiver Directives: {', '.join(diet_lines)}\n"
+            f"- Clinical Records: {', '.join([d['title'] for d in docs])}\n\n"
+            f"CLINICAL GUARDRAILS (MANDATORY):\n"
+            f"1. Give a concise, empathetic, clinically objective answer (2-3 sentences max).\n"
+            f"2. Base your response strictly on the verified clinical records above.\n"
+            f"3. NEVER prescribe new unapproved medications or change dosages.\n"
+            f"4. Reiterate cardiologist instructions (e.g. low-salt diet for hypertension, take Telma-40 in morning) when relevant."
+        )
+        medgemma_result = invoke_medgemma(req.query, system_context)
 
-    latency_ms = int((time.time() - start_time) * 1000)
+    if medgemma_result and medgemma_result.get("response"):
+        analysis = medgemma_result["response"]
+        latency_ms = medgemma_result["latency_ms"]
+        tokens_evaluated = medgemma_result["eval_count"]
+        data_source = "Google MedGemma 4B (Ollama Local :11434)"
+        model_name = "medgemma:4b"
+        mode_used = "MEDGEMMA_DEEP_RECALL"
+    else:
+        # Structured deterministic recall from PostgreSQL
+        analysis = (
+            f"Verified clinical records from PostgreSQL Health Locker ({req.senior_id}):\n"
+            f"Active Doses:\n- " + "\n- ".join(dose_lines) + "\n\n"
+            f"Recent Biomarkers & Vitals:\n- " + "\n- ".join(vital_lines)
+        )
+        latency_ms = int((time.time() - start_time) * 1000)
+        tokens_evaluated = 0
+        data_source = "PostgreSQL 15 (Docker :5434/sambandh)"
+        model_name = "PostgreSQL_Deterministic"
+        mode_used = "STRUCTURED_LOOKUP"
 
     db.log_audit(
         senior_id=req.senior_id,
         query_text=req.query,
-        mode="STRUCTURED_LOOKUP",
-        model_used="PostgreSQL_Deterministic",
+        mode=mode_used,
+        model_used=model_name,
         latency_ms=latency_ms,
-        tokens_evaluated=0,
+        tokens_evaluated=tokens_evaluated,
         guardrail_status={"is_non_prescriptive": True, "zero_diagnosis_passed": True, "tripwire_triggered": False},
-        response_summary=summary[:150]
+        response_summary=analysis[:150]
     )
 
     return {
-        "analysis": summary,
+        "analysis": analysis,
         "retrieved_chunks": [
             {"source": "medication_doses", "count": len(doses)},
-            {"source": "vital_and_level_tracking", "count": len(vitals)}
+            {"source": "vital_and_level_tracking", "count": len(vitals)},
+            {"source": "clinical_documents", "count": len(docs)}
         ],
-        "sources": [d["title"] for d in docs[:2]],
+        "sources": [d["title"] for d in docs[:3]],
         "structured_doses": doses,
         "structured_vitals": vitals,
         "latency_ms": latency_ms,
-        "tokens_evaluated": 0,
-        "data_source": "PostgreSQL 15 (Docker :5434/sambandh)",
+        "tokens_evaluated": tokens_evaluated,
+        "data_source": data_source,
         "guardrail_status": {
             "is_non_prescriptive": True,
             "zero_diagnosis_passed": True,

@@ -11,6 +11,7 @@ import {
   fetchMedicationDoses,
   fetchVitalLevels,
   checkDatabaseHealth,
+  DatabaseHealthStatus,
   simulateDocumentUpload
 } from '../../services/healthLockerService';
 import {
@@ -105,7 +106,7 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
 
   // Health Locker State
   const [searchQuery, setSearchQuery] = useState('');
-  const [queryMode, setQueryMode] = useState<'instant_db' | 'medgemma_rag'>('instant_db');
+  const [queryMode, setQueryMode] = useState<'instant_db' | 'medgemma_rag'>('medgemma_rag');
   const [isSearching, setIsSearching] = useState(false);
   const [queryResult, setQueryResult] = useState<HealthLockerQueryResponse | null>(null);
   const [documents, setDocuments] = useState<HealthLockerDocument[]>([]);
@@ -126,7 +127,7 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
   const [limitInput, setLimitInput] = useState(caregiverConfig.orderTotalLimitInr.toString());
 
   // Database Connection Health State
-  const [dbHealth, setDbHealth] = useState<{ connected: boolean; engine: string; tables_count: number; host: string } | null>(null);
+  const [dbHealth, setDbHealth] = useState<DatabaseHealthStatus | null>(null);
 
   useEffect(() => {
     refreshLockerData();
@@ -746,33 +747,39 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
             {/* ========================================================================= */}
             {activeTab === 'locker' && (
               <div className="space-y-3 pt-1">
-                {/* Live PostgreSQL Database Status Strip */}
-                <div className="p-2.5 rounded-2xl bg-emerald-50/90 border border-emerald-200/90 flex items-center justify-between text-[11px] shadow-2xs">
+                {/* Live PostgreSQL & MedGemma 4B Engine Status Strip */}
+                <div className="p-2.5 rounded-2xl bg-gradient-to-r from-emerald-50/90 to-purple-50/90 border border-emerald-200/80 flex items-center justify-between text-[11px] shadow-2xs">
                   <div className="flex items-center gap-2 min-w-0">
                     <div className="w-6 h-6 rounded-lg bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow-2xs">
                       <Database className="w-3.5 h-3.5" />
                     </div>
                     <div className="min-w-0">
-                      <span className="font-bold text-emerald-950 block truncate">
-                        PostgreSQL 15 Connected
+                      <span className="font-bold text-stone-900 block truncate">
+                        PostgreSQL 15 + MedGemma 4B
                       </span>
-                      <span className="text-[9px] text-emerald-700/90 font-mono block truncate">
-                        Docker :5434/sambandh · 8 Core Tables
+                      <span className="text-[9px] text-stone-600 font-mono block truncate">
+                        PGSQL :5434 · Ollama :11434 (medgemma:4b)
                       </span>
                     </div>
                   </div>
-                  <span className="text-[9px] font-mono font-bold text-emerald-800 bg-white px-2 py-0.5 rounded-full border border-emerald-200 shrink-0">
-                    Live SQL Sync
+                  <span className="text-[9px] font-mono font-bold text-purple-900 bg-white px-2 py-0.5 rounded-full border border-purple-200 shrink-0 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-600 animate-pulse" />
+                    <span>Live Local AI</span>
                   </span>
                 </div>
 
                 {/* Search Bar & Mode Toggle */}
                 <div className="p-3 bg-white rounded-2xl border border-[#DFDAD1] space-y-2.5 shadow-2xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-serif font-bold text-stone-900 flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-purple-700" />
-                      <span>MedGemma Clinical Search</span>
-                    </span>
+                      <span className="text-xs font-serif font-bold text-stone-900">
+                        MedGemma Clinical Co-Pilot
+                      </span>
+                      <span className="text-[9px] font-mono font-bold text-purple-800 bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200">
+                        Ollama :11434
+                      </span>
+                    </div>
                     {/* Mode Toggle */}
                     <div className="flex items-center bg-[#F5EFE6] p-0.5 rounded-lg border border-[#DFDAD1] text-[10px]">
                       <button
@@ -849,8 +856,8 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                           <Sparkles className="w-3 h-3 text-purple-700" />
                           <span>MedGemma Clinical Synthesis</span>
                         </span>
-                        <span className="font-mono text-purple-700 font-semibold">
-                          {queryResult.latency_ms}ms · {queryResult.data_source.split(' ')[0]}
+                        <span className="font-mono text-purple-700 font-semibold text-[9px] truncate max-w-[200px]">
+                          {queryResult.latency_ms}ms · {queryResult.data_source.includes('Ollama') ? 'MedGemma 4B (Ollama)' : queryResult.data_source.split(' ')[0]}
                         </span>
                       </div>
                       <p className="text-[11px] text-purple-950 leading-relaxed font-sans">

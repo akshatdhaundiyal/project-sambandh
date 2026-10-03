@@ -592,37 +592,37 @@ export const HEALTH_LOCKER_QUERY_EXCHANGE: HttpApiExchange = {
 export const MEDGEMMA_ANALYSIS_EXCHANGE: HttpApiExchange = {
   railName: "Google MedGemma 4B Clinical Co-Pilot Rail",
   method: "POST",
-  endpoint: "https://modal.run/sambandh-health-locker/medgemma_worker",
-  schemaStandard: "MedGemma-4B-IT Guardrailed Inference Protocol",
+  endpoint: "http://localhost:11434/api/generate (Ollama Local) / http://localhost:8001/api/query",
+  schemaStandard: "MedGemma-4B Guardrailed Inference Protocol (Ollama :11434)",
   headers: {
-    "Authorization": "Bearer [MODAL_A10G_GPU_TOKEN]",
     "Content-Type": "application/json",
-    "X-Model-Id": "google/medgemma-4b-it",
-    "X-Temperature": "0.15"
+    "X-Model-Id": "medgemma:4b",
+    "X-Inference-Engine": "Ollama (CUDA Flash-Attention)",
+    "X-Postgres-ABDM-Sync": "Verified (Port 5434)"
   },
   requestBody: {
-    "prompt": "Evaluate Ramesh Ji's creatinine trajectory and active BP medications.",
-    "context": "Serum Creatinine: 1.10 mg/dL. Active: Telmisartan 40mg 1 tab OD morning post breakfast. Low sodium diet.",
-    "caller_role": "caregiver",
-    "guardrails": {
-      "zero_diagnosis_rule": true,
-      "zero_titration_rule": true,
-      "strict_ehr_grounding": true
+    "model": "medgemma:4b",
+    "prompt": "Caregiver asks: Can Papa take extra salty pickle with dinner? Evaluate against low-sodium directive.",
+    "system": "You are Google MedGemma 4B, an expert clinical AI co-pilot for Sambandh Health Locker. Patient: Ramesh Chandra (72/M, Lucknow). Active Rx: Telmisartan 40mg (1 OD morning), Metformin 500mg (half tab BD). Strict low-sodium diet (<2g/day).",
+    "options": {
+      "temperature": 0.2,
+      "num_predict": 128
     }
   },
   responseStatus: 200,
   responseStatusText: "OK",
-  responseLatencyMs: 184,
+  responseLatencyMs: 2313,
   responseHeaders: {
     "Content-Type": "application/json",
-    "X-Tokens-Evaluated": "342",
-    "X-GPU-Device": "NVIDIA A10G"
+    "X-Tokens-Evaluated": "47",
+    "X-Device": "NVIDIA CUDA GPU (Flash Attention)"
   },
   responseBody: {
-    "analysis": "Ramesh Ji's serum creatinine is stable at 1.10 mg/dL (Reference: 0.70 – 1.30 mg/dL), indicating well-maintained renal filtration (eGFR >75 mL/min). This profile remains safe for his ongoing Telmisartan 40mg daily morning regimen. Dr. Sharma's dietary salt restriction remains an active recommendation.",
-    "tokens_evaluated": 342,
-    "latency_ms": 184,
-    "model": "google/medgemma-4b-it",
+    "response": "No, Papa should avoid salty pickles with dinner due to his hypertension and the need for a low-sodium diet (<2g/day). High sodium intake can raise blood pressure and counter the therapeutic efficacy of Telmisartan 40mg.",
+    "model": "medgemma:4b",
+    "eval_count": 47,
+    "latency_ms": 2313,
+    "data_source": "Google MedGemma 4B (Ollama Local :11434)",
     "guardrail_status": {
       "is_non_prescriptive": true,
       "zero_diagnosis_passed": true,
