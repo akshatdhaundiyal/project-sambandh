@@ -128,6 +128,16 @@ export const SeniorCallCard: React.FC = () => {
                 Jio Trunk Standby
               </span>
             </div>
+          ) : callStatus === 'calling' ? (
+            <div className="bg-amber-50 px-4 py-2 rounded-2xl border border-amber-300 text-right shrink-0 shadow-2xs">
+              <div className="text-[11px] font-bold text-amber-800 flex items-center justify-end gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                <span>Ringing Phone</span>
+              </div>
+              <span className="text-xs font-mono font-bold text-amber-950 mt-0.5 block">
+                +91 98101 23456
+              </span>
+            </div>
           ) : callStatus === 'active' ? (
             <div className="bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-300 text-right shrink-0 shadow-2xs">
               <div className="text-[11px] font-bold text-emerald-800 flex items-center justify-end gap-1.5">
@@ -175,6 +185,29 @@ export const SeniorCallCard: React.FC = () => {
             >
               <PhoneCall className="w-3 h-3 fill-current" />
               <span>Connect</span>
+            </button>
+          </div>
+        </div>
+      ) : callStatus === 'calling' ? (
+        <div className="bg-amber-50/90 border border-amber-300 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3 text-xs animate-pulse">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span>
+            <span className="font-serif font-bold text-amber-950">
+              Ringing Ramesh Ji's Jio PSTN Trunk (+91 98101 23456)...
+            </span>
+            <span className="text-[10px] font-mono font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
+              Awaiting Pickup
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-amber-900 text-[11px] font-medium">
+            <span>Waiting for Papa to tap Accept on phone</span>
+            <button
+              type="button"
+              onClick={startCall}
+              className="px-3 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg font-bold text-xs shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <PhoneCall className="w-3 h-3 fill-current" />
+              <span>Accept Now</span>
             </button>
           </div>
         </div>

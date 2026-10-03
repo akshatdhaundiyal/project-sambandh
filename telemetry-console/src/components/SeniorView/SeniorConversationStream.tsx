@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { useTelemetry } from '../../context/TelemetryContext';
 import { stopSpeech } from '../../utils/speechService';
 import { hinglishToDevanagari, isDevanagari } from '../../utils/hinglishTransliterator';
-import { Heart, Volume2, VolumeX, Send, Radio, Sparkles, Settings2, Languages, Mic, MicOff, FileCode } from 'lucide-react';
+import { Heart, Volume2, VolumeX, Send, Radio, Sparkles, Settings2, Languages, Mic, MicOff, FileCode, Phone } from 'lucide-react';
 import type { ConversationTurn } from '../../types/telemetry';
 import { HindiSpeechRecognizer, isSpeechRecognitionSupported } from '../../utils/speechRecognitionService';
 import { RecommendedPromptsModal } from './RecommendedPromptsModal';
@@ -15,6 +15,7 @@ export const SeniorConversationStream: React.FC = () => {
     speakTurn,
     injectCustomTurn,
     callStatus,
+    startCall,
     openSettingsModal
   } = useTelemetry();
 
@@ -212,20 +213,50 @@ export const SeniorConversationStream: React.FC = () => {
         {/* Conversation Bubbles Stream */}
         <div ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-auto space-y-3.5 pr-1.5 scrollbar-thin">
           {conversationTurns.length === 0 ? (
-            <div className="h-44 flex flex-col items-center justify-center text-stone-400 text-sm space-y-2 text-center p-4">
-              <div className="w-12 h-12 rounded-2xl bg-stone-100 flex items-center justify-center text-2xl">
-                ☕
+            <div className="h-full min-h-[300px] flex flex-col items-center justify-center p-6 text-center space-y-3.5 bg-gradient-to-b from-[#FAF8F5] to-white rounded-2xl border border-dashed border-[#DFDAD1]">
+              <div className="relative">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-500 to-sky-500 flex items-center justify-center text-3xl shadow-lg ring-4 ring-emerald-100">
+                  🌿
+                </div>
+                <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center text-white text-[10px]">
+                  ✓
+                </span>
               </div>
-              <p className="font-bold text-stone-700">
-                {callStatus === 'idle'
-                  ? 'Waiting for 08:30 AM morning call to begin...'
-                  : 'Connecting with Ramesh Chandra over Jio PSTN...'}
-              </p>
-              <p className="text-xs text-stone-500 max-w-sm">
-                {callStatus === 'idle'
-                  ? 'Click [📞 Start Morning Call] above to connect and trigger the conversation!'
-                  : 'Dialing +91 98101 23456...'}
-              </p>
+
+              <div className="space-y-1 max-w-md">
+                <h4 className="font-serif font-bold text-base text-stone-900">
+                  Pari Companion · Awadhi-Hindi Telephony
+                </h4>
+                <p className="text-xs text-stone-600 leading-relaxed">
+                  Scheduled for 08:30 AM IST. Pari is ready to check in on Ramesh Ji's blood pressure, breakfast routine, and favorite Northern Railway memories.
+                </p>
+              </div>
+
+              {/* Sample Dialogue Bubble */}
+              <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-2xs max-w-sm text-left space-y-1">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-800">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                  <span>Opening Check-In Preview:</span>
+                </div>
+                <p className="text-xs text-stone-800 font-medium leading-snug">
+                  "नमस्ते रमेश जी! आज सुबह की चाय-नाश्ता हो गया? मौसम कैसा है आज रोहिणी में?"
+                </p>
+                <p className="text-[10px] text-stone-400 italic">
+                  [Namaste Ramesh Ji! Had morning tea & breakfast? How is the weather today in Rohini?]
+                </p>
+              </div>
+
+              {/* Quick Connect CTA */}
+              <div className="pt-1 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={startCall}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Phone className="w-3.5 h-3.5 fill-current" />
+                  <span>Connect Morning Check-in Now</span>
+                </button>
+              </div>
             </div>
           ) : (
             conversationTurns.map((turn) => {

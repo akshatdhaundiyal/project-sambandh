@@ -3,8 +3,11 @@ import { TelemetryProvider, useTelemetry } from './context/TelemetryContext';
 import { Header } from './components/Header';
 import { SeniorCallCard } from './components/SeniorView/SeniorCallCard';
 import { SeniorConversationStream } from './components/SeniorView/SeniorConversationStream';
+import { RecommendedPromptsBar } from './components/SeniorView/RecommendedPromptsBar';
+import { SeniorLiveRailStrip } from './components/SeniorView/SeniorLiveRailStrip';
 import { ElderMobilePhone } from './components/ElderAppView/ElderMobilePhone';
 import { CaregiverMobilePhone } from './components/CaregiverPortal/CaregiverMobilePhone';
+import { CaregiverTelemetryConsole } from './components/DualPane/CaregiverTelemetryConsole';
 import { ConversationToolTree } from './components/ExecutionTree/ConversationToolTree';
 import { JudgeStepApiPane } from './components/DualPane/JudgeStepApiPane';
 import { RailApiInspectorModal } from './components/Modals/RailApiInspectorModal';
@@ -56,7 +59,7 @@ export const AppContent: React.FC = () => {
                     : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
-                <span>🎙️</span>
+                <span>📞</span>
                 <span>Live Call & Stream</span>
               </button>
               <button
@@ -103,27 +106,17 @@ export const AppContent: React.FC = () => {
               <SeniorCallCard />
               <SeniorConversationStream />
 
+              {/* Recommended Benchmark Scenario Prompts */}
+              <RecommendedPromptsBar />
+
               {/* Real-time Fiduciary & Clinical Guardrail Telemetry Strip */}
-              <div className="pt-2 flex flex-col gap-2 shrink-0">
-                <div className="flex items-baseline justify-between px-1 shrink-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-serif text-sm font-semibold text-stone-900 tracking-tight">
-                      Fiduciary & Clinical Guardrail Telemetry
-                    </h3>
-                    <span className="text-[10px] font-mono font-medium text-teal-800 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200">
-                      Live Rails
-                    </span>
-                  </div>
-                  <span className="text-xs text-stone-400 font-mono">ABDM · MedGemma · Pine Labs · Delhivery</span>
-                </div>
-                <JudgeStepApiPane />
-              </div>
+              <SeniorLiveRailStrip />
             </section>
           </div>
         )}
 
         {/* ========================================================================= */}
-        {/* TAB 2: CAREGIVER HUB (Chassis on Left, Causal Tree & Guardrails on Right)  */}
+        {/* TAB 2: CAREGIVER HUB (Chassis on Left, Structured Telemetry & Rails on Right) */}
         {/* ========================================================================= */}
         {isCaregiverTab && (
           <div className="flex-1 p-2 sm:p-4 max-w-[1920px] w-full mx-auto flex flex-col lg:flex-row gap-4 h-full min-h-0 overflow-hidden">
@@ -164,55 +157,13 @@ export const AppContent: React.FC = () => {
               <CaregiverMobilePhone />
             </div>
 
-            {/* Right Column: Dual Causal Tool Tree & Guardrail Rails */}
+            {/* Right Column: Structured Caregiver Telemetry Console */}
             <section
-              className={`flex-1 min-w-0 flex-col gap-3 h-full min-h-0 overflow-hidden ${
+              className={`flex-1 min-w-0 flex-col h-full min-h-0 overflow-hidden ${
                 caregiverMobileView === 'telemetry' ? 'flex' : 'hidden lg:flex'
               }`}
             >
-              <div className="flex items-baseline justify-between px-1 shrink-0">
-                <div className="flex items-center gap-2">
-                  <h2 className="font-serif text-base font-semibold text-stone-900 tracking-tight">
-                    Caregiver Causal Telemetry & Verification Rails
-                  </h2>
-                  <span className="text-[11px] font-mono font-medium text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                    Deterministic Guardrails
-                  </span>
-                </div>
-                <span className="text-xs text-stone-400 font-mono">Live DAG & Contract Payloads</span>
-              </div>
-
-              <div className="flex-1 min-h-0 grid grid-cols-1 xl:grid-cols-2 gap-3.5 overflow-hidden">
-                {/* Left Card: Causal Tree */}
-                <div className="bg-white border border-[#E7E2DB] rounded-3xl p-4 overflow-hidden flex flex-col shadow-xs min-h-0">
-                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#F5EFE6] shrink-0">
-                    <span className="text-xs font-serif font-bold text-stone-900">
-                      Autonomous Causal Decision & Tool Tree
-                    </span>
-                    <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-medium">
-                      Active DAG
-                    </span>
-                  </div>
-                  <div className="flex-1 min-h-0 overflow-hidden">
-                    <ConversationToolTree />
-                  </div>
-                </div>
-
-                {/* Right Card: Guardrail Rails & Step API Inspector */}
-                <div className="bg-white border border-[#E7E2DB] rounded-3xl p-4 overflow-hidden flex flex-col shadow-xs min-h-0">
-                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#F5EFE6] shrink-0">
-                    <span className="text-xs font-serif font-bold text-stone-900">
-                      Fiduciary & Clinical Rail Payloads
-                    </span>
-                    <span className="text-[10px] font-mono text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200 font-medium">
-                      HTTP Step Inspector
-                    </span>
-                  </div>
-                  <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin">
-                    <JudgeStepApiPane />
-                  </div>
-                </div>
-              </div>
+              <CaregiverTelemetryConsole />
             </section>
           </div>
         )}

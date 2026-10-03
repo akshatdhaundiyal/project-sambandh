@@ -110,6 +110,9 @@ interface TelemetryContextType {
   // 6-Point Workflow State & Functions
   callStatus: CallStatus;
   startCall: () => void;
+  initiateIncomingCall: () => void;
+  acceptCall: () => void;
+  declineCall: () => void;
   endCall: () => void;
   callDurationSeconds: number;
   autoSpeak: boolean;
@@ -283,6 +286,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     callStatus,
     callDurationSeconds,
     beginCall,
+    initiateIncomingCall,
     endCall: endCallSession,
     resetCallState
   } = useCallSession();
@@ -989,6 +993,18 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     }
   };
 
+  const acceptCall = () => {
+    startCall();
+  };
+
+  const declineCall = () => {
+    stopSpeech();
+    if (speechAdvanceTimeoutRef.current) clearTimeout(speechAdvanceTimeoutRef.current);
+    resetCallState();
+    setTelegramActionFeedback("📴 Call Declined: Ramesh Ji was unable to take the call. Next check-in scheduled in 30 mins.");
+    setTimeout(() => setTelegramActionFeedback(null), 4000);
+  };
+
   const endCall = () => {
     stopSpeech();
     if (speechAdvanceTimeoutRef.current) clearTimeout(speechAdvanceTimeoutRef.current);
@@ -1028,9 +1044,9 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         caregiverDecision: decision,
         caregiverNotes: customNote || "Priya: 'Approved Sambandh AI morning companionship call.'"
       }));
-      setTelegramActionFeedback("🤖 Pre-Call Consent Captured: Priya approved Sambandh AI check-in. Connecting Jio PSTN trunk...");
-      // Auto-start call after approval
-      startCall();
+      setTelegramActionFeedback("🤖 Pre-Call Consent Captured: Priya approved Sambandh AI check-in. Ringing Ramesh Ji's phone over Jio PSTN...");
+      // Trigger incoming call ringing on elder's phone
+      initiateIncomingCall();
     } else if (decision === 'snooze_30m') {
       setPreCallAgency(prev => ({
         ...prev,
@@ -1042,7 +1058,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     }
 
     setTimeout(() => setTelegramActionFeedback(null), 4500);
-  }, [createPreCallApprovalNode, addUniqueNodes, startCall]);
+  }, [createPreCallApprovalNode, addUniqueNodes, initiateIncomingCall]);
 
   const setScenarioById = (id: string) => {
     stopSpeech();
@@ -1230,6 +1246,9 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         // 6-Point Workflow State & Functions
         callStatus,
         startCall,
+        initiateIncomingCall,
+        acceptCall,
+        declineCall,
         endCall,
         callDurationSeconds,
         autoSpeak,

@@ -31,7 +31,17 @@ import {
   Database
 } from 'lucide-react';
 
-export const JudgeStepApiPane: React.FC = () => {
+interface JudgeStepApiPaneProps {
+  hideCatalogBar?: boolean;
+  hideTimeline?: boolean;
+  compactMode?: boolean;
+}
+
+export const JudgeStepApiPane: React.FC<JudgeStepApiPaneProps> = ({
+  hideCatalogBar = false,
+  hideTimeline = false,
+  compactMode = false
+}) => {
   const {
     currentStep,
     activeScenario,
@@ -153,176 +163,180 @@ export const JudgeStepApiPane: React.FC = () => {
       </div>
 
       {/* 2. Top Catalog Bar: All Possible Node Types with Logos */}
-      <div className="mb-3.5 bg-[#FAF8F5] border border-[#E7E2DB] rounded-2xl p-2.5">
-        <div className="flex items-center justify-between mb-1.5 px-1">
-          <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-stone-500">
-            Active Fiduciary Rails & Partner Contracts:
-          </span>
-          <span className="text-[10px] text-stone-400">Sandbox Verified</span>
-        </div>
-
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-          {NODE_CATALOG_LIST.map((item, index) => {
-            const tooltipPosClass =
-              index === 0
-                ? 'left-0 translate-x-0'
-                : index === NODE_CATALOG_LIST.length - 1
-                ? 'right-0 left-auto translate-x-0'
-                : 'left-1/2 -translate-x-1/2';
-
-            const arrowPosClass =
-              index === 0
-                ? 'left-6'
-                : index === NODE_CATALOG_LIST.length - 1
-                ? 'right-6'
-                : 'left-1/2 -translate-x-1/2';
-
-            return (
-              <div
-                key={item.type}
-                className={`group relative p-2.5 rounded-2xl border bg-white shadow-2xs flex flex-col items-center justify-center text-center transition-all hover:shadow-md hover:-translate-y-0.5 cursor-pointer ${item.borderClass}`}
-                title={`${item.brandName}: ${item.tagline}`}
-              >
-                {/* Logo on Top */}
-                <div className="w-10 h-10 rounded-xl bg-stone-50/80 border border-stone-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-110 transition-transform shrink-0">
-                  {renderBrandLogo(item.type, "w-6 h-6")}
-                </div>
-
-                {/* 2 Odd Words (Name of Product / Tech) */}
-                <span className="text-[11px] font-extrabold text-stone-900 block leading-tight tracking-tight text-center truncate max-w-full">
-                  {item.shortName}
-                </span>
-
-                {/* Hover Tooltip: 1-Line Purpose */}
-                <div
-                  className={`absolute top-full mt-2 hidden group-hover:flex flex-col items-center z-50 pointer-events-none w-52 sm:w-60 transition-all duration-150 animate-fadeIn ${tooltipPosClass}`}
-                >
-                  {/* Tooltip upward arrow */}
-                  <div
-                    className={`w-2.5 h-2.5 bg-stone-950 rotate-45 -mb-1.5 border-l border-t border-stone-700 z-10 ${arrowPosClass}`}
-                  ></div>
-                  <div className="bg-stone-950 text-white text-[11px] font-medium leading-snug px-3 py-2 rounded-xl shadow-2xl border border-stone-700 text-center">
-                    <span className="font-extrabold text-emerald-400 block text-[10px] uppercase tracking-wider mb-0.5">
-                      {item.brandName}
-                    </span>
-                    <span className="text-stone-300 block text-[11px] leading-relaxed">
-                      {item.tagline}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 3. Dynamic Execution Chain (The Live Timeline) */}
-      <div className="mb-3.5">
-        <div className="flex items-center justify-between mb-1.5 px-1">
-          <span className="text-xs font-bold text-stone-700 flex items-center gap-1.5">
-            <span>⚡ Chronological Execution Timeline</span>
-            <span className="text-[10px] font-normal text-stone-400">(Click any node to inspect API payload)</span>
-          </span>
-          <span className="text-[11px] font-mono text-emerald-700 font-bold">
-            Step {currentStepIndex + 1} of {activeScenario.steps.length}
-          </span>
-        </div>
-
-        {/* Horizontal / Scrollable Chain of Executed Nodes */}
-        {executedNodes.length === 0 ? (
-          <div className="p-6 border border-dashed border-stone-300 rounded-2xl text-center space-y-2.5 bg-stone-50/60 my-1">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 mx-auto flex items-center justify-center text-lg shadow-2xs">
-              📞
-            </div>
-            <div className="space-y-0.5 max-w-sm mx-auto">
-              <h4 className="font-extrabold text-xs text-stone-900">
-                Call Session Idle — Initial Node Awaiting Initiation
-              </h4>
-              <p className="text-[11px] text-stone-500 leading-relaxed">
-                Nodes are pulled dynamically as each tool/API call is triggered by the autonomous agent. Click Start Call to trigger Node 1 (WhisperFlo Telephony Session).
-              </p>
-            </div>
-            <button
-              onClick={startCall}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
-            >
-              <Zap className="w-3.5 h-3.5 fill-current" />
-              <span>Initiate Call & Trigger Node 1</span>
-            </button>
+      {!hideCatalogBar && (
+        <div className="mb-3.5 bg-[#FAF8F5] border border-[#E7E2DB] rounded-2xl p-2.5">
+          <div className="flex items-center justify-between mb-1.5 px-1">
+            <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-stone-500">
+              Active Fiduciary Rails & Partner Contracts:
+            </span>
+            <span className="text-[10px] text-stone-400">Sandbox Verified</span>
           </div>
-        ) : (
-          <div className="flex items-stretch gap-2.5 overflow-x-auto pb-2 pt-1 px-1 scrollbar-thin">
-            {executedNodes.map((node, index) => {
-              const isSelected = activeNode && activeNode.id === node.id;
-              const isLatest = index === executedNodes.length - 1;
+
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+            {NODE_CATALOG_LIST.map((item, index) => {
+              const tooltipPosClass =
+                index === 0
+                  ? 'left-0 translate-x-0'
+                  : index === NODE_CATALOG_LIST.length - 1
+                  ? 'right-0 left-auto translate-x-0'
+                  : 'left-1/2 -translate-x-1/2';
+
+              const arrowPosClass =
+                index === 0
+                  ? 'left-6'
+                  : index === NODE_CATALOG_LIST.length - 1
+                  ? 'right-6'
+                  : 'left-1/2 -translate-x-1/2';
 
               return (
-                <button
-                  key={node.id}
-                  onClick={() => setSelectedNodeId(node.id)}
-                  className={`relative flex items-center gap-2.5 p-3 rounded-2xl border text-left shrink-0 max-w-[260px] sm:max-w-[280px] transition-all cursor-pointer ${
-                    isSelected
-                      ? 'bg-stone-900 text-white border-stone-900 shadow-md ring-2 ring-stone-900/30'
-                      : 'bg-white hover:bg-stone-50 text-stone-800 border-stone-200 shadow-2xs'
-                  }`}
+                <div
+                  key={item.type}
+                  className={`group relative p-2.5 rounded-2xl border bg-white shadow-2xs flex flex-col items-center justify-center text-center transition-all hover:shadow-md hover:-translate-y-0.5 cursor-pointer ${item.borderClass}`}
+                  title={`${item.brandName}: ${item.tagline}`}
                 >
-                  {/* Brand Logo */}
-                  <div className="shrink-0 p-1 bg-white rounded-xl shadow-2xs border border-stone-200/60">
-                    {renderBrandLogo(node.nodeType, "w-7 h-7")}
+                  {/* Logo on Top */}
+                  <div className="w-10 h-10 rounded-xl bg-stone-50/80 border border-stone-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-110 transition-transform shrink-0">
+                    {renderBrandLogo(item.type, "w-6 h-6")}
                   </div>
 
-                  {/* Node Summary */}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-1 mb-0.5">
-                      <span
-                        className={`text-[10px] font-mono font-bold uppercase truncate ${
-                          isSelected ? 'text-stone-300' : 'text-stone-500'
-                        }`}
-                      >
-                        {node.brandName}
+                  {/* 2 Odd Words (Name of Product / Tech) */}
+                  <span className="text-[11px] font-extrabold text-stone-900 block leading-tight tracking-tight text-center truncate max-w-full">
+                    {item.shortName}
+                  </span>
+
+                  {/* Hover Tooltip: 1-Line Purpose */}
+                  <div
+                    className={`absolute top-full mt-2 hidden group-hover:flex flex-col items-center z-50 pointer-events-none w-52 sm:w-60 transition-all duration-150 animate-fadeIn ${tooltipPosClass}`}
+                  >
+                    {/* Tooltip upward arrow */}
+                    <div
+                      className={`w-2.5 h-2.5 bg-stone-950 rotate-45 -mb-1.5 border-l border-t border-stone-700 z-10 ${arrowPosClass}`}
+                    ></div>
+                    <div className="bg-stone-950 text-white text-[11px] font-medium leading-snug px-3 py-2 rounded-xl shadow-2xl border border-stone-700 text-center">
+                      <span className="font-extrabold text-emerald-400 block text-[10px] uppercase tracking-wider mb-0.5">
+                        {item.brandName}
                       </span>
-                      <span
-                        className={`text-[9px] font-mono px-1.5 py-0.2 rounded font-bold ${
-                          isSelected
-                            ? 'bg-stone-800 text-emerald-400'
-                            : node.status === 'BLOCKED' || node.status === 'TERMINATED'
-                            ? 'bg-rose-100 text-rose-800'
-                            : 'bg-emerald-100 text-emerald-800'
-                        }`}
-                      >
-                        {node.statusCode}
+                      <span className="text-stone-300 block text-[11px] leading-relaxed">
+                        {item.tagline}
                       </span>
                     </div>
-
-                    <span
-                      className={`text-xs font-extrabold block truncate leading-tight ${
-                        isSelected ? 'text-white' : 'text-stone-900'
-                      }`}
-                    >
-                      {node.title}
-                    </span>
-
-                    <p
-                      className={`text-[11px] truncate mt-0.5 ${
-                        isSelected ? 'text-stone-300' : 'text-stone-600'
-                      }`}
-                    >
-                      {node.actionSummary}
-                    </p>
                   </div>
-
-                  {/* Arrow Connector between nodes */}
-                  {!isLatest && (
-                    <div className="absolute -right-2 top-1/2 -translate-y-1/2 z-10 w-4 h-4 rounded-full bg-stone-200 border border-white flex items-center justify-center text-[10px] text-stone-600">
-                      ➔
-                    </div>
-                  )}
-                </button>
+                </div>
               );
             })}
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* 3. Dynamic Execution Chain (The Live Timeline) */}
+      {!hideTimeline && (
+        <div className="mb-3.5">
+          <div className="flex items-center justify-between mb-1.5 px-1">
+            <span className="text-xs font-bold text-stone-700 flex items-center gap-1.5">
+              <span>⚡ Chronological Execution Timeline</span>
+              <span className="text-[10px] font-normal text-stone-400">(Click any node to inspect API payload)</span>
+            </span>
+            <span className="text-[11px] font-mono text-emerald-700 font-bold">
+              Step {currentStepIndex + 1} of {activeScenario.steps.length}
+            </span>
+          </div>
+
+          {/* Horizontal / Scrollable Chain of Executed Nodes */}
+          {executedNodes.length === 0 ? (
+            <div className="p-6 border border-dashed border-stone-300 rounded-2xl text-center space-y-2.5 bg-stone-50/60 my-1">
+              <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 mx-auto flex items-center justify-center text-lg shadow-2xs">
+                📞
+              </div>
+              <div className="space-y-0.5 max-w-sm mx-auto">
+                <h4 className="font-extrabold text-xs text-stone-900">
+                  Call Session Idle — Initial Node Awaiting Initiation
+                </h4>
+                <p className="text-[11px] text-stone-500 leading-relaxed">
+                  Nodes are pulled dynamically as each tool/API call is triggered by the autonomous agent. Click Start Call to trigger Node 1 (WhisperFlo Telephony Session).
+                </p>
+              </div>
+              <button
+                onClick={startCall}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
+              >
+                <Zap className="w-3.5 h-3.5 fill-current" />
+                <span>Initiate Call & Trigger Node 1</span>
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-stretch gap-2.5 overflow-x-auto pb-2 pt-1 px-1 scrollbar-thin">
+              {executedNodes.map((node, index) => {
+                const isSelected = activeNode && activeNode.id === node.id;
+                const isLatest = index === executedNodes.length - 1;
+
+                return (
+                  <button
+                    key={node.id}
+                    onClick={() => setSelectedNodeId(node.id)}
+                    className={`relative flex items-center gap-2.5 p-3 rounded-2xl border text-left shrink-0 max-w-[260px] sm:max-w-[280px] transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-stone-900 text-white border-stone-900 shadow-md ring-2 ring-stone-900/30'
+                        : 'bg-white hover:bg-stone-50 text-stone-800 border-stone-200 shadow-2xs'
+                    }`}
+                  >
+                    {/* Brand Logo */}
+                    <div className="shrink-0 p-1 bg-white rounded-xl shadow-2xs border border-stone-200/60">
+                      {renderBrandLogo(node.nodeType, "w-7 h-7")}
+                    </div>
+
+                    {/* Node Summary */}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-1 mb-0.5">
+                        <span
+                          className={`text-[10px] font-mono font-bold uppercase truncate ${
+                            isSelected ? 'text-stone-300' : 'text-stone-500'
+                          }`}
+                        >
+                          {node.brandName}
+                        </span>
+                        <span
+                          className={`text-[9px] font-mono px-1.5 py-0.2 rounded font-bold ${
+                            isSelected
+                              ? 'bg-stone-800 text-emerald-400'
+                              : node.status === 'BLOCKED' || node.status === 'TERMINATED'
+                              ? 'bg-rose-100 text-rose-800'
+                              : 'bg-emerald-100 text-emerald-800'
+                          }`}
+                        >
+                          {node.statusCode}
+                        </span>
+                      </div>
+
+                      <span
+                        className={`text-xs font-extrabold block truncate leading-tight ${
+                          isSelected ? 'text-white' : 'text-stone-900'
+                        }`}
+                      >
+                        {node.title}
+                      </span>
+
+                      <p
+                        className={`text-[11px] truncate mt-0.5 ${
+                          isSelected ? 'text-stone-300' : 'text-stone-600'
+                        }`}
+                      >
+                        {node.actionSummary}
+                      </p>
+                    </div>
+
+                    {/* Arrow Connector between nodes */}
+                    {!isLatest && (
+                      <div className="absolute -right-2 top-1/2 -translate-y-1/2 z-10 w-4 h-4 rounded-full bg-stone-200 border border-white flex items-center justify-center text-[10px] text-stone-600">
+                        ➔
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* 4. Selected Node API Telemetry: Precision Contract Inspector */}
       {activeNode ? (
