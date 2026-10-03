@@ -1203,6 +1203,26 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     return JSON.stringify(fullState, null, 2);
   };
 
+  // Accumulate turns from scenario steps up to currentStepIndex
+  const scenarioTurnsSoFar = useMemo(() => {
+    const turns: ConversationTurn[] = [];
+    for (let i = 0; i <= currentStepIndex && i < activeScenario.steps.length; i++) {
+      turns.push(...activeScenario.steps[i].turns);
+    }
+    return turns;
+  }, [activeScenario, currentStepIndex]);
+
+  // Dialogue turns stream in real time once call is answered/active, or when live custom turns are injected
+  const effectiveTurns = useMemo(() => {
+    if (conversationTurns.length > 0) {
+      return conversationTurns;
+    }
+    if (callStatus === 'active' || isPlaying) {
+      return scenarioTurnsSoFar;
+    }
+    return [];
+  }, [conversationTurns, callStatus, isPlaying, scenarioTurnsSoFar]);
+
   return (
     <TelemetryContext.Provider
       value={{
@@ -1210,7 +1230,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         activeScenario,
         currentStepIndex,
         currentStep,
-        allTurnsSoFar: conversationTurns,
+        allTurnsSoFar: effectiveTurns,
         isPlaying,
         pacing,
         activeTab,

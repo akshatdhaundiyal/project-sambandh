@@ -3,6 +3,7 @@ import { useTelemetry } from '../../context/TelemetryContext';
 import {
   NODE_CATALOG_LIST,
   getNodesForScenarioStep,
+  getAllNodesForScenario,
   SCENARIO_NODE_REGISTRY,
   ToolExecutionNode,
   ToolNodeType
@@ -53,35 +54,41 @@ export const JudgeStepApiPane: React.FC<JudgeStepApiPaneProps> = ({
     clearDynamicNodes
   } = useTelemetry();
 
-  // Nodes dynamically pulled into the chain up to current step (0 if idle)
+  // Nodes dynamically pulled into the chain up to current step
   const baseNodes = getNodesForScenarioStep(activeScenario.id, currentStepIndex, callStatus);
+  const scenarioAllNodes = getAllNodesForScenario(activeScenario.id);
 
   // Authoritative real-time execution chain:
-  // In a live call session, dynamicExecutionNodes truthfully logs the actual tool and model nodes executed
+  // In a live call session, dynamicExecutionNodes truthfully logs the actual tool and model nodes executed.
+  // In idle/standby state, displays the scenario's planned node chain so judges can inspect API payloads immediately.
   const executedNodes = React.useMemo(() => {
-    if (callStatus === 'idle') {
-      return [];
-    }
-
     if (dynamicExecutionNodes.length > 0) {
       return [...dynamicExecutionNodes];
     }
 
-    return baseNodes;
-  }, [baseNodes, dynamicExecutionNodes, callStatus]);
+    if (baseNodes.length > 0) {
+      return baseNodes;
+    }
+
+    // Fall back to the scenario's complete node chain so all partner API contracts are inspectable
+    return scenarioAllNodes;
+  }, [baseNodes, dynamicExecutionNodes, scenarioAllNodes]);
 
   // Selected node for inline API inspection
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [copiedType, setCopiedType] = useState<string | null>(null);
 
-  // Auto-select the latest executed node when steps advance
+  // Auto-select the latest executed node when steps advance, or first node on initial load
   useEffect(() => {
     if (executedNodes.length > 0) {
-      setSelectedNodeId(executedNodes[executedNodes.length - 1].id);
+      setSelectedNodeId(prev => {
+        if (prev && executedNodes.some(n => n.id === prev)) return prev;
+        return executedNodes[0].id;
+      });
     } else {
       setSelectedNodeId(null);
     }
-  }, [currentStepIndex, activeScenario.id, callStatus, executedNodes.length]);
+  }, [currentStepIndex, activeScenario.id, executedNodes]);
 
   // Fallback to latest node if selected node is not found
   const activeNode: ToolExecutionNode | undefined =

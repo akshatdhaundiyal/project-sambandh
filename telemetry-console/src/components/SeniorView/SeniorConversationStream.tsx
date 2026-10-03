@@ -176,11 +176,11 @@ export const SeniorConversationStream: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsPromptsModalOpen(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-[#FAF8F5] hover:bg-[#F5EFE6] text-stone-800 border border-[#DFDAD1] shadow-2xs transition-all cursor-pointer"
-              title="Open Simulation Scenarios & Benchmark Prompts"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs transition-all cursor-pointer ring-2 ring-amber-400/20 active:scale-95"
+              title="Open Simulation Scenarios & Benchmark Prompts Modal"
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-700" />
-              <span>Test Scenarios (6)</span>
+              <Sparkles className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
+              <span>⚡ Test Scenarios (6)</span>
             </button>
 
             {/* Audio & Telephony Settings Shortcut */}

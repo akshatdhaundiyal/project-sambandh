@@ -3,8 +3,6 @@ import { TelemetryProvider, useTelemetry } from './context/TelemetryContext';
 import { Header } from './components/Header';
 import { SeniorCallCard } from './components/SeniorView/SeniorCallCard';
 import { SeniorConversationStream } from './components/SeniorView/SeniorConversationStream';
-import { RecommendedPromptsBar } from './components/SeniorView/RecommendedPromptsBar';
-import { SeniorLiveRailStrip } from './components/SeniorView/SeniorLiveRailStrip';
 import { ElderMobilePhone } from './components/ElderAppView/ElderMobilePhone';
 import { CaregiverMobilePhone } from './components/CaregiverPortal/CaregiverMobilePhone';
 import { CaregiverTelemetryConsole } from './components/DualPane/CaregiverTelemetryConsole';
@@ -85,7 +83,7 @@ export const AppContent: React.FC = () => {
               <ElderMobilePhone standalonePhoneOnly={true} />
             </div>
 
-            {/* Right Column: Live Conversation Stream & Call Controls (Flexible & Scrollable) */}
+            {/* Right Column: Live Conversation Stream & Judge Telemetry Deck (Flexible & Scrollable) */}
             <section
               className={`flex-1 min-w-0 flex-col gap-3.5 h-full min-h-0 overflow-y-auto pr-1 sm:pr-2 scrollbar-thin ${
                 elderMobileView === 'stream' ? 'flex' : 'hidden lg:flex'
@@ -103,14 +101,27 @@ export const AppContent: React.FC = () => {
                 <span className="text-xs text-stone-400 font-medium">Rohini Sector 8, Delhi</span>
               </div>
 
+              {/* Call Overview Card */}
               <SeniorCallCard />
+
+              {/* Live Morning Dialogue Stream with 1-Click Simulation Popup */}
               <SeniorConversationStream />
 
-              {/* Recommended Benchmark Scenario Prompts */}
-              <RecommendedPromptsBar />
-
-              {/* Real-time Fiduciary & Clinical Guardrail Telemetry Strip */}
-              <SeniorLiveRailStrip />
+              {/* Judge Telemetry & Fiduciary Rails (Live API Flow & Contract Payloads) */}
+              <div className="pt-1 flex flex-col gap-2 shrink-0">
+                <div className="flex items-baseline justify-between px-1 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-serif text-sm font-semibold text-stone-900 tracking-tight">
+                      Judge Telemetry & Rails
+                    </h3>
+                    <span className="text-[10px] font-mono font-medium text-teal-800 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200">
+                      Live Rail Payloads
+                    </span>
+                  </div>
+                  <span className="text-xs text-stone-400 font-mono">WhisperFlo · ABDM · MedGemma · Pine Labs · Delhivery</span>
+                </div>
+                <JudgeStepApiPane />
+              </div>
             </section>
           </div>
         )}

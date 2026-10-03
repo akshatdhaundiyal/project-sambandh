@@ -549,3 +549,8 @@ export const getNodesForScenarioStep = (
   const nodes = SCENARIO_NODE_REGISTRY[scenarioId] || SCENARIO_NODE_REGISTRY['scenario-1'];
   return nodes.filter(n => n.stepIndex <= stepIndex);
 };
+
+// Returns full scenario execution node chain for observer inspection
+export const getAllNodesForScenario = (scenarioId: string): ToolExecutionNode[] => {
+  return SCENARIO_NODE_REGISTRY[scenarioId] || SCENARIO_NODE_REGISTRY['scenario-1'] || [];
+};
