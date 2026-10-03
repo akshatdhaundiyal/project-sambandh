@@ -31,9 +31,18 @@ import {
   Check,
   Save,
   SlidersHorizontal,
-  PhoneForwarded
+  PhoneForwarded,
+  FileCode,
+  Play,
+  Square
 } from 'lucide-react';
 import { getOpenRouterApiKey, testOpenRouterConnection } from '../../services/llmService';
+import {
+  getActiveHindiVoiceSource,
+  speakWithBrowserTts,
+  speakWithWhisperFloApi,
+  stopSpeech
+} from '../../utils/speechService';
 
 export const SettingsModal: React.FC = () => {
   const {
@@ -54,8 +63,11 @@ export const SettingsModal: React.FC = () => {
     topUpCashWallet,
     updateCallFrequency,
     caregiverConfig,
-    updateCaregiverConfig
+    updateCaregiverConfig,
+    setIsSystemPromptModalOpen
   } = useTelemetry();
+
+  const [isTestingSpeech, setIsTestingSpeech] = useState<boolean>(false);
 
   // Local state for Brain tab
   const [activeProviderTab, setActiveProviderTab] = useState<LlmProvider>(
@@ -99,29 +111,45 @@ export const SettingsModal: React.FC = () => {
     setTimeout(() => setIsConfigSaved(false), 2200);
   };
 
+  const handleTestSpeech = async () => {
+    if (isTestingSpeech) {
+      stopSpeech();
+      setIsTestingSpeech(false);
+      return;
+    }
+    setIsTestingSpeech(true);
+    const testText = "नमस्ते अंकल जी, आपका सुबह का नाश्ता और बीपी की दवाई हो गई?";
+    if (activeTtsEngine === 'chrome') {
+      await speakWithBrowserTts(testText, { speaker: 'agent' });
+    } else {
+      await speakWithWhisperFloApi(testText, { speaker: 'agent' });
+    }
+    setIsTestingSpeech(false);
+  };
+
   const filteredModels = SUPPORTED_LLM_MODELS.filter(
     (m) => m.provider === activeProviderTab
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-stone-900/60 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white border border-stone-200/90 rounded-3xl w-full max-w-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-stone-900">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-5 bg-stone-900/60 backdrop-blur-sm animate-fadeIn">
+      <div className="bg-white border border-stone-200/90 rounded-3xl w-full max-w-3xl shadow-2xl overflow-hidden flex flex-col max-h-[94vh] sm:max-h-[90vh] text-stone-900">
         {/* Modal Header */}
-        <div className="p-5 border-b border-stone-200/80 flex items-center justify-between bg-stone-50/80">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-100/70 border border-emerald-200 flex items-center justify-center text-emerald-800 shadow-2xs">
+        <div className="p-4 sm:p-5 border-b border-stone-200/80 flex items-center justify-between bg-stone-50/80">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-100/70 border border-emerald-200 flex items-center justify-center text-emerald-800 shadow-2xs shrink-0">
               <Settings className="w-5 h-5 stroke-[2.2]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-extrabold text-stone-900">
+                <h2 className="text-sm sm:text-lg font-extrabold text-stone-900">
                   System & Care Settings
                 </h2>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
                   Active
                 </span>
               </div>
-              <p className="text-xs text-stone-500 font-medium">
+              <p className="text-[11px] sm:text-xs text-stone-500 font-medium line-clamp-1">
                 Configure AI reasoning models, voice synthesis, care wallet, and caregiver routing
               </p>
             </div>
@@ -129,7 +157,7 @@ export const SettingsModal: React.FC = () => {
 
           <button
             onClick={() => setIsSettingsModalOpen(false)}
-            className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-xl transition-colors cursor-pointer"
+            className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-xl transition-colors cursor-pointer shrink-0"
             title="Close Settings"
           >
             <X className="w-5 h-5" />
@@ -137,53 +165,53 @@ export const SettingsModal: React.FC = () => {
         </div>
 
         {/* Modal Navigation Tabs */}
-        <div className="flex border-b border-stone-200 bg-stone-100/70 p-1.5 gap-1.5 shrink-0 overflow-x-auto">
+        <div className="flex border-b border-stone-200 bg-stone-100/70 p-1 sm:p-1.5 gap-1 sm:gap-1.5 shrink-0 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setSettingsActiveTab('brain')}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap ${
+            className={`flex-1 py-2 px-2.5 sm:px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer whitespace-nowrap ${
               settingsActiveTab === 'brain'
                 ? 'bg-white text-indigo-950 shadow-xs border border-stone-200/80'
                 : 'text-stone-600 hover:text-stone-900'
             }`}
           >
-            <Brain className="w-3.5 h-3.5 text-indigo-600" />
-            <span>AI Brain & Models</span>
+            <Brain className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+            <span>AI Brain <span className="hidden sm:inline">& Models</span></span>
           </button>
 
           <button
             onClick={() => setSettingsActiveTab('telephony')}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap ${
+            className={`flex-1 py-2 px-2.5 sm:px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer whitespace-nowrap ${
               settingsActiveTab === 'telephony'
                 ? 'bg-white text-emerald-950 shadow-xs border border-stone-200/80'
                 : 'text-stone-600 hover:text-stone-900'
             }`}
           >
-            <Volume2 className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Voice & Telephony</span>
+            <Volume2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <span>Voice <span className="hidden sm:inline">& Telephony</span></span>
           </button>
 
           <button
             onClick={() => setSettingsActiveTab('wallet')}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap ${
+            className={`flex-1 py-2 px-2.5 sm:px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer whitespace-nowrap ${
               settingsActiveTab === 'wallet'
                 ? 'bg-white text-amber-950 shadow-xs border border-stone-200/80'
                 : 'text-stone-600 hover:text-stone-900'
             }`}
           >
-            <Wallet className="w-3.5 h-3.5 text-amber-600" />
-            <span>Care Wallet & Cadence</span>
+            <Wallet className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+            <span>Wallet <span className="hidden sm:inline">& Cadence</span></span>
           </button>
 
           <button
             onClick={() => setSettingsActiveTab('routing')}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap ${
+            className={`flex-1 py-2 px-2.5 sm:px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer whitespace-nowrap ${
               settingsActiveTab === 'routing'
                 ? 'bg-white text-sky-950 shadow-xs border border-stone-200/80'
                 : 'text-stone-600 hover:text-stone-900'
             }`}
           >
-            <MapPin className="w-3.5 h-3.5 text-sky-600" />
-            <span>Logistics & Limits</span>
+            <MapPin className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+            <span>Logistics <span className="hidden sm:inline">& Limits</span></span>
           </button>
         </div>
 
@@ -341,6 +369,29 @@ export const SettingsModal: React.FC = () => {
                 })}
               </div>
             </div>
+
+            {/* Live System Prompt Trigger Card */}
+            <div className="p-3.5 bg-gradient-to-r from-stone-50 to-indigo-50/50 rounded-2xl border border-indigo-100 flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+                  <FileCode className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-xs font-bold text-stone-900 block">JIT System Prompt & Clinical Guardrails</span>
+                  <span className="text-[11px] text-stone-500">Inspect dynamic assembly of prompt slices, safety tripwires, and memory ledger</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSettingsModalOpen(false);
+                  setIsSystemPromptModalOpen(true);
+                }}
+                className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+              >
+                <span>Inspect Prompt</span>
+              </button>
+            </div>
           </div>
         )}
 
@@ -418,6 +469,52 @@ export const SettingsModal: React.FC = () => {
                     Neural streaming telephony pipeline tailored with acoustic warmth for Indian elderly tones and regional Hindi inflection.
                   </p>
                 </div>
+              </div>
+            </div>
+
+            {/* Active Hindi Voice Detection & Test Speech Player */}
+            <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-3">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <span className="text-xs font-extrabold text-stone-800 block">
+                    Active Hindi Acoustic Voice
+                  </span>
+                  <p className="text-[11px] text-stone-500">
+                    Source voice endpoint used for speech synthesis
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleTestSpeech}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-xs ${
+                    isTestingSpeech
+                      ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                      : 'bg-emerald-700 hover:bg-emerald-800 text-white'
+                  }`}
+                >
+                  {isTestingSpeech ? <Square className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current" />}
+                  <span>{isTestingSpeech ? 'Stop Speech' : 'Audition Sample Voice'}</span>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2.5 p-2.5 bg-white rounded-xl border border-stone-200 text-xs">
+                {(() => {
+                  const voiceInfo = getActiveHindiVoiceSource('agent', activeTtsEngine);
+                  return (
+                    <>
+                      <span className="text-lg">{voiceInfo.source === 'chrome' ? '🌐' : '☁️'}</span>
+                      <div className="flex-1 min-w-0">
+                        <span className="font-bold text-stone-900 block truncate">{voiceInfo.name}</span>
+                        <span className="text-[10px] text-stone-500 font-mono">
+                          Dialect: hi-IN (Hindi India) · Style: Warm Companion
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0">
+                        Active
+                      </span>
+                    </>
+                  );
+                })()}
               </div>
             </div>
 

@@ -40,9 +40,6 @@ export const SeniorCallCard: React.FC = () => {
     endCall,
     callDurationSeconds,
     activeTtsEngine,
-    setActiveTtsEngine,
-    autoSpeak,
-    setAutoSpeak,
     resetScenario,
     setActiveTab,
     foldedMemory,
@@ -78,20 +75,20 @@ export const SeniorCallCard: React.FC = () => {
   };
 
   return (
-    <div className="bg-white border border-[#E7E2DB] rounded-3xl p-5 shadow-xs text-stone-900 transition-all space-y-4">
+    <div className="bg-white border border-[#E7E2DB] rounded-3xl p-3.5 sm:p-5 shadow-xs text-stone-900 transition-all space-y-3 sm:space-y-4">
       {/* Top Profile Banner: Elder Identity */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-13 h-13 rounded-2xl bg-[#F5EFE6] border border-[#E2D7C5] flex items-center justify-center text-2xl shadow-2xs shrink-0">
+      <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+        <div className="flex items-center gap-3 sm:gap-3.5">
+          <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-[#F5EFE6] border border-[#E2D7C5] flex items-center justify-center text-xl sm:text-2xl shadow-2xs shrink-0">
             👴🏼
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold text-stone-700 bg-stone-100 px-2.5 py-0.5 rounded-full border border-stone-200">
+              <span className="text-[10px] sm:text-[11px] font-semibold text-stone-700 bg-stone-100 px-2 sm:px-2.5 py-0.5 rounded-full border border-stone-200">
                 Morning Routine · 08:30 IST
               </span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-serif font-bold text-stone-900 leading-snug mt-0.5">
+            <h2 className="text-lg sm:text-2xl font-serif font-bold text-stone-900 leading-snug mt-0.5">
               Ramesh Chandra Ji
             </h2>
             <p className="text-xs sm:text-sm text-stone-600 flex items-center gap-1.5 mt-0.5">
@@ -153,21 +150,7 @@ export const SeniorCallCard: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 flex-wrap">
-            {/* Auto-Speak Toggle Pill */}
-            <button
-              onClick={() => setAutoSpeak(!autoSpeak)}
-              className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer flex items-center gap-1.5 ${
-                autoSpeak
-                  ? 'bg-emerald-50 text-emerald-900 border-emerald-300 shadow-2xs'
-                  : 'bg-white text-stone-600 border-[#DFDAD1]'
-              }`}
-              title="Automatically speaks dialogue turns aloud like a real telephone call"
-            >
-              <Volume2 className="w-3.5 h-3.5" />
-              <span>Voice: {autoSpeak ? 'On' : 'Muted'}</span>
-            </button>
-
+          <div className="flex items-center gap-2.5">
             {/* Start Call Primary Button */}
             <button
               onClick={startCall}
@@ -223,38 +206,11 @@ export const SeniorCallCard: React.FC = () => {
               </div>
             </div>
 
-            {/* Mid-Call Controls (Engine Switcher, Auto-Speak, End Call) */}
-            <div className="flex items-center gap-2 flex-wrap">
-              {/* Mid-Call TTS Switcher (Chrome & WhisperFlo) */}
-              <div className="flex items-center bg-emerald-950/80 p-0.5 rounded-xl border border-emerald-700 text-xs">
-                <button
-                  onClick={() => setActiveTtsEngine('chrome')}
-                  className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
-                    activeTtsEngine === 'chrome'
-                      ? 'bg-white text-emerald-950 shadow-2xs font-extrabold'
-                      : 'text-emerald-300 hover:text-white'
-                  }`}
-                  title="Switch to Chrome Web Speech API (OS-Independent)"
-                >
-                  🌐 Chrome (OS-Free)
-                </button>
-                <button
-                  onClick={() => setActiveTtsEngine('whisperflo')}
-                  className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
-                    activeTtsEngine === 'whisperflo'
-                      ? 'bg-white text-emerald-950 shadow-2xs font-extrabold'
-                      : 'text-emerald-300 hover:text-white'
-                  }`}
-                  title="Switch to WhisperFlo Neural Telephony API"
-                >
-                  ☁️ WhisperFlo
-                </button>
-              </div>
-
-              {/* End Call Button */}
+            {/* Mid-Call Action: End Call */}
+            <div className="flex items-center gap-2">
               <button
                 onClick={endCall}
-                className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-xs shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-xs shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                 title="Conclude call session"
               >
                 <PhoneOff className="w-3.5 h-3.5 fill-current" />

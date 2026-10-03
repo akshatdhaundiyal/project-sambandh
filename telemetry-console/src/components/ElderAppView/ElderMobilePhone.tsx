@@ -47,18 +47,18 @@ export const ElderMobilePhone: React.FC = () => {
   const latestTurn = conversationTurns[conversationTurns.length - 1];
 
   return (
-    <div className="flex flex-col lg:flex-row items-center justify-center gap-6 py-4 px-2 max-w-6xl mx-auto">
+    <div className="flex flex-col lg:flex-row items-center justify-center gap-6 py-2 sm:py-4 px-1 sm:px-2 max-w-6xl mx-auto">
       {/* Mobile Device Frame (iPhone 16 Pro Style) */}
-      <div className="w-full max-w-[390px] h-[844px] bg-stone-900 rounded-[52px] p-3.5 shadow-2xl ring-1 ring-stone-800 relative flex flex-col shrink-0 select-none">
+      <div className="w-full max-w-[390px] h-[780px] sm:h-[844px] max-h-[88vh] bg-stone-900 rounded-[40px] sm:rounded-[52px] p-2.5 sm:p-3.5 shadow-2xl ring-1 ring-stone-800 relative flex flex-col shrink-0 select-none">
         {/* Dynamic Island / Earpiece */}
-        <div className="absolute top-6 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-full z-50 flex items-center justify-between px-2.5">
+        <div className="absolute top-4 sm:top-6 left-1/2 -translate-x-1/2 w-28 h-5 sm:h-6 bg-black rounded-full z-50 flex items-center justify-between px-2.5">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           <span className="text-[10px] font-mono text-emerald-400 font-bold">08:30</span>
           <span className="w-2.5 h-2.5 rounded-full bg-stone-800"></span>
         </div>
 
         {/* Screen Bezel Content */}
-        <div className="w-full h-full bg-[#FAF8F5] rounded-[44px] overflow-hidden flex flex-col relative text-stone-900">
+        <div className="w-full h-full bg-[#FAF8F5] rounded-[32px] sm:rounded-[44px] overflow-hidden flex flex-col relative text-stone-900">
           {/* iOS Status Bar */}
           <div className="pt-3 px-7 pb-2 flex items-center justify-between text-xs font-semibold text-stone-800">
             <span>9:41</span>
