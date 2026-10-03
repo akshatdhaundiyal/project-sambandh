@@ -111,6 +111,8 @@ export const JudgeStepApiPane: React.FC = () => {
         return <Database className={`${sizeClass} text-teal-400`} />;
       case 'medgemma_analysis':
         return <Sparkles className={`${sizeClass} text-purple-400`} />;
+      case 'caregiver_precall_consent':
+        return <TelegramLogo className={sizeClass} />;
     }
   };
 
@@ -398,6 +400,35 @@ export const JudgeStepApiPane: React.FC = () => {
                 <div className="bg-slate-950/80 p-2 rounded-lg border border-slate-800">
                   <span className="text-slate-500 block text-[10px]">Database Target:</span>
                   <span className="text-teal-300 font-bold">PostgreSQL / Supabase</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Specialized Pre-Call Caregiver Agency Gate Telemetry Banner */}
+          {activeNode.nodeType === 'caregiver_precall_consent' && (
+            <div className="p-3 mb-3 rounded-xl bg-sky-950/40 border border-sky-800/60 text-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sky-300 font-bold flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
+                  <span>Caregiver Agency & Family Primacy Telemetry</span>
+                </span>
+                <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/90 px-2 py-0.5 rounded border border-emerald-800">
+                  Consent Verified: Telegram Bot Callback
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] font-mono text-slate-300">
+                <div className="bg-slate-950/80 p-2 rounded-lg border border-slate-800">
+                  <span className="text-slate-500 block text-[10px]">Family Primacy Rule:</span>
+                  <span className="text-emerald-400 font-bold">✓ ENFORCED (Caregiver First)</span>
+                </div>
+                <div className="bg-slate-950/80 p-2 rounded-lg border border-slate-800">
+                  <span className="text-slate-500 block text-[10px]">Approval Mode:</span>
+                  <span className="text-sky-300 font-bold">Telegram Interactive Inline</span>
+                </div>
+                <div className="bg-slate-950/80 p-2 rounded-lg border border-slate-800">
+                  <span className="text-slate-500 block text-[10px]">Dispatch Status:</span>
+                  <span className="text-amber-300 font-bold">Agent Check-in Authorized</span>
                 </div>
               </div>
             </div>

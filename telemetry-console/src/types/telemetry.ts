@@ -125,6 +125,26 @@ export interface InventoryOrder {
   eta: string;
 }
 
+export type PreCallAgencyStatus =
+  | 'idle'
+  | 'awaiting_approval'
+  | 'caregiver_calling'
+  | 'agent_approved'
+  | 'snoozed';
+
+export interface PreCallAgencyRequest {
+  id: string;
+  timestamp: string;
+  seniorName: string;
+  seniorPhone: string;
+  scheduledTimeIst: string;
+  status: PreCallAgencyStatus;
+  caregiverName: string;
+  caregiverDecision?: 'caregiver_direct' | 'agent_approved' | 'snooze_30m';
+  caregiverNotes?: string;
+  clinicalBriefingSnippet: string;
+}
+
 export interface CaregiverConfig {
   elderHomeAddress: string;
   elderPinCode: string;
@@ -133,6 +153,7 @@ export interface CaregiverConfig {
   nearestPharmacyPinCode: string;
   nearestPharmacyEmail: string;
   orderTotalLimitInr: number;
+  preCallAgencyMode?: 'always_ask' | 'auto_call';
 }
 
 export interface ElderTopicOfInterest {

@@ -9,7 +9,8 @@ import {
   TELEGRAM_DISPATCH_EXCHANGE,
   NETMEDS_PHARMACY_ORDER_EXCHANGE,
   HEALTH_LOCKER_QUERY_EXCHANGE,
-  MEDGEMMA_ANALYSIS_EXCHANGE
+  MEDGEMMA_ANALYSIS_EXCHANGE,
+  CAREGIVER_PRECALL_APPROVAL_EXCHANGE
 } from '../../data/apiExchanges';
 import { HttpApiExchange } from '../../types/telemetry';
 import {
@@ -53,6 +54,26 @@ export const ConversationToolTree: React.FC = () => {
 
   // Master definition of the complete Project Sambandh Decision & Tool Execution Tree
   const MASTER_TREE_NODES: BranchTreeNode[] = [
+    // 00. PRE-CALL CAREGIVER AGENCY GATE (Caregiver Primacy Rail)
+    {
+      id: 'precall-caregiver-agency',
+      title: '08:20 IST Pre-Call Caregiver Agency Gate',
+      category: 'decision',
+      toolName: 'caregiver_precall_consent',
+      description: 'Pre-call approval dispatched to Priya via Telegram. Caregiver chooses whether to call Papa herself or delegate to Sambandh AI.',
+      branchLabel: 'BRANCH: CAREGIVER DIRECT CALL vs AI CHECK-IN',
+      branchGroup: 'Caregiver Agency Rail',
+      apiExchange: CAREGIVER_PRECALL_APPROVAL_EXCHANGE,
+      hitInScenarios: ['scenario-1', 'scenario-2', 'scenario-3', 'scenario-4', 'scenario-5'],
+      scenarioStepMap: {
+        'scenario-1': 0,
+        'scenario-2': 0,
+        'scenario-3': 0,
+        'scenario-4': 0,
+        'scenario-5': 0
+      }
+    },
+
     // 01. ROOT TRUNK
     {
       id: 'root-dial',

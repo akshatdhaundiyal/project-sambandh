@@ -8,7 +8,8 @@ import {
   TELEGRAM_DISPATCH_EXCHANGE,
   NETMEDS_PHARMACY_ORDER_EXCHANGE,
   HEALTH_LOCKER_QUERY_EXCHANGE,
-  MEDGEMMA_ANALYSIS_EXCHANGE
+  MEDGEMMA_ANALYSIS_EXCHANGE,
+  CAREGIVER_PRECALL_APPROVAL_EXCHANGE
 } from './apiExchanges';
 
 export type ToolNodeType =
@@ -21,7 +22,8 @@ export type ToolNodeType =
   | 'logistics'
   | 'caregiver'
   | 'health_locker_query'
-  | 'medgemma_analysis';
+  | 'medgemma_analysis'
+  | 'caregiver_precall_consent';
 
 export interface CatalogNodeType {
   type: ToolNodeType;
@@ -132,6 +134,16 @@ export const NODE_CATALOG_LIST: CatalogNodeType[] = [
     shortName: 'Telegram Bot',
     tagline: 'Family briefing, audio wisdom story & 1-tap consent cards',
     brandColor: '#24A1DE',
+    accentBg: 'bg-sky-50 text-sky-900',
+    borderClass: 'border-sky-200'
+  },
+  {
+    type: 'caregiver_precall_consent',
+    title: 'Pre-Call Caregiver Agency Gate',
+    brandName: 'Telegram Caregiver Agency Rail',
+    shortName: 'Pre-Call Consent',
+    tagline: 'Dispatches interactive option for child to call directly or approve Sambandh AI check-in',
+    brandColor: '#0284C7',
     accentBg: 'bg-sky-50 text-sky-900',
     borderClass: 'border-sky-200'
   }

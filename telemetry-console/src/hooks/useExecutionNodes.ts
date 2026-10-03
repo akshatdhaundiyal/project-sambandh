@@ -17,7 +17,8 @@ import {
   CHROME_SPEECH_EXCHANGE,
   WHISPERFLO_DIAL_EXCHANGE,
   HEALTH_LOCKER_QUERY_EXCHANGE,
-  MEDGEMMA_ANALYSIS_EXCHANGE
+  MEDGEMMA_ANALYSIS_EXCHANGE,
+  CAREGIVER_PRECALL_APPROVAL_EXCHANGE
 } from '../data/apiExchanges';
 
 export const useExecutionNodes = () => {
@@ -247,6 +248,41 @@ export const useExecutionNodes = () => {
     ];
   }, []);
 
+  /**
+   * Creates Execution Node when caregiver acts on the Pre-Call Agency gate.
+   */
+  const createPreCallApprovalNode = useCallback((
+    decision: 'caregiver_direct' | 'agent_approved' | 'snooze_30m'
+  ): ToolExecutionNode => {
+    const timestamp = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST';
+    const isDirect = decision === 'caregiver_direct';
+    const isSnooze = decision === 'snooze_30m';
+    return {
+      id: `node-precall-${Date.now()}`,
+      stepIndex: 0,
+      nodeType: 'caregiver_precall_consent',
+      brandName: 'Telegram Caregiver Agency Rail',
+      toolName: 'caregiver_agency_dispatch',
+      title: isDirect
+        ? 'Caregiver Direct Call Initiated'
+        : isSnooze
+        ? 'Caregiver Snoozed Call (30m)'
+        : 'Caregiver Delegated Check-In to AI',
+      actionSummary: isDirect
+        ? 'Priya elected to call Papa directly (+91 98101 23456). AI dialing suspended.'
+        : isSnooze
+        ? 'Priya requested 30-minute delay. Next check-in scheduled for 09:00 IST.'
+        : 'Priya verified morning briefing and pre-approved Sambandh AI companion call.',
+      timestamp,
+      status: 'SUCCESS',
+      statusCode: '200 OK (88ms)',
+      latencyMs: 88,
+      apiExchange: CAREGIVER_PRECALL_APPROVAL_EXCHANGE,
+      reasoningSnippet: 'Caregiver Agency Protocol enforces human-first primacy: Child is asked prior to any automated elder dialing.',
+      brandColor: '#0284C7'
+    };
+  }, []);
+
   return {
     dynamicExecutionNodes,
     setDynamicExecutionNodes,
@@ -255,6 +291,7 @@ export const useExecutionNodes = () => {
     seedInitialCallNode,
     createLlmNode,
     createHealthLockerNodes,
+    createPreCallApprovalNode,
     detectDomainNodes,
     triggerPresetNodes
   };

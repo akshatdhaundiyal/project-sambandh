@@ -22,7 +22,14 @@ interface CaregiverMobilePhoneProps {
 }
 
 export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUploadClick }) => {
-  const { currentStep, activeScenario, caregiverConfig } = useTelemetry();
+  const {
+    currentStep,
+    activeScenario,
+    caregiverConfig,
+    preCallAgency,
+    resolvePreCallAgency,
+    requestPreCallApproval
+  } = useTelemetry();
   const profile = activeScenario.initialSeniorProfile;
   const [activeTab, setActiveTab] = useState<'stream' | 'overview'>('stream');
 
@@ -111,6 +118,85 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                   </span>
                 </div>
               </div>
+
+              {/* Pre-Call Caregiver Agency Gate Capsule */}
+              {preCallAgency && (
+                <div className="mt-1.5 p-2 rounded-xl bg-white border border-[#DFDAD1] space-y-1.5 shadow-2xs">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="font-bold text-stone-900 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                      <span>Morning Call Agency Gate</span>
+                    </span>
+                    <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded border ${
+                      preCallAgency.status === 'awaiting_approval'
+                        ? 'bg-amber-50 text-amber-800 border-amber-200'
+                        : preCallAgency.status === 'caregiver_calling'
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                        : 'bg-sky-50 text-sky-800 border-sky-200'
+                    }`}>
+                      {preCallAgency.status === 'awaiting_approval'
+                        ? 'DECISION PENDING'
+                        : preCallAgency.status === 'caregiver_calling'
+                        ? 'CALLING DIRECT'
+                        : 'AI DELEGATED'}
+                    </span>
+                  </div>
+
+                  {preCallAgency.status === 'awaiting_approval' ? (
+                    <div className="space-y-1.5 pt-0.5">
+                      <p className="text-[10px] text-stone-600 leading-tight">
+                        Do you want to speak with Papa yourself today, or should Sambandh AI make the call?
+                      </p>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => resolvePreCallAgency('caregiver_direct')}
+                          className="py-1 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-[10px] flex items-center justify-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                        >
+                          <Phone className="w-3 h-3" />
+                          <span>I'll Call Papa</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => resolvePreCallAgency('agent_approved')}
+                          className="py-1 px-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-semibold text-[10px] flex items-center justify-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                        >
+                          <Sparkles className="w-3 h-3" />
+                          <span>Let AI Call</span>
+                        </button>
+                      </div>
+                    </div>
+                  ) : preCallAgency.status === 'caregiver_calling' ? (
+                    <div className="flex items-center justify-between text-[10px] text-emerald-800 bg-emerald-50/80 p-1.5 rounded-lg border border-emerald-200">
+                      <span className="font-medium flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                        <span>You are calling Papa directly</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => requestPreCallApproval()}
+                        className="underline text-stone-500 hover:text-stone-900 font-bold cursor-pointer"
+                      >
+                        Reset
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between text-[10px] text-sky-800 bg-sky-50/80 p-1.5 rounded-lg border border-sky-200">
+                      <span className="font-medium flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-sky-600 shrink-0" />
+                        <span>AI check-in authorized by you</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => requestPreCallApproval()}
+                        className="underline text-stone-500 hover:text-stone-900 font-bold cursor-pointer"
+                      >
+                        Change
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Upload Doctor Slip Quick Action Button */}
               {onUploadClick && (

@@ -22,7 +22,9 @@ import {
   MoodCallEntry,
   CaregiverConfig,
   ElderTopicOfInterest,
-  PromptSliceStatus
+  PromptSliceStatus,
+  PreCallAgencyRequest,
+  PreCallAgencyStatus
 } from '../types/telemetry';
 import { DEFAULT_MODEL_ID, SUPPORTED_LLM_MODELS } from '../data/models';
 import { speakDialogueTurn, stopSpeech } from '../utils/speechService';
@@ -162,6 +164,11 @@ interface TelemetryContextType {
   startTranscriberMode: () => void;
   stopTranscriberMode: () => void;
   syncTranscriberToEhr: () => void;
+
+  // Caregiver Pre-Call Agency & Direct Dialing Gate
+  preCallAgency: PreCallAgencyRequest;
+  requestPreCallApproval: () => void;
+  resolvePreCallAgency: (decision: 'caregiver_direct' | 'agent_approved' | 'snooze_30m', customNote?: string) => void;
 }
 
 /**
@@ -304,6 +311,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     seedInitialCallNode,
     createLlmNode,
     createHealthLockerNodes,
+    createPreCallApprovalNode,
     detectDomainNodes,
     triggerPresetNodes
   } = useExecutionNodes();
@@ -478,6 +486,31 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
       return updated;
     });
   };
+
+  // Pre-Call Caregiver Agency & Consent State
+  const [preCallAgency, setPreCallAgency] = useState<PreCallAgencyRequest>({
+    id: 'precall-req-001',
+    timestamp: '08:20 AM IST',
+    seniorName: 'Ramesh Chandra (Papa)',
+    seniorPhone: '+91 98101 23456',
+    scheduledTimeIst: '08:30 AM IST',
+    status: 'awaiting_approval',
+    caregiverName: 'Priya Sharma (Daughter)',
+    clinicalBriefingSnippet: 'Omron BP 128/82 mmHg · Telmisartan 40mg (6 days stock runway) · High vitality'
+  });
+
+  const requestPreCallApproval = useCallback(() => {
+    setPreCallAgency(prev => ({
+      ...prev,
+      id: `precall-req-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
+      status: 'awaiting_approval',
+      caregiverDecision: undefined,
+      caregiverNotes: undefined
+    }));
+    setTelegramActionFeedback('🔔 Pre-Call Agency Prompt Dispatched to Priya (@priya_sharma_care). Awaiting choice: Direct Call vs AI Delegated.');
+    setTimeout(() => setTelegramActionFeedback(null), 4500);
+  }, []);
 
   // Longitudinal Emotional Memory Across 3-4 Subsequent Calls
   const [moodHistory, setMoodHistory] = useState<MoodCallEntry[]>([
@@ -973,6 +1006,44 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     setTelegramActionFeedback(null);
   };
 
+  const resolvePreCallAgency = useCallback((
+    decision: 'caregiver_direct' | 'agent_approved' | 'snooze_30m',
+    customNote?: string
+  ) => {
+    const node = createPreCallApprovalNode(decision);
+    addUniqueNodes([node]);
+
+    if (decision === 'caregiver_direct') {
+      setPreCallAgency(prev => ({
+        ...prev,
+        status: 'caregiver_calling',
+        caregiverDecision: decision,
+        caregiverNotes: customNote || "Priya: 'I will call Papa myself today. Automated AI call suspended.'"
+      }));
+      setTelegramActionFeedback("📞 Direct Call Mode: Priya is speaking with Papa directly (+91 98101 23456). AI dialing suspended.");
+    } else if (decision === 'agent_approved') {
+      setPreCallAgency(prev => ({
+        ...prev,
+        status: 'agent_approved',
+        caregiverDecision: decision,
+        caregiverNotes: customNote || "Priya: 'Approved Sambandh AI morning companionship call.'"
+      }));
+      setTelegramActionFeedback("🤖 Pre-Call Consent Captured: Priya approved Sambandh AI check-in. Connecting Jio PSTN trunk...");
+      // Auto-start call after approval
+      startCall();
+    } else if (decision === 'snooze_30m') {
+      setPreCallAgency(prev => ({
+        ...prev,
+        status: 'snoozed',
+        caregiverDecision: decision,
+        caregiverNotes: customNote || "Priya requested a 30-minute delay."
+      }));
+      setTelegramActionFeedback("⏰ Check-In Postponed: Snoozed by 30 minutes. Next notification scheduled for 09:00 AM IST.");
+    }
+
+    setTimeout(() => setTelegramActionFeedback(null), 4500);
+  }, [createPreCallApprovalNode, addUniqueNodes, startCall]);
+
   const setScenarioById = (id: string) => {
     stopSpeech();
     if (speechAdvanceTimeoutRef.current) clearTimeout(speechAdvanceTimeoutRef.current);
@@ -1039,7 +1110,16 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
   const closeApiExchangeModal = () => setSelectedApiExchange(null);
 
   const handleTelegramAction = (action: string) => {
-    if (action === 'PLAY_AUDIO') {
+    if (action === 'PRECALL_CALL_MYSELF') {
+      resolvePreCallAgency('caregiver_direct');
+      return;
+    } else if (action === 'PRECALL_APPROVE_AI') {
+      resolvePreCallAgency('agent_approved');
+      return;
+    } else if (action === 'PRECALL_SNOOZE_30M') {
+      resolvePreCallAgency('snooze_30m');
+      return;
+    } else if (action === 'PLAY_AUDIO') {
       setIsAudioSnippetOpen(true);
       setTelegramActionFeedback("🎧 Playing Papa's 30s Railway Wisdom snippet...");
     } else if (action === 'APPROVE_UPI_5600') {
@@ -1204,7 +1284,12 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
 
         // Caregiver Pre-Fed Configuration (Routing, Address & Limits)
         caregiverConfig,
-        updateCaregiverConfig
+        updateCaregiverConfig,
+
+        // Caregiver Pre-Call Agency & Direct Dialing Gate
+        preCallAgency,
+        requestPreCallApproval,
+        resolvePreCallAgency
       }}
     >
       {children}

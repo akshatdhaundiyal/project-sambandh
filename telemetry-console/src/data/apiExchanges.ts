@@ -631,6 +631,56 @@ export const MEDGEMMA_ANALYSIS_EXCHANGE: HttpApiExchange = {
   }
 };
 
-
-
-
+export const CAREGIVER_PRECALL_APPROVAL_EXCHANGE: HttpApiExchange = {
+  railName: "Telegram Caregiver Pre-Call Agency Rail",
+  method: "POST",
+  endpoint: "https://api.telegram.org/bot6829104:AAFn_sambandh/sendMessage",
+  schemaStandard: "Telegram Bot API v7.2 - Pre-Call Caregiver Consent Protocol",
+  headers: {
+    "Authorization": "Bearer [TELEGRAM_BOT_TOKEN_SAMBANDH]",
+    "Content-Type": "application/json",
+    "X-Consent-Protocol": "CAREGIVER_AGENCY_V1"
+  },
+  requestBody: {
+    "chat_id": 9812491,
+    "recipient": "Priya Sharma (@priya_sharma_care)",
+    "notification_type": "PRE_CALL_AGENCY_GATE",
+    "scheduled_time_ist": "08:30 IST",
+    "senior_profile": {
+      "name": "Ramesh Chandra",
+      "relationship": "Father",
+      "phone": "+91 98101 23456",
+      "clinical_vitals_summary": "Omron BP 128/82 mmHg, Telmisartan stock: 6 days runway"
+    },
+    "message": "Namaste Priya. Today's 08:30 AM morning check-in with Papa is scheduled. Would you like to call him directly yourself today, or should Sambandh AI conduct the morning check-in?",
+    "reply_markup": {
+      "inline_keyboard": [
+        [
+          { "text": "📞 I will call Papa myself today", "callback_data": "PRECALL_CALL_MYSELF" },
+          { "text": "🤖 Approve Sambandh AI Call", "callback_data": "PRECALL_APPROVE_AI" }
+        ],
+        [
+          { "text": "⏰ Snooze check-in by 30 mins", "callback_data": "PRECALL_SNOOZE_30M" }
+        ]
+      ]
+    }
+  },
+  responseStatus: 200,
+  responseStatusText: "OK",
+  responseLatencyMs: 88,
+  responseHeaders: {
+    "Content-Type": "application/json",
+    "X-Telegram-Message-Id": "MSG_PRECALL_991823"
+  },
+  responseBody: {
+    "ok": true,
+    "result": {
+      "message_id": 991823,
+      "date": 1728711600,
+      "status": "DELIVERED_TO_CAREGIVER",
+      "caregiver_action_captured": "AGENT_AUTONOMOUS_CALL_APPROVED",
+      "consent_timestamp": "08:28:14 IST",
+      "agency_policy": "CAREGIVER_DELEGATED_TO_AI"
+    }
+  }
+};
