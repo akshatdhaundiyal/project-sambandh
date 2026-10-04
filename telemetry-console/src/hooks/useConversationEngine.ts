@@ -7,6 +7,7 @@ import {
   MentorshipExchangeItem,
   InventoryOrder,
   MedicationApprovalRequest,
+  DoctorAppointmentApprovalRequest,
   MedicationItem
 } from '../types/telemetry';
 import { DEFAULT_MODEL_ID, SUPPORTED_LLM_MODELS } from '../data/models';
@@ -28,6 +29,7 @@ import {
 } from '../services/promptBuilder';
 import { healthLockerService } from '../services/healthLockerService';
 import { gnaniAudioPlayer } from '../utils/gnaniVoiceService';
+import { matchesKeywords, SYMPTOM_KEYWORDS } from '../data/keywords';
 
 interface UseConversationEngineProps {
   autoSpeak: boolean;
@@ -43,6 +45,7 @@ interface UseConversationEngineProps {
   onDeductCashWallet: (amountInr: number, reason: string) => void;
   onAddInventoryOrder: (order: InventoryOrder) => void;
   onRequestMedicationApproval?: (req: Partial<MedicationApprovalRequest>) => void;
+  onRequestDoctorAppointmentApproval?: (req: Partial<DoctorAppointmentApprovalRequest>) => void;
   createLlmNode: (model: string, latencyMs: number, prompt: string, response: string) => ToolExecutionNode;
   createHealthLockerNodes: (query: string, latencyMs: number, analysis: string) => ToolExecutionNode[];
   detectDomainNodes: (text: string, orderTotalLimitInr?: number) => ToolExecutionNode[];
@@ -64,6 +67,7 @@ export const useConversationEngine = ({
   onDeductCashWallet,
   onAddInventoryOrder,
   onRequestMedicationApproval,
+  onRequestDoctorAppointmentApproval,
   createLlmNode,
   createHealthLockerNodes,
   detectDomainNodes,
@@ -408,6 +412,17 @@ Instructions for your response:
             brandColor: '#10B981'
           }
         ]);
+      }
+
+      // Sickness / Clinical Symptom Detection: Trigger Caregiver Doctor Appointment Approval Gate
+      if (
+        (matchesKeywords(content, SYMPTOM_KEYWORDS) || lower.includes('dard') || lower.includes('ghutna') || lower.includes('tabiyat') || lower.includes('chakkar') || lower.includes('sick') || lower.includes('chhati')) &&
+        onRequestDoctorAppointmentApproval
+      ) {
+        onRequestDoctorAppointmentApproval({
+          symptoms: [content.slice(0, 60)],
+          chiefComplaint: `Papa mentioned feeling unwell during voice check-in: "${content.slice(0, 90)}"`
+        });
       }
 
       // Build JIT modular system prompt (avoids upfront bloat & early escalation)

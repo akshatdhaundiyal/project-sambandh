@@ -4,7 +4,7 @@
  * Dispatches real-time caregiver briefings, 1-tap medication approval cards, and emergency notifications.
  */
 
-import { MedicationApprovalRequest } from '../types/telemetry';
+import { MedicationApprovalRequest, DoctorAppointmentApprovalRequest } from '../types/telemetry';
 
 export interface TelegramCredentials {
   botToken: string;
@@ -257,6 +257,134 @@ export const sendTelegramMedicationApprovalCard = async (
 };
 
 /**
+ * 1.5. Dispatches Human-in-the-Loop Doctor Consultation Approval Card to Caregiver
+ * Triggered when senior reports feeling sick or experiencing symptom flare-ups.
+ */
+export const sendTelegramDoctorAppointmentApprovalCard = async (
+  req: DoctorAppointmentApprovalRequest
+): Promise<TelegramSendResult> => {
+  const seniorName = escapeHtml(req.seniorName || 'Ramesh Chandra');
+  const seniorAge = req.seniorAge || 72;
+  const seniorLoc = escapeHtml(req.seniorAddress || 'Rohini Sector 8, Delhi');
+  const symptoms = escapeHtml(req.symptoms?.join(', ') || 'Reported unwell / acute discomfort');
+  const complaint = escapeHtml(req.chiefComplaint || 'Pain or clinical symptoms noted during voice check-in');
+  const docName = escapeHtml(req.doctorName || 'Dr. Arvind Saxena');
+  const specialty = escapeHtml(req.doctorSpecialty || 'MD (Internal Medicine & Geriatrics)');
+  const clinic = escapeHtml(req.doctorClinic || 'Apollo Clinic, Rohini Sector 8');
+  const slot = escapeHtml(req.appointmentSlot || 'Today, 04:30 PM (Priority Senior Slot)');
+
+  const messageHtml = `🩺 <b>Action Required: Doctor Consultation Approval for ${seniorName}</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+• <b>Senior:</b> ${seniorName} (${seniorAge}, ${seniorLoc})
+• <b>Reported Symptoms:</b> <code>${symptoms}</code>
+• <b>Clinical Note:</b> <i>"${complaint}"</i>
+• <b>Assigned Doctor:</b> <b>${docName}</b> (${specialty})
+• <b>Clinic:</b> ${clinic}
+• <b>Requested Slot:</b> ${slot}
+
+🛡️ <i>Sambandh HITL Gate: Upon your approval, Saarthi will immediately dispatch a formal appointment request to ${docName}'s clinic.</i>`;
+
+  return sendTelegramMessage(messageHtml, {
+    parseMode: 'HTML',
+    inlineButtons: [
+      [
+        { text: `✓ Approve & Book Dr. Appointment`, callback_data: `approve_doctor_appt_${req.id}` },
+        { text: '✕ Decline / Monitor', callback_data: `decline_doctor_appt_${req.id}` }
+      ],
+      [
+        { text: `📞 Call ${clinic} (+91 11 2790 1200)`, callback_data: 'call_doctor_clinic' }
+      ]
+    ]
+  });
+};
+
+/**
+ * 1.6. Dispatches Automated Appointment Booking Notification to the Doctor / Clinic Gateway
+ */
+export const sendTelegramDoctorAppointmentBookingMessage = async (
+  req: DoctorAppointmentApprovalRequest,
+  caregiverName: string = 'Priya Sharma'
+): Promise<TelegramSendResult> => {
+  const seniorName = escapeHtml(req.seniorName || 'Ramesh Chandra');
+  const seniorAge = req.seniorAge || 72;
+  const address = escapeHtml(req.seniorAddress || 'Rohini Sector 8, New Delhi');
+  const symptoms = escapeHtml(req.symptoms?.join(', ') || 'Reported unwell');
+  const complaint = escapeHtml(req.chiefComplaint || 'Consultation requested');
+  const slot = escapeHtml(req.appointmentSlot || 'Today 04:30 PM');
+  const docName = escapeHtml(req.doctorName || 'Dr. Arvind Saxena');
+  const cName = escapeHtml(caregiverName);
+
+  const messageHtml = `🏥 <b>NEW PATIENT APPOINTMENT REQUEST (Caregiver Authorized)</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+• <b>Patient:</b> <b>${seniorName}</b> (${seniorAge}y, Male)
+• <b>ABHA ID:</b> <code>91-4821-9920-1120</code>
+• <b>Address:</b> ${address}
+• <b>Primary Caregiver:</b> ${cName} (Authorized Digitally)
+• <b>Attending Doctor:</b> ${docName}
+• <b>Chief Complaint:</b> ${complaint} (${symptoms})
+• <b>Requested Slot:</b> <b>${slot}</b>
+• <b>Booking Ref:</b> <code>APOLLO-ROH-${req.id.slice(-6).toUpperCase()}</code>
+
+✅ <i>Patient clinical baseline and ABDM Electronic Health Record synced.</i>`;
+
+  // Dispatches to doctor / clinic reception chat
+  return sendTelegramMessage(messageHtml, {
+    parseMode: 'HTML',
+    inlineButtons: [
+      [
+        { text: `✓ Confirm Slot (${slot})`, callback_data: `confirm_clinic_slot_${req.id}` },
+        { text: '🔄 Reschedule Slot', callback_data: `reschedule_clinic_slot_${req.id}` }
+      ]
+    ]
+  });
+};
+
+/**
+ * 2. Dispatches Urgent Missed Call Escalation Alert to Caregiver
+ * Triggered when senior does not answer after 2 consecutive dial attempts (1 min apart).
+ */
+export const sendTelegramMissedCallAlert = async (alert: {
+  seniorName?: string;
+  seniorAge?: number;
+  phone?: string;
+  location?: string;
+  attempts?: number;
+  intervalText?: string;
+}): Promise<TelegramSendResult> => {
+  const seniorName = escapeHtml(alert.seniorName || 'Ramesh Chandra');
+  const seniorAge = alert.seniorAge || 72;
+  const seniorLoc = escapeHtml(alert.location || 'Rohini Sector 8, New Delhi');
+  const phone = escapeHtml(alert.phone || '+91 98101 23456');
+  const time = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST';
+  const attempts = alert.attempts || 2;
+  const interval = escapeHtml(alert.intervalText || '1 minute');
+
+  const messageHtml = `🚨 <b>PRIORITY ALERT: ${seniorName}'s Check-In Unanswered (${attempts} Dials)</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+• <b>Senior:</b> ${seniorName} (${seniorAge}, ${seniorLoc})
+• <b>Phone:</b> <code>${phone}</code>
+• <b>Timestamp:</b> ${time}
+• <b>Status:</b> ${seniorName} did not answer after <b>${attempts} consecutive phone calls</b> (spaced ${interval} apart).
+• <b>Recommendation:</b> Please check on Papa directly, or contact nearby neighbours (e.g. Verma Ji next door / RWA Security) to request a quick physical wellness check.
+
+🛡️ <i>Sambandh Telephony Rail · Safety Sentinel Protocol</i>`;
+
+  return sendTelegramMessage(messageHtml, {
+    parseMode: 'HTML',
+    inlineButtons: [
+      [
+        { text: '📞 Call Papa Directly', callback_data: 'CALL_PAPA' },
+        { text: '🏘️ Contact Neighbour (Verma Ji)', callback_data: 'CONTACT_NEIGHBOUR' }
+      ],
+      [
+        { text: '🏥 Call Doctor / Clinic', callback_data: 'CALL_DOCTOR' },
+        { text: '🏠 Alert Rohini Sec 8 Security', callback_data: 'ALERT_SECURITY' }
+      ]
+    ]
+  });
+};
+
+/**
  * 2. Dispatches Post-Call Daily Care Briefing to Priya
  */
 export const sendTelegramDailyCareBriefing = async (briefing: {
@@ -266,6 +394,7 @@ export const sendTelegramDailyCareBriefing = async (briefing: {
   adherence?: string;
   summaryText: string;
   seniorName?: string;
+  isSad?: boolean;
 }): Promise<TelegramSendResult> => {
   const time = briefing.time || new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST';
   const vitality = briefing.vitalityScore || 94;
@@ -274,28 +403,67 @@ export const sendTelegramDailyCareBriefing = async (briefing: {
   const adherence = escapeHtml(briefing.adherence || '✅ Morning medication confirmed taken');
   const summary = escapeHtml(briefing.summaryText);
 
+  const isSadMood = briefing.isSad || 
+    (briefing.mood && (
+      briefing.mood.toLowerCase().includes('sad') || 
+      briefing.mood.toLowerCase().includes('low') || 
+      briefing.mood.toLowerCase().includes('lonely') || 
+      briefing.mood.toLowerCase().includes('anxious') ||
+      briefing.mood.toLowerCase().includes('udaas') ||
+      briefing.mood.toLowerCase().includes('उदास') ||
+      briefing.mood.toLowerCase().includes('nostalgic')
+    )) ||
+    (briefing.summaryText && (
+      briefing.summaryText.toLowerCase().includes('sad') ||
+      briefing.summaryText.toLowerCase().includes('low mood') ||
+      briefing.summaryText.toLowerCase().includes('lonely') ||
+      briefing.summaryText.toLowerCase().includes('udaas') ||
+      briefing.summaryText.toLowerCase().includes('उदास')
+    )) ||
+    (briefing.vitalityScore !== undefined && briefing.vitalityScore < 75);
+
+  const sadSection = isSadMood ? `
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+💙 <b>Emotional Wellbeing Suggestion (Low Mood Detected):</b>
+${seniorName} sounded a bit sad/low during today's call.
+• 📞 <b>Personal Call:</b> We suggest making a warm personal call to ${seniorName} today.
+• 🌸 <b>Prasad & Flowers:</b> You can also order fresh marigold flowers and sacred temple prasad (Rohini Hanuman Mandir) to uplift their spirits.
+` : '';
+
   const messageHtml = `🌿 <b>Daily Care Briefing: ${seniorName}'s Check-In (${time})</b>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
-• <b>Vitality Index:</b> <b>${vitality}%</b> (Normal Baseline)
+• <b>Vitality Index:</b> <b>${vitality}%</b> ${isSadMood ? '(Low Mood Noted)' : '(Normal Baseline)'}
 • <b>Emotional Tone:</b> ${mood}
 • <b>Medication Adherence:</b> ${adherence}
-• <b>ABDM Pill Runway:</b> Stock verified stable
-
+• <b>ABDM Pill Runway:</b> Stock verified stable${sadSection}
 📝 <b>Conversational Highlights:</b>
 "${summary}"
 
 ❤️ <i>Dispatched by Sambandh AI Companion · Care Circle</i>`;
 
+  const inlineButtons: Array<Array<{ text: string; callback_data?: string; url?: string }>> = isSadMood
+    ? [
+        [
+          { text: `📞 Call ${seniorName} Now`, callback_data: 'call_papa_now' },
+          { text: '🌸 Order Prasad & Flowers (₹150)', callback_data: 'order_prasad_flowers' }
+        ],
+        [
+          { text: "🎧 Papa's Audio Snippet", callback_data: 'listen_snippet' },
+          { text: '📋 View Medical Dossier', callback_data: 'view_dossier' }
+        ]
+      ]
+    : [
+        [
+          { text: "🎧 Papa's Audio Snippet", callback_data: 'listen_snippet' }
+        ],
+        [
+          { text: '📋 View Medical Dossier', callback_data: 'view_dossier' }
+        ]
+      ];
+
   return sendTelegramMessage(messageHtml, {
     parseMode: 'HTML',
-    inlineButtons: [
-      [
-        { text: "🎧 Papa's Audio Snippet", callback_data: 'listen_snippet' }
-      ],
-      [
-        { text: '📋 View Medical Dossier', callback_data: 'view_dossier' }
-      ]
-    ]
+    inlineButtons
   });
 };
 

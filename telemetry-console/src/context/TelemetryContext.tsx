@@ -31,13 +31,17 @@ import {
   MentorshipExchangeItem,
   YouthPersona,
   MedicationApprovalRequest,
+  DoctorAppointmentApprovalRequest,
   MedicationItem
 } from '../types/telemetry';
 import { healthLockerService, saveCallSummary } from '../services/healthLockerService';
 import { executeApprovedMedicationOrder } from '../services/toolCallingService';
 import {
   sendTelegramMedicationApprovalCard,
+  sendTelegramDoctorAppointmentApprovalCard,
+  sendTelegramDoctorAppointmentBookingMessage,
   sendTelegramDailyCareBriefing,
+  sendTelegramMissedCallAlert,
   testTelegramBotConnection
 } from '../services/telegramBotService';
 import { generatePostCallSummary, GeneratedCallSummary } from '../services/llmService';
@@ -120,8 +124,15 @@ interface TelemetryContextType {
 
   // 6-Point Workflow State & Functions
   callStatus: CallStatus;
+  callAttempt: number;
+  isWaitingForRetry: boolean;
+  retryCountdownSeconds: number;
+  ringSecondsLeft: number;
+  lastMissedCallAt: string | null;
+  fastForwardRetry: () => void;
+  handleCallUnanswered: () => void;
   startCall: () => void;
-  initiateIncomingCall: () => void;
+  initiateIncomingCall: (attemptNumber?: number) => void;
   acceptCall: () => void;
   declineCall: () => void;
   endCall: () => void;
@@ -225,6 +236,13 @@ interface TelemetryContextType {
   declineMedicationOrder: (approvalId?: string) => void;
   resetMedicationApproval: () => void;
 
+  // Caregiver Doctor Appointment Approval Gate (Human-in-the-Loop)
+  pendingDoctorAppointment: DoctorAppointmentApprovalRequest | null;
+  createDoctorAppointmentApprovalRequest: (req?: Partial<DoctorAppointmentApprovalRequest>) => DoctorAppointmentApprovalRequest;
+  approveDoctorAppointment: (approvalId?: string) => Promise<void>;
+  declineDoctorAppointment: (approvalId?: string) => void;
+  resetDoctorAppointmentApproval: () => void;
+
   // Live Telegram Bot Integration
   dispatchTelegramCareBriefing: (summaryOverride?: string) => Promise<any>;
 
@@ -237,33 +255,6 @@ interface TelemetryContextType {
 const TelemetryContext = createContext<TelemetryContextType | undefined>(undefined);
 
 export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Composed Sub-Hooks
-  const {
-    callStatus,
-    callDurationSeconds,
-    beginCall,
-    initiateIncomingCall,
-    endCall: endCallSession,
-    resetCallState
-  } = useCallSession();
-
-  const {
-    scenarios,
-    activeScenario,
-    currentStepIndex,
-    setCurrentStepIndex,
-    currentStep,
-    currentStepApiExchange,
-    isPlaying,
-    pacing,
-    setPacing,
-    stepNext,
-    stepPrev,
-    togglePlay,
-    setScenarioById: setScenarioPlaybackId,
-    resetPlayback
-  } = useScenarioPlayback();
-
   const {
     dynamicExecutionNodes,
     clearDynamicNodes,
@@ -294,6 +285,95 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     setTelegramActionFeedback(msg);
     setTimeout(() => setTelegramActionFeedback(null), 3500);
   }, []);
+
+  // Missed Call Safety Escalation Dispatcher (2-tier failure -> Telegram alert + Telemetry DAG)
+  const handleMissedCallEscalation = useCallback((attempts: number) => {
+    // 1. Send live Telegram Alert to Priya
+    sendTelegramMissedCallAlert({
+      seniorName: 'Ramesh Chandra',
+      seniorAge: 72,
+      phone: '+91 98101 23456',
+      location: 'Rohini Sector 8, New Delhi',
+      attempts,
+      intervalText: '1 minute'
+    }).catch(err => console.warn('[Telegram Missed Call Alert Error]:', err));
+
+    // 2. Attach escalation telemetry node
+    const timeStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST';
+    addUniqueNodes([
+      {
+        id: `node-missed-call-escalation-${Date.now()}`,
+        stepIndex: 1,
+        nodeType: 'telephony',
+        brandName: 'Gnani.ai Jio PSTN Rail',
+        toolName: 'telephony_safety_escalation',
+        title: `🚨 Emergency Escalation: 2 Unanswered Calls`,
+        actionSummary: `Ramesh Uncle did not answer 2 consecutive morning check-in calls (1 min apart). Priority Telegram alert dispatched to Priya Sharma suggesting neighbour (Verma Ji) physical check.`,
+        timestamp: timeStr,
+        status: 'TERMINATED',
+        statusCode: '408 REQUEST TIMEOUT (ESCALATED)',
+        latencyMs: 140,
+        brandColor: '#E11D48',
+        reasoningSnippet: `[SAFETY SENTINEL ESCALATION]: Both dial attempt 1 and attempt 2 (after 1m pause) timed out after 20s. Telegram alert pushed to @priya_sharma_care suggesting contact with Papa or neighbours (Verma Ji).`,
+        apiExchange: {
+          railName: 'Telegram MTProto Bot Gateway Rail',
+          method: 'POST',
+          endpoint: 'https://api.telegram.org/bot[TOKEN]/sendMessage',
+          schemaStandard: 'Telegram Bot API v7.2 Urgent Safety Alert Protocol',
+          headers: { 'Content-Type': 'application/json' },
+          requestBody: {
+            chat_id: '@priya_sharma_care',
+            notification_type: 'URGENT_UNANSWERED_CHECKIN',
+            senior_name: 'Ramesh Chandra',
+            attempts: 2,
+            interval: '1 minute'
+          },
+          responseStatus: 200,
+          responseStatusText: 'OK',
+          responseLatencyMs: 120,
+          responseHeaders: { 'Content-Type': 'application/json' },
+          responseBody: { ok: true, result: { message_id: 994821, status: 'DELIVERED_TO_CAREGIVER' } }
+        }
+      }
+    ]);
+  }, [addUniqueNodes]);
+
+  // Composed Sub-Hooks
+  const {
+    callStatus,
+    callDurationSeconds,
+    callAttempt,
+    isWaitingForRetry,
+    retryCountdownSeconds,
+    ringSecondsLeft,
+    lastMissedCallAt,
+    beginCall,
+    initiateIncomingCall,
+    endCall: endCallSession,
+    resetCallState,
+    fastForwardRetry,
+    handleCallUnanswered
+  } = useCallSession({
+    onEscalateMissedCall: handleMissedCallEscalation,
+    onToast: showFeedbackToast
+  });
+
+  const {
+    scenarios,
+    activeScenario,
+    currentStepIndex,
+    setCurrentStepIndex,
+    currentStep,
+    currentStepApiExchange,
+    isPlaying,
+    pacing,
+    setPacing,
+    stepNext,
+    stepPrev,
+    togglePlay,
+    setScenarioById: setScenarioPlaybackId,
+    resetPlayback
+  } = useScenarioPlayback();
 
   const openSettingsModal = useCallback((tab: 'brain' | 'telephony' | 'wallet' | 'routing' = 'brain') => {
     setSettingsActiveTab(tab);
@@ -520,6 +600,9 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     onDeductCashWallet: deductCashWallet,
     onAddInventoryOrder: addInventoryOrder,
     onRequestMedicationApproval: createMedicationApprovalRequest,
+    onRequestDoctorAppointmentApproval: (req) => {
+      createDoctorAppointmentApprovalRequest(req);
+    },
     createLlmNode,
     createHealthLockerNodes,
     detectDomainNodes,
@@ -599,6 +682,167 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   const resetMedicationApproval = useCallback(() => {
     setPendingMedicationApproval(null);
+  }, []);
+
+  // Caregiver Doctor Appointment Approval Gate (HITL)
+  const [pendingDoctorAppointment, setPendingDoctorAppointment] = useState<DoctorAppointmentApprovalRequest | null>(null);
+
+  const createDoctorAppointmentApprovalRequest = useCallback((req?: Partial<DoctorAppointmentApprovalRequest>): DoctorAppointmentApprovalRequest => {
+    const docName = seniorProfile.doctorName || 'Dr. Arvind Saxena';
+    const clinicName = seniorProfile.doctorClinic || 'Apollo Clinic, Rohini Sector 8 (+91 11 2790 1200)';
+    const newRequest: DoctorAppointmentApprovalRequest = {
+      id: `approval-doc-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
+      seniorName: seniorProfile.name,
+      seniorAge: seniorProfile.age,
+      seniorAddress: caregiverConfig.elderHomeAddress || 'Flat 402, Block C, Pocket 2, Rohini Sector 8, New Delhi',
+      symptoms: req?.symptoms || ['Discomfort / symptoms reported during check-in call'],
+      chiefComplaint: req?.chiefComplaint || 'Papa reported feeling unwell during morning voice check-in.',
+      doctorName: docName,
+      doctorSpecialty: 'MD (Internal Medicine & Geriatrics)',
+      doctorClinic: clinicName,
+      doctorPhone: '+91 11 2790 1200',
+      appointmentSlot: req?.appointmentSlot || 'Today, 04:30 PM (Priority Senior Slot)',
+      status: 'AWAITING_APPROVAL'
+    };
+    setPendingDoctorAppointment(newRequest);
+
+    // Asynchronously dispatch live Telegram approval card to Priya's Telegram
+    sendTelegramDoctorAppointmentApprovalCard(newRequest)
+      .then(res => {
+        if (res.success) {
+          showFeedbackToast("🩺 Dispatched Doctor Consultation approval card to Priya's Telegram!");
+        }
+      })
+      .catch(err => {
+        console.warn('[Telegram Doctor Approval Warning]:', err);
+      });
+
+    return newRequest;
+  }, [seniorProfile, caregiverConfig, showFeedbackToast]);
+
+  const approveDoctorAppointment = useCallback(async (approvalId?: string) => {
+    const target = pendingDoctorAppointment;
+    if (!target) return;
+
+    try {
+      const timestamp = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST';
+      const bookingRef = `APOLLO-ROH-${target.id.slice(-6).toUpperCase()}`;
+
+      // 1. Dispatch automated booking message to the Doctor's clinic gateway
+      await sendTelegramDoctorAppointmentBookingMessage(target, 'Priya Sharma');
+
+      // 2. Commit Clinical Telemetry DAG Node
+      addUniqueNodes([
+        {
+          id: `node-doc-booking-${Date.now()}`,
+          stepIndex: 2,
+          nodeType: 'abdm',
+          brandName: 'Apollo Clinical Gateway',
+          toolName: 'book_doctor_appointment',
+          title: `🏥 Consultation Booked: ${target.doctorName}`,
+          actionSummary: `Caregiver authorized consultation for ${target.seniorName} at ${target.doctorClinic}. Confirmed slot: ${target.appointmentSlot}. Booking Ref: ${bookingRef}.`,
+          timestamp,
+          status: 'SUCCESS',
+          statusCode: '200 OK (CONFIRMED)',
+          latencyMs: 160,
+          brandColor: '#0284C7',
+          reasoningSnippet: `[CLINICAL APPOINTMENT GATEWAY]: Priya authorized doctor consultation after Papa reported symptoms. Official booking dispatched to ${target.doctorClinic} reception rail.`,
+          apiExchange: {
+            railName: 'Apollo Hospitals Clinical Scheduling Gateway Rail',
+            method: 'POST',
+            endpoint: 'https://api.apollohospitals.com/v2/appointments/geriatrics/book',
+            schemaStandard: 'ABDM HL7 FHIR Appointment Resource v4.0.1',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer AP_AUTH_TOKEN_ROHINI_SEC8',
+              'X-Caregiver-Consent': 'DIGITALLY_SIGNED_PRIYA_SHARMA'
+            },
+            requestBody: {
+              patient_name: target.seniorName,
+              abha_id: '91-4821-9920-1120',
+              doctor_name: target.doctorName,
+              clinic: target.doctorClinic,
+              slot: target.appointmentSlot,
+              chief_complaint: target.chiefComplaint,
+              symptoms: target.symptoms
+            },
+            responseStatus: 200,
+            responseStatusText: 'OK (Slot Confirmed)',
+            responseLatencyMs: 160,
+            responseHeaders: { 'Content-Type': 'application/json' },
+            responseBody: {
+              booking_id: bookingRef,
+              status: 'CONFIRMED',
+              consultation_mode: 'IN_PERSON_CLINIC',
+              patient_token: 14,
+              reporting_time: '04:15 PM'
+            }
+          }
+        }
+      ]);
+
+      // 3. Inject reassuring agent confirmation in voice stream
+      injectCustomTurn(`प्रिया बेटा ने डॉक्टर अरविंद सक्सेना जी के अपोलो क्लिनिक में आज शाम 4:30 बजे का समय पक्का कर दिया है अंकल जी। आप बिल्कुल चिंता मत कीजिए।`, 'agent');
+
+      setPendingDoctorAppointment(prev => prev ? {
+        ...prev,
+        status: 'APPROVED',
+        approvedAt: timestamp,
+        bookingRefId: bookingRef,
+        bookingStatus: 'CONFIRMED'
+      } : null);
+
+      showFeedbackToast(`🏥 Doctor Appointment Confirmed: Booking notification dispatched to ${target.doctorName}'s clinic!`);
+    } catch (err: any) {
+      console.error('[ApproveDoctorAppointment Error]:', err);
+      showFeedbackToast(`❌ Failed to book appointment: ${err.message}`);
+    }
+  }, [pendingDoctorAppointment, addUniqueNodes, injectCustomTurn, showFeedbackToast]);
+
+  const declineDoctorAppointment = useCallback((approvalId?: string) => {
+    setPendingDoctorAppointment(prev => prev ? {
+      ...prev,
+      status: 'DECLINED',
+      declinedAt: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST'
+    } : null);
+
+    const timestamp = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST';
+    addUniqueNodes([
+      {
+        id: `node-doc-declined-${Date.now()}`,
+        stepIndex: 2,
+        nodeType: 'caregiver',
+        brandName: 'Caregiver Human Gate',
+        toolName: 'decline_doctor_appointment',
+        title: 'Doctor Appointment Declined by Priya',
+        actionSummary: 'Caregiver Priya Sharma clicked [Decline / Monitor]. Clinical consultation request paused for home monitoring.',
+        timestamp,
+        status: 'BLOCKED',
+        statusCode: 'APPOINTMENT_DECLINED',
+        latencyMs: 18,
+        brandColor: '#6B7280',
+        reasoningSnippet: '[CAREGIVER SIGN-OFF]: Priya declined doctor booking at this time. Family will monitor symptoms at home.',
+        apiExchange: {
+          railName: 'Sambandh HITL Caregiver Approval Rail',
+          method: 'POST',
+          endpoint: '/v1/caregiver/approvals/appointment-decline',
+          schemaStandard: 'Sambandh HITL Safety Rail v2',
+          headers: { 'Content-Type': 'application/json' },
+          requestBody: { status: 'DECLINED', reason: 'Home monitoring preferred by family' },
+          responseStatus: 200,
+          responseStatusText: 'OK (Refusal Recorded)',
+          responseLatencyMs: 18,
+          responseHeaders: { 'Content-Type': 'application/json' },
+          responseBody: { status: 'CANCELLED_BY_CAREGIVER' }
+        }
+      }
+    ]);
+    showFeedbackToast('🛑 Appointment Declined: Priya elected to monitor symptoms at home.');
+  }, [addUniqueNodes, showFeedbackToast]);
+
+  const resetDoctorAppointmentApproval = useCallback(() => {
+    setPendingDoctorAppointment(null);
   }, []);
 
   const startCall = useCallback(() => {
@@ -908,6 +1152,13 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
 
         // 6-Point Workflow State & Functions
         callStatus,
+        callAttempt,
+        isWaitingForRetry,
+        retryCountdownSeconds,
+        ringSecondsLeft,
+        lastMissedCallAt,
+        fastForwardRetry,
+        handleCallUnanswered,
         startCall,
         initiateIncomingCall,
         acceptCall,
@@ -1006,6 +1257,13 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         approveMedicationOrder,
         declineMedicationOrder,
         resetMedicationApproval,
+
+        // Caregiver Doctor Appointment Approval Gate (HITL)
+        pendingDoctorAppointment,
+        createDoctorAppointmentApprovalRequest,
+        approveDoctorAppointment,
+        declineDoctorAppointment,
+        resetDoctorAppointmentApproval,
 
         // Live Telegram Bot Integration
         dispatchTelegramCareBriefing,

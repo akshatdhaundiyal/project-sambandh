@@ -79,6 +79,11 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
     cashWallet,
     topUpCashWallet,
     callStatus,
+    callAttempt,
+    isWaitingForRetry,
+    retryCountdownSeconds,
+    lastMissedCallAt,
+    fastForwardRetry,
     speakTurn,
     isTranscriberActive,
     transcriberTranscript,
@@ -93,6 +98,11 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
     approveMedicationOrder,
     declineMedicationOrder,
     resetMedicationApproval,
+    pendingDoctorAppointment,
+    createDoctorAppointmentApprovalRequest,
+    approveDoctorAppointment,
+    declineDoctorAppointment,
+    resetDoctorAppointmentApproval,
     pendingCaregiverMentorshipQuestions,
     approveMentorshipQuestion,
     rejectMentorshipQuestion,
@@ -423,6 +433,73 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                   </div>
                 )}
 
+                {/* 1.4. 1-MINUTE SAFETY REDIAL STATUS BANNER (When Attempt 1 Unanswered) */}
+                {isWaitingForRetry && (
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300 space-y-2 shadow-xs animate-in slide-in-from-top-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-amber-950 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping shrink-0"></span>
+                        <span>Papa Didn't Answer Call #1 · Redialing in {retryCountdownSeconds}s</span>
+                      </span>
+                      <span className="text-[10px] font-mono font-bold bg-amber-200/80 text-amber-900 px-1.5 py-0.5 rounded shrink-0">
+                        {retryCountdownSeconds}s
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-stone-600 leading-snug">
+                      Sambandh Safety Sentinel protocol is active. 2nd call attempt will be placed automatically in 1 minute.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={fastForwardRetry}
+                      className="w-full py-1 px-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs"
+                    >
+                      <span>⚡ Redial Papa Now (Skip Countdown)</span>
+                    </button>
+                  </div>
+                )}
+
+                {/* 1.45. 2-TIER MISSED CALL PRIORITY ALERT BANNER (When Attempt 2 Unanswered) */}
+                {lastMissedCallAt && !isWaitingForRetry && callStatus === 'idle' && (
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-br from-rose-50 via-white to-red-50 border-2 border-rose-400 space-y-2.5 shadow-md animate-in slide-in-from-top-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-rose-950 flex items-center gap-1.5">
+                        <span className="text-sm">🚨</span>
+                        <span>High Priority: Papa Unanswered (2 Dials at {lastMissedCallAt})</span>
+                      </span>
+                      <span className="text-[9px] font-mono font-bold bg-rose-100 text-rose-900 px-2 py-0.5 rounded-full border border-rose-300 shrink-0">
+                        TELEGRAM ALERT SENT
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-stone-700 leading-snug">
+                      Ramesh Uncle did not pick up either check-in attempt (1 min apart). An urgent safety alert was dispatched to your Telegram bot. We recommend calling Papa or contacting nearby neighbours (e.g. Verma Ji next door) for a wellness check.
+                    </p>
+                    <div className="grid grid-cols-3 gap-1.5 pt-1">
+                      <a
+                        href="tel:+919810123456"
+                        className="py-1.5 px-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-[10px] font-bold flex items-center justify-center gap-1 shadow-xs transition-colors text-center"
+                      >
+                        <Phone className="w-3 h-3 shrink-0" />
+                        <span>Call Papa</span>
+                      </a>
+                      <a
+                        href="tel:+919810987654"
+                        className="py-1.5 px-2 bg-sky-700 hover:bg-sky-800 text-white rounded-xl text-[10px] font-bold flex items-center justify-center gap-1 shadow-xs transition-colors text-center"
+                      >
+                        <Users className="w-3 h-3 shrink-0" />
+                        <span>Verma Ji (Neighbour)</span>
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => openConsultationModal()}
+                        className="py-1.5 px-2 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-[10px] font-bold flex items-center justify-center gap-1 shadow-xs transition-colors cursor-pointer text-center"
+                      >
+                        <Stethoscope className="w-3 h-3 shrink-0" />
+                        <span>Dr. Clinic</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {/* 1.5. HUMAN-IN-THE-LOOP CAREGIVER MEDICATION APPROVAL ALERT CARD */}
                 {pendingMedicationApproval?.status === 'AWAITING_APPROVAL' && (
                   <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-50/95 via-white to-orange-50/80 border-2 border-amber-300 space-y-3 shadow-md animate-in fade-in slide-in-from-top-2 duration-300">
@@ -498,6 +575,102 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                         <X className="w-3.5 h-3.5 text-stone-500" />
                         <span>✕ Decline Refill</span>
                       </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* 1.55. HUMAN-IN-THE-LOOP CAREGIVER DOCTOR APPOINTMENT APPROVAL CARD */}
+                {pendingDoctorAppointment?.status === 'AWAITING_APPROVAL' && (
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-br from-sky-50/95 via-white to-blue-50/80 border-2 border-sky-300 space-y-3 shadow-md animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="font-bold text-sky-950 flex items-center gap-1.5">
+                        <span className="relative flex h-2.5 w-2.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-sky-600"></span>
+                        </span>
+                        <span className="font-serif tracking-tight text-xs font-bold">Action Required: Doctor Consultation Approval</span>
+                      </span>
+                      <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-900 border border-sky-300">
+                        CLINICAL GATE
+                      </span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-white/95 border border-sky-200 space-y-2">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-sky-100 text-sky-800 flex items-center justify-center shrink-0">
+                            <Stethoscope className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <div className="text-xs font-bold text-stone-900">
+                              {pendingDoctorAppointment.doctorName}
+                            </div>
+                            <div className="text-[10px] text-stone-500 font-mono">
+                              {pendingDoctorAppointment.doctorSpecialty} · {pendingDoctorAppointment.doctorClinic}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="text-[11px] text-stone-700 bg-sky-50/60 p-2 rounded-lg border border-sky-100/70 leading-snug">
+                        <span className="font-semibold text-sky-900">Symptoms / Concern: </span>
+                        {pendingDoctorAppointment.chiefComplaint}
+                      </div>
+
+                      <div className="flex items-center justify-between text-[10px] text-stone-600 pt-0.5">
+                        <span className="font-semibold text-sky-950 flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-sky-600" />
+                          <span>Slot: {pendingDoctorAppointment.appointmentSlot}</span>
+                        </span>
+                        <span className="text-[9px] font-mono text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                          ABHA EHR Synced
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 pt-0.5">
+                      <button
+                        type="button"
+                        onClick={() => approveDoctorAppointment(pendingDoctorAppointment.id)}
+                        className="py-2 px-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-700 hover:from-sky-700 hover:to-blue-800 text-white font-bold text-[11px] flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-sm hover:shadow active:scale-98"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>✓ Approve & Book Slot</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => declineDoctorAppointment(pendingDoctorAppointment.id)}
+                        className="py-2 px-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold text-[11px] flex items-center justify-center gap-1 cursor-pointer transition-colors border border-stone-300"
+                      >
+                        <X className="w-3.5 h-3.5 text-stone-500" />
+                        <span>✕ Decline / Monitor</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* 1.56. CONFIRMED DOCTOR CONSULTATION CARD */}
+                {pendingDoctorAppointment?.status === 'APPROVED' && (
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-br from-sky-50/90 via-white to-blue-50/70 border-2 border-sky-300 space-y-2.5 shadow-xs animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="font-bold text-sky-950 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-4 h-4 text-sky-600 shrink-0" />
+                        <span className="font-serif tracking-tight text-xs font-bold">Consultation Slot Booked</span>
+                      </span>
+                      <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-300">
+                        {pendingDoctorAppointment.bookingRefId || 'APOLLO-ROH-98421'}
+                      </span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-white border border-sky-200 space-y-1.5 text-xs">
+                      <div className="font-bold text-stone-900">{pendingDoctorAppointment.doctorName}</div>
+                      <div className="text-[11px] text-stone-600 flex items-center justify-between">
+                        <span>{pendingDoctorAppointment.doctorClinic}</span>
+                        <span className="font-semibold text-sky-700">{pendingDoctorAppointment.appointmentSlot}</span>
+                      </div>
+                      <div className="text-[10px] text-emerald-800 bg-emerald-50 p-1.5 rounded-lg border border-emerald-200 font-medium">
+                        ✓ Clinic reception notified via Telegram Gateway & Jio PSTN Rail
+                      </div>
                     </div>
                   </div>
                 )}
@@ -693,6 +866,18 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                       {latestCallSummary?.adherenceStatus && (
                         <div className="text-[10px] text-emerald-800 bg-emerald-50/90 p-1.5 rounded-lg border border-emerald-200 font-medium">
                           {latestCallSummary.adherenceStatus}
+                        </div>
+                      )}
+
+                      {(latestCallSummary?.sentiment === 'ANXIOUS' || (latestCallSummary?.sentimentScore && latestCallSummary.sentimentScore < 75) || latestCallSummary?.summaryText?.toLowerCase().includes('sad') || latestCallSummary?.summaryText?.toLowerCase().includes('low')) && (
+                        <div className="text-[10px] text-sky-900 bg-sky-50/90 p-2 rounded-lg border border-sky-200 space-y-1">
+                          <div className="font-bold flex items-center gap-1 text-sky-950">
+                            <span>💙 Emotional Nudge:</span>
+                            <span>Papa sounded a bit low today</span>
+                          </div>
+                          <p className="text-[9.5px] text-sky-800">
+                            Suggested actions: Give Papa a quick personal call, or surprise him with fresh flowers and temple prasad!
+                          </p>
                         </div>
                       )}
 
@@ -1010,14 +1195,29 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                           </button>
                         </div>
                       ) : (
-                        <button
-                          type="button"
-                          onClick={() => setIsCaregiverDoctorPromptOpen(true)}
-                          className="w-full py-1.5 bg-[#FAF8F5] hover:bg-stone-100 border border-stone-200 rounded-xl text-[10px] font-bold text-stone-800 flex items-center justify-center gap-1 transition-colors cursor-pointer"
-                        >
-                          <Stethoscope className="w-3 h-3 text-teal-700" />
-                          <span>Initiate Doctor Visit Bridge</span>
-                        </button>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              createDoctorAppointmentApprovalRequest({
+                                symptoms: ['Chest tightness & acute knee stiffness reported during check-in'],
+                                chiefComplaint: 'Papa reported persistent joint discomfort and requested consultation with Dr. Arvind Saxena.'
+                              });
+                            }}
+                            className="py-1.5 px-1 bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-200 rounded-xl text-[9.5px] font-bold flex items-center justify-center gap-1 cursor-pointer transition-colors text-center"
+                          >
+                            <Clock className="w-3 h-3 text-sky-700 shrink-0" />
+                            <span>⚡ Request Approval</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setIsCaregiverDoctorPromptOpen(true)}
+                            className="py-1.5 px-1 bg-[#FAF8F5] hover:bg-stone-100 border border-stone-200 rounded-xl text-[9.5px] font-bold text-stone-800 flex items-center justify-center gap-1 transition-colors cursor-pointer text-center"
+                          >
+                            <Stethoscope className="w-3 h-3 text-teal-700 shrink-0" />
+                            <span>In-Clinic Scribe</span>
+                          </button>
+                        </div>
                       )}
 
                       {/* Caregiver Initiate Dialog */}

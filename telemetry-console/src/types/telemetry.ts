@@ -569,3 +569,24 @@ export interface MedicationApprovalRequest {
   deliveryEta?: string;
 }
 
+export interface DoctorAppointmentApprovalRequest {
+  id: string;
+  timestamp: string;
+  seniorName: string;
+  seniorAge: number;
+  seniorAddress: string;
+  symptoms: string[];
+  chiefComplaint: string;
+  doctorName: string;
+  doctorSpecialty: string;
+  doctorClinic: string;
+  doctorPhone: string;
+  appointmentSlot: string;
+  status: 'AWAITING_APPROVAL' | 'APPROVED' | 'DECLINED';
+  approvedAt?: string;
+  declinedAt?: string;
+  bookingRefId?: string;
+  bookingStatus?: string;
+}
+
+

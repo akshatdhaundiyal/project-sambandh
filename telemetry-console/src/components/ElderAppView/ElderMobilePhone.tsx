@@ -39,6 +39,12 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
     activeScenario,
     allTurnsSoFar,
     callStatus,
+    callAttempt,
+    isWaitingForRetry,
+    retryCountdownSeconds,
+    ringSecondsLeft,
+    lastMissedCallAt,
+    fastForwardRetry,
     startCall,
     acceptCall,
     declineCall,
@@ -47,7 +53,9 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
     activeTtsEngine,
     consultationSession,
     openConsultationModal,
-    startDoctorConsultation
+    startDoctorConsultation,
+    pendingDoctorAppointment,
+    createDoctorAppointmentApprovalRequest
   } = useTelemetry();
   const profile = activeScenario.initialSeniorProfile;
   const [activeScreen, setActiveScreen] = useState<'dashboard' | 'incoming_call' | 'call'>('dashboard');
@@ -55,8 +63,7 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
   const [speakerOn, setSpeakerOn] = useState(true);
   const [isDoctorPromptOpen, setIsDoctorPromptOpen] = useState(false);
 
-  // Call retry counter, quick notes, and search state
-  const [declineRetryCount, setDeclineRetryCount] = useState<number>(0);
+  // Quick notes and search state
   const [isQuickNoteModalOpen, setIsQuickNoteModalOpen] = useState<boolean>(false);
   const [activeToast, setActiveToast] = useState<{ message: string; type?: 'info' | 'success' | 'warn' } | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -67,15 +74,8 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
   };
 
   const handleDeclineCall = () => {
-    const nextRetry = declineRetryCount + 1;
-    setDeclineRetryCount(nextRetry);
     declineCall();
     setActiveScreen('dashboard');
-    if (nextRetry < 3) {
-      showToast(`Call declined. Retry ${nextRetry}/3 scheduled in 15m. Priya alerted.`, 'warn');
-    } else {
-      showToast(`3 consecutive calls declined. High-priority alert sent to Priya.`, 'warn');
-    }
   };
 
   const handleRemind10m = () => {
@@ -191,6 +191,51 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                 </div>
               )}
 
+              {/* 1-Minute Safety Redial Countdown Card (When Attempt 1 Unanswered) */}
+              {isWaitingForRetry && (
+                <div className="bg-gradient-to-r from-amber-950 via-stone-900 to-amber-900 border border-amber-500/50 text-white p-3.5 rounded-2xl shadow-xl space-y-2.5 animate-in slide-in-from-top-2 duration-300">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping shrink-0"></span>
+                      <span className="font-serif font-bold text-xs text-amber-200">
+                        Call #1 Unanswered · Safety Redial in {retryCountdownSeconds}s
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-mono text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-700/60 font-bold shrink-0">
+                      {retryCountdownSeconds}s
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-stone-300 leading-snug">
+                    Ramesh Uncle did not pick up. Sambandh is waiting 1 min before automatic retry #2.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={fastForwardRetry}
+                    className="w-full py-1.5 px-3 bg-amber-500 hover:bg-amber-400 active:scale-95 text-stone-950 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-md cursor-pointer"
+                  >
+                    <span>⚡</span>
+                    <span>Fast-Forward Redial (Now)</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Priority Alert Banner (When 2nd Attempt Missed) */}
+              {lastMissedCallAt && !isWaitingForRetry && callStatus === 'idle' && (
+                <div className="bg-rose-950/90 border border-rose-500/50 text-white p-3 rounded-2xl shadow-lg flex items-center justify-between gap-2 text-xs animate-in slide-in-from-top-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🚨</span>
+                    <div>
+                      <span className="font-bold text-rose-200 block leading-tight">
+                        2 Missed Check-Ins ({lastMissedCallAt})
+                      </span>
+                      <span className="text-[10px] text-rose-300 block leading-tight">
+                        High-priority Telegram safety alert dispatched to Priya
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Floating Incoming Call Popup Banner (visible if on dashboard while ringing) */}
               {callStatus === 'calling' && (
                 <div
@@ -204,14 +249,14 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
                         <span className="font-serif font-bold text-xs text-white truncate">
-                          Sambandh AI Calling...
+                          {callAttempt === 2 ? 'Saarthi Redial (Attempt 2/2)' : 'Saarthi Calling...'}
                         </span>
-                        <span className="text-[9px] font-mono text-emerald-400 bg-emerald-950 px-1.5 py-0.2 rounded border border-emerald-700">
-                          Jio PSTN
+                        <span className="text-[9px] font-mono text-emerald-300 bg-emerald-950 px-1.5 py-0.2 rounded border border-emerald-700">
+                          {ringSecondsLeft}s
                         </span>
                       </div>
                       <span className="text-[11px] text-emerald-200 block truncate">
-                        Tap to Answer / बात करें
+                        Tap to Answer / बात करें ({callAttempt === 2 ? 'Retry 2/2' : 'Check-In'})
                       </span>
                     </div>
                   </div>
@@ -221,7 +266,7 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                       type="button"
                       onClick={handleDeclineCall}
                       className="w-8 h-8 rounded-full bg-rose-600 hover:bg-rose-500 flex items-center justify-center text-white shadow-md active:scale-95 transition-all cursor-pointer"
-                      title="Decline Call"
+                      title="Decline / No Answer"
                     >
                       <PhoneOff className="w-4 h-4" />
                     </button>
@@ -435,7 +480,17 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                       </div>
                     </div>
 
-                    {consultationSession.status === 'in_progress' ? (
+                    {pendingDoctorAppointment?.status === 'AWAITING_APPROVAL' ? (
+                      <span className="text-[9px] font-mono font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 flex items-center gap-1 animate-pulse">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                        <span>APPROVAL PENDING</span>
+                      </span>
+                    ) : pendingDoctorAppointment?.status === 'APPROVED' ? (
+                      <span className="text-[9px] font-mono font-bold text-sky-800 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
+                        <span>SLOT BOOKED</span>
+                      </span>
+                    ) : consultationSession.status === 'in_progress' ? (
                       <span className="text-[9px] font-mono font-bold text-rose-800 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 flex items-center gap-1 animate-pulse">
                         <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
                         <span>ACTIVE</span>
@@ -446,6 +501,37 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                       </span>
                     ) : null}
                   </div>
+
+                  {/* Pending Caregiver Approval State */}
+                  {pendingDoctorAppointment?.status === 'AWAITING_APPROVAL' && (
+                    <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-200 space-y-1 text-[11px]">
+                      <div className="font-bold text-amber-950 flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5 text-amber-600" />
+                        <span>अपॉइंटमेंट की अनुमति प्रिया बेटा के पास भेजी गई है</span>
+                      </div>
+                      <p className="text-[10px] text-amber-900 leading-snug">
+                        Approval request sent to Priya for Dr. Arvind Saxena (Apollo Clinic Rohini). Slot will be confirmed as soon as Priya approves.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Confirmed Doctor Appointment State */}
+                  {pendingDoctorAppointment?.status === 'APPROVED' && (
+                    <div className="p-2.5 bg-sky-50 rounded-xl border border-sky-200 space-y-1 text-[11px]">
+                      <div className="font-bold text-sky-950 flex items-center justify-between">
+                        <span className="flex items-center gap-1">
+                          <CheckCircle className="w-3.5 h-3.5 text-sky-600" />
+                          <span>अपॉइंटमेंट पक्की हो गई है: आज शाम 4:30 बजे</span>
+                        </span>
+                        <span className="text-[9px] font-mono font-bold text-sky-700 bg-white px-1 py-0.2 rounded border border-sky-200">
+                          {pendingDoctorAppointment.bookingRefId || 'CONFIRMED'}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-sky-900 leading-snug">
+                        Dr. Arvind Saxena · Apollo Clinic Rohini Sector 8 (+91 11 2790 1200)
+                      </p>
+                    </div>
+                  )}
 
                   {consultationSession.status === 'in_progress' ? (
                     <button
@@ -478,14 +564,30 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                       </button>
                     </div>
                   ) : (
-                    <button
-                      type="button"
-                      onClick={() => setIsDoctorPromptOpen(true)}
-                      className="w-full py-2 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer"
-                    >
-                      <Stethoscope className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Start Doctor Visit Session (परामर्श शुरू करें)</span>
-                    </button>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          createDoctorAppointmentApprovalRequest({
+                            symptoms: ['घुटने का दर्द / Knee pain and stiffness reported by Ramesh Uncle'],
+                            chiefComplaint: 'Papa requested a doctor consultation with Dr. Arvind Saxena.'
+                          });
+                          showToast('🩺 Doctor Appointment request sent to Priya for approval!', 'info');
+                        }}
+                        className="py-2 px-1.5 bg-gradient-to-r from-sky-600 to-blue-700 hover:from-sky-500 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 shadow-xs transition-all cursor-pointer text-center"
+                      >
+                        <Stethoscope className="w-3.5 h-3.5 text-sky-200 shrink-0" />
+                        <span>Request Doctor (प्रिया से पूछें)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsDoctorPromptOpen(true)}
+                        className="py-2 px-1.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 shadow-xs transition-all cursor-pointer text-center"
+                      >
+                        <Users className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        <span>In-Clinic Scribe (परामर्श)</span>
+                      </button>
+                    </div>
                   )}
 
                   {/* Attendance Prompt Dialog */}
@@ -558,9 +660,13 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
             <div className="flex-1 bg-gradient-to-b from-[#0F1E36] via-[#0A1324] to-stone-950 text-white flex flex-col justify-between p-5 sm:p-6 relative overflow-hidden select-none animate-in fade-in duration-300">
               {/* Top Caller Information */}
               <div className="pt-6 sm:pt-8 text-center space-y-2 z-10">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-xs">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                  <span>Incoming Caregiver Check-In</span>
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold shadow-xs ${
+                  callAttempt === 2
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                    : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                }`}>
+                  <span className={`w-2 h-2 rounded-full ${callAttempt === 2 ? 'bg-amber-400 animate-ping' : 'bg-emerald-400 animate-ping'}`}></span>
+                  <span>{callAttempt === 2 ? `Safety Redial (Attempt 2/2 · ${ringSecondsLeft}s)` : `Incoming Caregiver Check-In (${ringSecondsLeft}s)`}</span>
                 </span>
 
                 <div>
@@ -642,7 +748,7 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                   </button>
                   <div className="text-center">
                     <span className="text-xs font-semibold text-rose-300 block">
-                      Decline {declineRetryCount > 0 ? `(${declineRetryCount}/3)` : ''}
+                      Decline {callAttempt > 1 ? '(Attempt 2)' : ''}
                     </span>
                     <span className="text-[10px] text-stone-400 font-hindi">
                       अभी नहीं

@@ -242,14 +242,14 @@ ${memoryLedger}
   }
 
   // Slice B: Clinical Empathy & Observation (Injected only if symptom or pain is mentioned)
-  if (matchesKeywords(recentUserText, SYMPTOM_KEYWORDS) || recentUserText.toLowerCase().includes('dard') || recentUserText.toLowerCase().includes('ghutna')) {
+  if (matchesKeywords(recentUserText, SYMPTOM_KEYWORDS) || recentUserText.toLowerCase().includes('dard') || recentUserText.toLowerCase().includes('ghutna') || recentUserText.toLowerCase().includes('tabiyat') || recentUserText.toLowerCase().includes('sick')) {
     activeSlices.clinicalDossier = true;
     prompt += `
 [CLINICAL OBSERVATION & EMPATHY SLICE - ACTIVE]:
 - Baseline: ${profile.healthBaseline || 'Chronic condition management'}.
-- ${profile.name} has reported pain or discomfort. Immediately express warm concern and gentle empathy.
-- Ask gently where it hurts, recommend warm water compresses or morning sun, and never dismiss their discomfort.
-- Clinical Reference Doctor: ${profile.doctorName || 'Family Doctor'}.
+- ${profile.name} has reported pain, discomfort, or feeling unwell. Immediately express warm concern and gentle empathy.
+- Clinical Reference Doctor: ${profile.doctorName || 'Dr. Arvind Saxena'} (${profile.doctorClinic || 'Apollo Rohini Clinic'}).
+- If ${profile.name} feels sick: Comfort them warmly; note their symptoms so ${profile.caregiverName} receives a Telegram prompt to approve booking an appointment with Dr. ${profile.doctorName || 'Dr. Arvind Saxena'}.
 `;
   }
 
@@ -415,9 +415,9 @@ MODULAR JIT SLICE E: INTERGENERATIONAL VOCATIONAL WISDOM (Approved Youth Questio
 --------------------------------------------------------------------------------
 13 NON-NEGOTIABLE SAFETY & SAD FLOW GUARDRAIL RULES:
 --------------------------------------------------------------------------------
-1. Parent doesn't pick up: Try 3 to 5 times at spaced intervals, then alert caregiver (${profile.caregiverName}) with the attempt count so family can escalate.
+1. Parent doesn't pick up: After 2 unanswered attempts (with 1-min pause), alert caregiver (${profile.caregiverName}) immediately that parent didn't pick up, and suggest contacting nearby neighbours or society security for a physical wellness check.
 2. Order is above spend limit: Pause autonomous checkout and request 1-tap approval from caregiver (${profile.caregiverName}); without approval, do not place order.
-3. Parent asks for risky advice or strong medicine: Strictly decline. Adhere only to simple, well-known lifestyle comforts (warm water compress, posture); advise consulting Dr. ${profile.doctorName}.
+3. Parent feels sick or asks for strong medication: Strictly decline self-medication. Comfort them warmly and send a Telegram notification to caregiver (${profile.caregiverName}) to approve booking an appointment with assigned doctor Dr. ${profile.doctorName}; once approved, agent dispatches an appointment request to the doctor's clinic.
 4. Parent claims adherence but refill timing mismatches: Compare pharmacy refill interval with expected schedule. If mismatched, flag silent adherence alert to caregiver.
 5. Parent changes or stops medicines on their own: Never validate or recommend medicine changes; advise checking with Dr. ${profile.doctorName} and flag immediately to caregiver.
 6. Possible fall heard in background: Immediately call parent back. If no answer within 60 seconds, trigger Tier-1 urgent fall alert to caregiver.
@@ -427,7 +427,7 @@ MODULAR JIT SLICE E: INTERGENERATIONAL VOCATIONAL WISDOM (Approved Youth Questio
 10. Delivery is delayed: Continuously track Delhivery courier CMU; inform parent of updated delivery slot; alert caregiver.
 11. Caregiver gets too many alerts: Batch routine updates into a single daily summary; only cardinal emergencies trigger instant push/SMS interruptions.
 12. Parent is reluctant to use service: Caregiver introduces Sambandh on the first call; parent may pause or opt out anytime without guilt.
-13. Low mood persisting over multiple calls: Offer flowers or temple prasadam (upon caregiver approval) and nudge caregiver to give a personal evening call without betraying private confidences.
+13. Low mood / sadness detected during call: Acknowledge with comfort and empathy; in the Telegram notification to the caregiver (${profile.caregiverName}), report that parent is feeling sad, recommend giving them a warm personal call, and suggest ordering fresh flowers and temple prasad to uplift their spirits.
 
 --------------------------------------------------------------------------------
 [SPOKEN TONE & FORMAT RULES]:
