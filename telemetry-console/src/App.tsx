@@ -15,6 +15,7 @@ import { SettingsModal } from './components/Modals/SettingsModal';
 import { SystemPromptModal } from './components/Modals/SystemPromptModal';
 import { DoctorConsultationModal } from './components/DoctorConsultation/DoctorConsultationModal';
 import { YouthWisdomPortal } from './components/YouthView/YouthWisdomPortal';
+import { LandingPage } from './components/LandingPage/LandingPage';
 
 export const AppContent: React.FC = () => {
   const {
@@ -202,10 +203,24 @@ export const AppContent: React.FC = () => {
   );
 };
 
+export const MainRouter: React.FC = () => {
+  const { currentView } = useTelemetry();
+
+  return (
+    <>
+      {currentView === 'landing' ? (
+        <LandingPage />
+      ) : (
+        <AppContent />
+      )}
+    </>
+  );
+};
+
 export default function App() {
   return (
     <TelemetryProvider>
-      <AppContent />
+      <MainRouter />
     </TelemetryProvider>
   );
 }

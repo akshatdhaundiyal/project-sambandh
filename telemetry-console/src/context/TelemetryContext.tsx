@@ -87,6 +87,9 @@ interface TelemetryContextType {
   allTurnsSoFar: ConversationTurn[];
   isPlaying: boolean;
   pacing: PacingOption;
+  currentView: 'landing' | 'console';
+  setCurrentView: (view: 'landing' | 'console') => void;
+  launchDemoScenario: (scenarioId?: string, tab?: NavigationTab) => void;
   activeTab: NavigationTab;
   setActiveTab: (tab: NavigationTab) => void;
   currentStepApiExchange: HttpApiExchange;
@@ -266,6 +269,9 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     detectDomainNodes,
     triggerPresetNodes
   } = useExecutionNodes();
+
+  // Top-Level View: Landing Page (default) vs Live Telemetry Console
+  const [currentView, setCurrentView] = useState<'landing' | 'console'>('landing');
 
   // Navigation & Modals (Defaults to Tab 1: Elder Screen)
   const [activeTab, setActiveTab] = useState<NavigationTab>('elder');
@@ -1107,9 +1113,22 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     return [];
   }, [conversationTurns, callStatus, isPlaying, scenarioTurnsSoFar]);
 
+  const launchDemoScenario = useCallback((scenarioId?: string, tab?: NavigationTab) => {
+    if (scenarioId) {
+      setScenarioById(scenarioId);
+    }
+    if (tab) {
+      setActiveTab(tab);
+    }
+    setCurrentView('console');
+  }, [setScenarioById]);
+
   return (
     <TelemetryContext.Provider
       value={{
+        currentView,
+        setCurrentView,
+        launchDemoScenario,
         seniorProfile,
         updateSeniorProfile,
         scenarios,

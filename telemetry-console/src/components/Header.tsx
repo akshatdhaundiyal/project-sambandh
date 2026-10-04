@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTelemetry } from '../context/TelemetryContext';
 import {
+  ArrowLeft,
   Columns2,
   Smartphone,
   ShieldCheck,
@@ -13,6 +14,7 @@ export const Header: React.FC = () => {
   const {
     activeTab,
     setActiveTab,
+    setCurrentView,
     callStatus,
     callDurationSeconds,
     openSettingsModal
@@ -29,8 +31,18 @@ export const Header: React.FC = () => {
       <div className="max-w-[1920px] mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4">
         {/* Top Row on Mobile / Left Section on Desktop */}
         <div className="flex items-center justify-between w-full md:w-auto">
-          {/* Brand Identity */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
+          {/* Brand Identity & Return to Overview */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              type="button"
+              onClick={() => setCurrentView('landing')}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#FAF4EC] hover:bg-[#F3EDE2] text-amber-950 font-semibold text-xs rounded-xl border border-amber-200/90 shadow-2xs transition-all cursor-pointer shrink-0 group"
+              title="Return to Public Landing Page & Pitch Overview"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-amber-800 transition-transform group-hover:-translate-x-0.5" />
+              <span>Overview</span>
+            </button>
+
             <div className="flex items-center gap-2 sm:gap-2.5">
               <img
                 src="/favicon.svg"
