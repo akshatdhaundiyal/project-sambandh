@@ -178,7 +178,7 @@ export const YouthWisdomPortal: React.FC = () => {
           </span>
           <span className="hidden md:inline-flex items-center gap-1 px-2.5 py-1 bg-stone-800/80 text-stone-300 rounded-lg border border-stone-700 text-[11px]">
             <ShieldCheck className="w-3 h-3 text-indigo-400" />
-            <span>Gemini 1.5 Flash Safety Gate</span>
+            <span>Gemini 3.5 Flash-Lite Safety Gate</span>
           </span>
         </div>
       </div>
@@ -439,7 +439,7 @@ export const YouthWisdomPortal: React.FC = () => {
                 </span>
               </h2>
               <p className="text-xs text-stone-500 mt-0.5">
-                Test both genuine engineering questions and predatory malicious questions against the Gemini 1.5 Flash Safety Gate.
+                Test both genuine engineering questions and predatory malicious questions against the Gemini 3.5 Flash-Lite Safety Gate.
               </p>
             </div>
             <span className="text-xs text-stone-400 font-mono hidden sm:inline">
@@ -659,7 +659,7 @@ export const YouthWisdomPortal: React.FC = () => {
             <div className="space-y-3.5">
               <div className="flex items-center justify-between px-1">
                 <span className="text-xs font-bold font-serif text-stone-900 uppercase tracking-wider text-[11px] text-stone-500">
-                  3. Gemini 1.5 Flash Safety Gate Telemetry
+                  3. Gemini 3.5 Flash-Lite Safety Gate Telemetry
                 </span>
                 <span className="text-[10px] font-mono text-stone-400">
                   Reviewed At: {activeMentorshipQuestion.reviewedAt || 'Evaluating...'}

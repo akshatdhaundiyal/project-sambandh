@@ -30,8 +30,8 @@ export const SUPPORTED_LLM_MODELS: LlmModelConfig[] = [
     contextWindow: '1M tokens'
   },
   {
-    id: 'gemini-1.5-pro',
-    name: 'Gemini 1.5 Pro',
+    id: 'gemini-3.5-pro',
+    name: 'Gemini 3.5 Pro',
     provider: 'gemini',
     costTier: 'Standard',
     costDescription: '$2.00 / 1M in',

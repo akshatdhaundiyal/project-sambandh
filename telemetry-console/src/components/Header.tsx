@@ -117,9 +117,14 @@ export const Header: React.FC = () => {
 
         {/* Right Section: Minimal Call Status & Unified Settings Action (Desktop Only) */}
         <div className="hidden md:flex items-center gap-2.5 shrink-0">
-          {/* Live Call Status Indicator */}
+          {/* Live Call Status Indicator (Clickable to jump to call) */}
           {callStatus === 'active' && (
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-900 rounded-xl border border-emerald-300 shadow-2xs animate-fadeIn">
+            <button
+              type="button"
+              onClick={() => setActiveTab('elder')}
+              className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100/80 text-emerald-900 rounded-xl border border-emerald-300 shadow-2xs animate-fadeIn cursor-pointer transition-all"
+              title="Jump to Live Call Screen"
+            >
               <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse shrink-0"></span>
               <span className="text-xs font-bold flex items-center gap-1">
                 <Radio className="w-3 h-3 text-emerald-700" />
@@ -128,7 +133,7 @@ export const Header: React.FC = () => {
               <span className="text-xs font-mono font-bold text-emerald-900 bg-emerald-100/90 px-1.5 py-0.5 rounded">
                 {formatTime(callDurationSeconds)}
               </span>
-            </div>
+            </button>
           )}
 
           {/* Unified Settings Button */}

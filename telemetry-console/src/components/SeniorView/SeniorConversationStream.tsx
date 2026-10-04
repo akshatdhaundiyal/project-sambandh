@@ -626,7 +626,7 @@ export const SeniorConversationStream: React.FC = () => {
                         {currentlySpeakingTurnId
                           ? 'Gnani.ai Indic Voice Speaking Aloud...'
                           : isAgentGenerating
-                          ? 'Companion Reasoning (Gemini 2.5)...'
+                          ? 'Companion Reasoning (Gemini 3.5 Flash-Lite)...'
                           : isListening
                           ? 'Listening to Ramesh Ji (बोलिए...)'
                           : isContinuousVoiceMuted
