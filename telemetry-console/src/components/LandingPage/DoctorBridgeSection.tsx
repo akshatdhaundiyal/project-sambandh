@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stethoscope, Sparkles, Volume2, CheckCircle2, FileText, ArrowRight, Play } from 'lucide-react';
+import { Stethoscope, Sparkles, Volume2, CheckCircle2, FileText, Lock, ShieldCheck } from 'lucide-react';
 import { useTelemetry } from '../../context/TelemetryContext';
 
 interface DoctorBridgeSectionProps {
@@ -15,127 +15,117 @@ export const DoctorBridgeSection: React.FC<DoctorBridgeSectionProps> = ({ curren
   };
 
   return (
-    <section id="doctor-bridge" className="py-16 sm:py-24 px-4 sm:px-6 bg-[#FAF8F5]">
-      <div className="max-w-7xl mx-auto space-y-12">
+    <section id="doctor-bridge" className="py-16 sm:py-20 px-4 sm:px-6 bg-[#FAF8F5]">
+      <div className="max-w-7xl mx-auto space-y-10">
         {/* Section Header */}
-        <div className="max-w-3xl mx-auto text-center space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 border border-purple-200 text-purple-950 text-xs font-bold font-sans">
-            <Stethoscope className="w-3.5 h-3.5 text-purple-700" />
-            <span>In-Clinic Doctor Consultation Bridge</span>
-          </div>
+        <div className="max-w-3xl mx-auto text-center space-y-2.5">
+          <span className="text-xs font-semibold text-purple-950 font-sans">
+            In-clinic hospital visit (Flow 4)
+          </span>
 
-          <h2 className="font-serif text-2xl sm:text-4xl font-bold text-stone-900 tracking-tight">
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
             {currentLang === 'hi'
-              ? 'डॉक्टर की हर बात—पिताजी के लिए सरल हिंदी में, आपके लिए स्पष्ट चेकलिस्ट में।'
-              : 'Translating confusing doctor visits into crystal-clear family care.'}
+              ? 'डॉक्टर की सलाह—सहमति के साथ रिकॉर्डिंग, स्पष्ट हिंदी में समझ।'
+              : 'Hospital visits with explicit doctor consent and clean transcripts.'}
           </h2>
 
-          <p className="font-sans text-sm sm:text-base text-stone-600 leading-relaxed">
+          <p className="font-sans text-xs sm:text-sm text-stone-600 leading-relaxed max-w-xl mx-auto">
             {currentLang === 'hi'
-              ? 'क्लिनिक में बुज़ुर्ग डॉक्टर की बात सुनकर हाँ कह देते हैं, पर बाहर आकर भूल जाते हैं। सम्बन्ध का एम्बिएंट ट्रांसक्राइबर हर निर्देश को सुरक्षित करता है।'
-              : 'Elders often nod politely during busy clinic visits but forget complex prescription changes. Sambandh listens ambiently and translates the visit into two simple outputs.'}
+              ? 'अस्पताल में एजेंट डॉक्टर से पहले अनुमति मांगता है। सहमति मिलने पर MedGemma पर्चे को पढ़कर मेडिकल रिकॉर्ड में दर्ज करता है और परिजनों को समरी भेजता है।'
+              : 'The agent asks the doctor for permission before recording. Prescriptions and reports are read by MedGemma directly into the parent\'s medical record.'}
           </p>
         </div>
 
-        {/* Transformation Flow Showcase */}
-        <div className="max-w-5xl mx-auto bg-white p-6 sm:p-10 rounded-3xl border border-[#E7E2DB] shadow-lg space-y-8">
-          {/* Top Banner: In-Room Capture */}
-          <div className="bg-[#FAF4EC] p-4 rounded-2xl border border-amber-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-stone-700">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-amber-800 text-white flex items-center justify-center font-bold">
+        {/* Doctor Bridge Card */}
+        <div className="max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-3xl border border-[#E7E2DB] shadow-sm space-y-6">
+          {/* Doctor Consent Step Banner */}
+          <div className="bg-[#FAF4EC] p-3.5 sm:p-4 rounded-2xl border border-amber-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-xl bg-purple-800 text-white flex items-center justify-center font-bold text-xs">
                 🩺
               </div>
               <div>
-                <strong className="text-stone-900 block">Ambient In-Room Consultation Capture</strong>
-                <span>Dr. Arvind Saxena (Cardiology) with Ramesh Uncle</span>
+                <strong className="text-stone-900 block">Step 1: Doctor Consent First</strong>
+                <span className="text-stone-600">
+                  "नमस्ते डॉक्टर साहब, क्या मैं परिवार के रिकॉर्ड के लिए यह बातचीत रिकॉर्ड कर सकता हूँ?"
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="font-mono text-stone-500">MedGemma 4B Clinical Transformer</span>
-            </div>
+            <span className="text-[11px] font-mono text-purple-900 bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-200 shrink-0">
+              MedGemma Clinical Engine
+            </span>
           </div>
 
-          {/* 2-Output Split: Left = Papa\'s Hindi Voice Guide, Right = Son\'s WhatsApp Action Checklist */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Output 1: Papa's Hindi Audio Guide */}
-            <div className="bg-[#FAF8F5] p-5 rounded-2xl border border-amber-200/80 space-y-3 flex flex-col justify-between">
-              <div className="space-y-2">
+          {/* 2 Outputs */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Papa\'s Hindi Voice Note */}
+            <div className="bg-[#FAF8F5] p-4 rounded-2xl border border-amber-200 space-y-2.5 flex flex-col justify-between">
+              <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-amber-950 flex items-center gap-1.5">
-                    <Volume2 className="w-4 h-4 text-amber-800" />
-                    <span>1. Papa's Hindi Voice Guide (Devanagari)</span>
+                  <span className="text-xs font-semibold text-amber-950 flex items-center gap-1.5">
+                    <Volume2 className="w-3.5 h-3.5 text-amber-800" />
+                    <span>Papa's Spoken Hindi Summary</span>
                   </span>
-                  <span className="text-[10px] font-mono bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full font-bold">
-                    Spoken Audio Note
+                  <span className="text-[10px] font-mono bg-amber-100 text-amber-900 px-2 py-0.5 rounded-md">
+                    Spoken note
                   </span>
                 </div>
 
-                <div className="p-3 bg-white rounded-xl border border-stone-200 space-y-2 text-xs">
-                  <p className="font-serif text-stone-900 leading-relaxed text-sm">
-                    "डॉक्टर साहब ने कहा कि बीपी 138/88 बिल्कुल सामान्य है। खाने में नमक थोड़ा कम रखना है और शाम को पार्क में 20 मिनट टहलना जारी रखें। रात को आधी गोली Glycomet 500 भोजन के बाद लेनी है।"
-                  </p>
-                </div>
+                <p className="font-serif text-stone-900 text-xs sm:text-sm leading-relaxed p-2.5 bg-white rounded-xl border border-stone-200">
+                  "डॉक्टर साहब ने कहा कि बीपी 138/88 स्थिर है। खाने में नमक कम रखना है और शाम को 20 मिनट टहलना जारी रखें। रात को आधी गोली Glycomet 500 भोजन के बाद लेनी है।"
+                </p>
               </div>
 
-              <div className="pt-2 flex items-center justify-between text-[11px] text-stone-500">
-                <span>Plays automatically on Papa's morning call</span>
-                <span className="text-emerald-700 font-bold">✓ Zero Medical Jargon</span>
-              </div>
+              <span className="text-[11px] text-stone-500">Plays on the next morning call</span>
             </div>
 
-            {/* Output 2: Son's WhatsApp Action Checklist */}
-            <div className="bg-[#EFEAE2] p-5 rounded-2xl border border-[#D5CFC6] space-y-3 flex flex-col justify-between">
-              <div className="space-y-2">
+            {/* Son\'s Action Checklist */}
+            <div className="bg-[#EFEAE2] p-4 rounded-2xl border border-[#D5CFC6] space-y-2.5 flex flex-col justify-between">
+              <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
-                    <FileText className="w-4 h-4 text-teal-700" />
-                    <span>2. Son's Actionable WhatsApp Checklist</span>
+                  <span className="text-xs font-semibold text-stone-900 flex items-center gap-1.5">
+                    <FileText className="w-3.5 h-3.5 text-teal-700" />
+                    <span>Caregiver Actionable Checklist</span>
                   </span>
-                  <span className="text-[10px] font-mono bg-white text-stone-700 px-2 py-0.5 rounded-full font-bold border border-stone-300">
-                    Instant Telegram/WA
+                  <span className="text-[10px] font-mono bg-white text-stone-700 px-2 py-0.5 rounded-md border border-stone-300">
+                    WhatsApp
                   </span>
                 </div>
 
-                <div className="p-3 bg-white rounded-xl border border-stone-200 space-y-2 text-xs text-stone-700">
-                  <div className="flex items-center justify-between font-bold text-stone-900 border-b border-stone-100 pb-1">
-                    <span>OPD Visit Summary: Dr. Saxena</span>
-                    <span className="text-emerald-700">Stable</span>
+                <div className="p-2.5 bg-white rounded-xl border border-stone-200 text-xs text-stone-700 space-y-1.5">
+                  <div className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <span><strong>Telma 40:</strong> Continued without change.</span>
                   </div>
-                  <ul className="space-y-1.5 text-[11px]">
-                    <li className="flex items-start gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                      <span><strong>Prescription Update:</strong> Telma 40 continued; Metformin 500mg halved.</span>
-                    </li>
-                    <li className="flex items-start gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0 mt-0.5" />
-                      <span><strong>Lab Scheduled:</strong> Lipid Profile test due in 3 weeks (Auto-booked).</span>
-                    </li>
-                  </ul>
+                  <div className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0 mt-0.5" />
+                    <span><strong>Metformin 500:</strong> Halved to 1/2 tablet BD.</span>
+                  </div>
+                  <div className="flex items-start gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-purple-600 shrink-0 mt-0.5" />
+                    <span><strong>Lipid Profile Lab:</strong> Due in 3 weeks.</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="pt-2 flex items-center justify-between text-[11px] text-stone-600">
-                <span>EHR synced to ABHA Health Locker</span>
-                <span className="font-bold text-teal-900">Rohan Approved</span>
-              </div>
+              <span className="text-[11px] text-stone-600">Saved to parent's medical record</span>
             </div>
           </div>
 
-          {/* Interactive Launcher */}
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-stone-200">
-            <p className="text-xs text-stone-600">
-              Try the live ambient listener with real clinical transcripts in the evaluation console.
-            </p>
+          {/* Test in Console Button */}
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-stone-200">
+            <span className="text-xs text-stone-600">
+              If the doctor refuses recording, the agent notes down what the parent remembers after the visit.
+            </span>
 
             <button
               type="button"
               onClick={handleOpenDoctorDemo}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#0057E7] hover:bg-[#0047C4] text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[#0057E7] hover:bg-[#0047C4] text-white font-medium text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>Try In-Clinic Transcriber Live ⚡</span>
+              <span>Test doctor bridge modal</span>
             </button>
           </div>
         </div>

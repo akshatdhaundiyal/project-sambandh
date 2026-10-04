@@ -6,51 +6,73 @@ import { DailyMomentsSection } from './DailyMomentsSection';
 import { DoctorBridgeSection } from './DoctorBridgeSection';
 import { JioAdvantageSection } from './JioAdvantageSection';
 import { FamilyStoriesSection } from './FamilyStoriesSection';
-import { PricingPlansSection } from './PricingPlansSection';
-import { SignUpSection } from './SignUpSection';
+import { LandingCTASection } from './LandingCTASection';
+import { SignUpModal } from './SignUpModal';
 import { LandingFooter } from './LandingFooter';
 
 export const LandingPage: React.FC = () => {
   const [currentLang, setCurrentLang] = useState<'en' | 'hi'>('en');
+  const [isSignUpModalOpen, setIsSignUpModalOpen] = useState<boolean>(false);
 
   const handleToggleLang = () => {
     setCurrentLang((prev) => (prev === 'en' ? 'hi' : 'en'));
   };
 
+  const handleOpenSignUp = () => {
+    setIsSignUpModalOpen(true);
+  };
+
+  const handleCloseSignUp = () => {
+    setIsSignUpModalOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-[#FAF8F5] text-stone-900 font-sans selection:bg-[#0057E7] selection:text-white antialiased overflow-x-hidden flex flex-col">
-      {/* Top Fixed Jio-Branded Navbar */}
-      <LandingNavbar currentLang={currentLang} onToggleLang={handleToggleLang} />
+      {/* Top Navbar */}
+      <LandingNavbar
+        currentLang={currentLang}
+        onToggleLang={handleToggleLang}
+        onOpenSignUp={handleOpenSignUp}
+      />
 
-      {/* Main Landing Content */}
+      {/* Main Narrative Flow */}
       <main className="flex-1 w-full">
-        {/* Section 1: Hero with Interactive Audio Player & Instant CTAs */}
-        <LandingHero currentLang={currentLang} />
+        {/* Section 1: Hero with Gnani Voice Player & Instant CTAs */}
+        <LandingHero
+          currentLang={currentLang}
+          onOpenSignUp={handleOpenSignUp}
+        />
 
-        {/* Section 2: The Dignity Gap (Why Old Apps Fail vs. Jio Sambandh) */}
+        {/* Section 2: How It Fits Together (Caregiver, Agent, Parent) */}
         <DignityGapSection currentLang={currentLang} />
 
-        {/* Section 3: 3 Everyday Moments (The Daily Care Loop) */}
+        {/* Section 3: The 6 Everyday Flows */}
         <DailyMomentsSection currentLang={currentLang} />
 
-        {/* Section 4: In-Clinic Doctor Consultation Bridge */}
+        {/* Section 4: In-Clinic Hospital Visit & Doctor Consent */}
         <DoctorBridgeSection currentLang={currentLang} />
 
-        {/* Section 5: The Reliance Jio Scale & Zero-Hardware Advantage */}
+        {/* Section 5: The Three Partner Rails (Gnani, Pine Labs, Delhivery) */}
         <JioAdvantageSection currentLang={currentLang} />
 
-        {/* Section 6: Real Testimonials from Indian Families */}
+        {/* Section 6: Real Family Stories */}
         <FamilyStoriesSection currentLang={currentLang} />
 
-        {/* Section 7: Transparent, Honest Pricing Plans */}
-        <PricingPlansSection currentLang={currentLang} />
-
-        {/* Section 8: Embedded Sign-Up & Parent Enrollment Card */}
-        <SignUpSection />
+        {/* Section 7: Final Conversion Section */}
+        <LandingCTASection
+          currentLang={currentLang}
+          onOpenSignUp={handleOpenSignUp}
+        />
       </main>
 
-      {/* Footer with Compliance & Quick Scenario Launchers */}
+      {/* Footer */}
       <LandingFooter />
+
+      {/* Sign-Up Modal Popup */}
+      <SignUpModal
+        isOpen={isSignUpModalOpen}
+        onClose={handleCloseSignUp}
+      />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { XCircle, CheckCircle2, HeartHandshake, ShieldAlert, Sparkles, Smile } from 'lucide-react';
+import { ShieldCheck, Heart, User, Sparkles, MessageCircle, Lock } from 'lucide-react';
 
 interface DignityGapSectionProps {
   currentLang: 'en' | 'hi';
@@ -7,129 +7,143 @@ interface DignityGapSectionProps {
 
 export const DignityGapSection: React.FC<DignityGapSectionProps> = ({ currentLang }) => {
   return (
-    <section id="dignity-gap" className="py-16 sm:py-24 px-4 sm:px-6 bg-[#F5F2EC] border-y border-[#E7E2DB]">
-      <div className="max-w-7xl mx-auto space-y-12">
-        {/* Section Header */}
-        <div className="max-w-3xl mx-auto text-center space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 border border-amber-200 text-amber-950 text-xs font-bold font-sans">
-            <HeartHandshake className="w-3.5 h-3.5 text-amber-700" />
-            <span>The Dignity Gap</span>
-          </div>
+    <section id="how-it-fits" className="py-16 sm:py-20 px-4 sm:px-6 bg-[#F5F2EC] border-y border-[#E7E2DB]">
+      <div className="max-w-7xl mx-auto space-y-10">
+        {/* Section Title */}
+        <div className="max-w-3xl mx-auto text-center space-y-2.5">
+          <span className="text-xs font-semibold text-amber-950 font-sans">
+            How it fits together
+          </span>
 
-          <h2 className="font-serif text-2xl sm:text-4xl font-bold text-stone-900 tracking-tight">
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
             {currentLang === 'hi'
-              ? 'बुज़ुर्गों को दवा का अलार्म नहीं, अपनेपन और सम्मान की जरूरत है।'
-              : 'Parents don’t reject medicines. They reject feeling like patients.'}
+              ? 'व्यस्त बेटे-बेटी और माता-पिता के बीच का आत्मीय सेतु।'
+              : 'The agent sits between a busy caregiver and their parent.'}
           </h2>
 
-          <p className="font-sans text-sm sm:text-base text-stone-600 leading-relaxed">
+          <p className="font-sans text-xs sm:text-sm text-stone-600 leading-relaxed max-w-xl mx-auto">
             {currentLang === 'hi'
-              ? 'डिजिटल स्वास्थ्य ऐप्स इसलिए असफल होते हैं क्योंकि वे 70 वर्षीय माता-पिता को बच्चों की तरह ट्रीट करते हैं। सम्बन्ध इस सोच को बदलता है।'
-              : 'Traditional health apps fail because they treat 70-year-old respected patriarchs and matriarchs like helpless children. Jio Sambandh inverts this completely.'}
+              ? 'देखभाल करने वाले नियम तय करते हैं और माता-पिता सामान्य रूप से बात करते हैं। एजेंट केवल आपकी सहमति से ही कदम उठाता है।'
+              : 'The caregiver sets the rules and the parent simply talks; the agent does everything else by calling its partners, only on the caregiver\'s approval.'}
           </p>
         </div>
 
-        {/* Side-by-Side Comparison Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
-          {/* Left Column: Old Nanny-Ware Apps */}
-          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-rose-200 shadow-sm relative space-y-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600">
-                <XCircle className="w-6 h-6" />
+        {/* 3-Pillar Architectural Diagram from Document */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto items-stretch">
+          {/* Box 1: Caregiver (The Customer) */}
+          <div className="bg-white p-5 sm:p-6 rounded-3xl border border-[#E7E2DB] shadow-2xs space-y-3 flex flex-col justify-between">
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center text-amber-900 font-bold text-xs">
+                  1
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-stone-900">Caregiver (Son / Daughter)</h3>
+                  <span className="text-[11px] text-stone-500">Sets rules, approves spends, gets updates</span>
+                </div>
               </div>
-              <div>
-                <h3 className="text-base font-bold text-stone-900">Traditional "Nanny-Ware" Apps</h3>
-                <span className="text-xs text-rose-700 font-medium">Why 75% of elders abandon them</span>
-              </div>
+
+              <ul className="space-y-2 text-xs text-stone-700 pt-2 border-t border-stone-100">
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-700 font-bold">·</span>
+                  <span>Sets call times, frequency, and rupee limits</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-700 font-bold">·</span>
+                  <span>Approves medicine reorders, flowers, and prasadam</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-700 font-bold">·</span>
+                  <span>Receives daily updates, alerts, and visit transcripts</span>
+                </li>
+              </ul>
             </div>
 
-            <div className="space-y-4 text-xs sm:text-sm text-stone-700">
-              <div className="flex items-start gap-3">
-                <span className="text-rose-600 font-bold text-base shrink-0 mt-0.5">✕</span>
-                <div>
-                  <strong className="text-stone-900">Humiliating Alarms & Gadgets:</strong> Smart pill dispensers that beep annoyingly make parents feel monitored and infantalized.
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <span className="text-rose-600 font-bold text-base shrink-0 mt-0.5">✕</span>
-                <div>
-                  <strong className="text-stone-900">App Fatigue & Screen Clutter:</strong> 12 confusing screens, forgotten passwords, and tiny fonts that cause frustration.
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <span className="text-rose-600 font-bold text-base shrink-0 mt-0.5">✕</span>
-                <div>
-                  <strong className="text-stone-900">The Daily Interrogation Call:</strong> Calling everyday with <em>"Papa did you take medicine?"</em> triggers guilt, defensiveness, and false compliance.
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <span className="text-rose-600 font-bold text-base shrink-0 mt-0.5">✕</span>
-                <div>
-                  <strong className="text-stone-900">Zero Emotional Value:</strong> Ignores the real root problem—isolation, loneliness, and loss of purpose.
-                </div>
-              </div>
-            </div>
-
-            <div className="p-3 bg-rose-50/70 rounded-2xl border border-rose-100 text-xs text-rose-900 italic">
-              "When my son calls just to ask about pills, it feels like I am only an errand on his to-do list."
+            <div className="p-2.5 bg-stone-50 rounded-xl text-[11px] text-stone-600 border border-stone-200">
+              Meets agent via: <strong>Caregiver Telegram / WhatsApp</strong>
             </div>
           </div>
 
-          {/* Right Column: The Jio Sambandh Way */}
-          <div className="bg-[#FAF8F5] p-6 sm:p-8 rounded-3xl border-2 border-emerald-300 shadow-md relative space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-100 border border-emerald-200 flex items-center justify-center text-emerald-800">
-                  <CheckCircle2 className="w-6 h-6" />
+          {/* Box 2: Voice Agent (The Extended Arm) */}
+          <div className="bg-[#FAF8F5] p-5 sm:p-6 rounded-3xl border-2 border-amber-300 shadow-sm space-y-3 flex flex-col justify-between">
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-amber-800 text-white flex items-center justify-center font-bold text-xs">
+                  2
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-stone-900">The Jio Sambandh Promise</h3>
-                  <span className="text-xs text-emerald-800 font-bold">Companion First · Health Ambiently</span>
+                  <h3 className="text-sm font-bold text-stone-900">Jio × Sambandh Voice Agent</h3>
+                  <span className="text-[11px] text-amber-950 font-medium">Obeys rules & guardrails</span>
                 </div>
               </div>
 
-              <span className="text-[10px] font-mono font-bold bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded-full">
-                Zero Friction
-              </span>
+              <ul className="space-y-2 text-xs text-stone-800 pt-2 border-t border-amber-200/80">
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-800 font-bold">·</span>
+                  <span>Strict guardrails on advice (never diagnoses)</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-800 font-bold">·</span>
+                  <span>Tone & wellbeing sensing for mood and lucidity</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-amber-800 font-bold">·</span>
+                  <span>Maintains memory: profile, medicines, reports, life archive</span>
+                </li>
+              </ul>
             </div>
 
-            <div className="space-y-4 text-xs sm:text-sm text-stone-700">
-              <div className="flex items-start gap-3">
-                <span className="text-emerald-700 font-bold text-base shrink-0 mt-0.5">✓</span>
-                <div>
-                  <strong className="text-stone-900">100% Voice on Regular Phone:</strong> Works over ordinary phone lines on any phone (JioPhone, basic keypad, landline, smartphone).
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <span className="text-emerald-700 font-bold text-base shrink-0 mt-0.5">✓</span>
-                <div>
-                  <strong className="text-stone-900">Morning Chai & Life Banter:</strong> Opens with local news, morning sunshine, and asking for their lifetime advice and mentorship.
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <span className="text-emerald-700 font-bold text-base shrink-0 mt-0.5">✓</span>
-                <div>
-                  <strong className="text-stone-900">Dignity-Preserving Health Check:</strong> Medication adherence is confirmed organically during tea conversation without clinical pressure.
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <span className="text-emerald-700 font-bold text-base shrink-0 mt-0.5">✓</span>
-                <div>
-                  <strong className="text-stone-900">Automated Caregiver Reassurance:</strong> Refills arrive at doorstep automatically; child receives a 30-second WhatsApp digest.
-                </div>
-              </div>
-            </div>
-
-            <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs text-emerald-950 font-medium">
-              "It feels like a loving daughter calling every morning to ask how my day is going."
+            <div className="p-2.5 bg-amber-100/70 rounded-xl text-[11px] text-amber-950 border border-amber-200">
+              Zero apps required for parents: <strong>PSTN / VoLTE Phone</strong>
             </div>
           </div>
+
+          {/* Box 3: Elderly Parent */}
+          <div className="bg-white p-5 sm:p-6 rounded-3xl border border-[#E7E2DB] shadow-2xs space-y-3 flex flex-col justify-between">
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-teal-100 flex items-center justify-center text-teal-900 font-bold text-xs">
+                  3
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-stone-900">Elderly Parent</h3>
+                  <span className="text-[11px] text-stone-500">The person the agent talks to</span>
+                </div>
+              </div>
+
+              <ul className="space-y-2 text-xs text-stone-700 pt-2 border-t border-stone-100">
+                <li className="flex items-start gap-2">
+                  <span className="text-teal-700 font-bold">·</span>
+                  <span>Gets warm check-in calls in native Hindi / vernacular</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-teal-700 font-bold">·</span>
+                  <span>Dials in anytime to chat or request OTC medicine</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-teal-700 font-bold">·</span>
+                  <span>Answers questions from young people on retired career</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="p-2.5 bg-stone-50 rounded-xl text-[11px] text-stone-600 border border-stone-200">
+              Meets agent via: <strong>Regular Incoming Phone Calls</strong>
+            </div>
+          </div>
+        </div>
+
+        {/* Privacy & Human Contact Guarantee */}
+        <div className="max-w-3xl mx-auto bg-white p-4 rounded-2xl border border-stone-200 text-center text-xs text-stone-700 flex flex-col sm:flex-row items-center justify-around gap-3">
+          <span className="flex items-center gap-1.5 font-medium">
+            <Heart className="w-4 h-4 text-amber-800" />
+            <span>Human contact first: never replaces family calls</span>
+          </span>
+          <span className="text-stone-300 hidden sm:inline">|</span>
+          <span className="flex items-center gap-1.5 font-medium">
+            <Lock className="w-4 h-4 text-teal-700" />
+            <span>What parent confides stays private</span>
+          </span>
         </div>
       </div>
     </section>
