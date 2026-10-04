@@ -1,11 +1,13 @@
-import { useState, useRef, useMemo, useCallback } from 'react';
+import { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import {
   ConversationTurn,
   LlmModelConfig,
   ElderTopicOfInterest,
   PromptSliceStatus,
   MentorshipExchangeItem,
-  InventoryOrder
+  InventoryOrder,
+  MedicationApprovalRequest,
+  MedicationItem
 } from '../types/telemetry';
 import { DEFAULT_MODEL_ID, SUPPORTED_LLM_MODELS } from '../data/models';
 import { INITIAL_ELDER_TOPICS, getRandomCompanionGreeting } from '../data/conversationalSparks';
@@ -25,17 +27,22 @@ import {
   DEFAULT_DYNAMIC_PROFILE
 } from '../services/promptBuilder';
 import { healthLockerService } from '../services/healthLockerService';
+import { gnaniAudioPlayer } from '../utils/gnaniVoiceService';
 
 interface UseConversationEngineProps {
   autoSpeak: boolean;
   speakSeniorTurns: boolean;
   speakTurn: (turn: ConversationTurn) => void;
+  stopActiveSpeech?: () => void;
+  currentlySpeakingTurnId?: string | null;
   orderTotalLimitInr: number;
   activeMentorshipQuestion?: MentorshipExchangeItem | null;
   seniorProfile?: DynamicElderProfile;
+  activeMolecules?: MedicationItem[];
   onFeedbackToast: (message: string) => void;
   onDeductCashWallet: (amountInr: number, reason: string) => void;
   onAddInventoryOrder: (order: InventoryOrder) => void;
+  onRequestMedicationApproval?: (req: Partial<MedicationApprovalRequest>) => void;
   createLlmNode: (model: string, latencyMs: number, prompt: string, response: string) => ToolExecutionNode;
   createHealthLockerNodes: (query: string, latencyMs: number, analysis: string) => ToolExecutionNode[];
   detectDomainNodes: (text: string, orderTotalLimitInr?: number) => ToolExecutionNode[];
@@ -47,12 +54,16 @@ export const useConversationEngine = ({
   autoSpeak,
   speakSeniorTurns,
   speakTurn,
+  stopActiveSpeech,
+  currentlySpeakingTurnId,
   orderTotalLimitInr,
   activeMentorshipQuestion,
   seniorProfile = DEFAULT_DYNAMIC_PROFILE,
+  activeMolecules = [],
   onFeedbackToast,
   onDeductCashWallet,
   onAddInventoryOrder,
+  onRequestMedicationApproval,
   createLlmNode,
   createHealthLockerNodes,
   detectDomainNodes,
@@ -61,9 +72,16 @@ export const useConversationEngine = ({
 }: UseConversationEngineProps) => {
   const [selectedModelId, setSelectedModelId] = useState<string>(DEFAULT_MODEL_ID);
   const [conversationTurns, setConversationTurns] = useState<ConversationTurn[]>([]);
+  const conversationTurnsRef = useRef<ConversationTurn[]>([]);
   const [foldedMemory, setFoldedMemory] = useState<string>(() => buildMemoryLedgerFromProfile(seniorProfile));
+  const [isAgentGenerating, setIsAgentGenerating] = useState<boolean>(false);
   const turnsSinceFoldRef = useRef<number>(0);
   const callTurnCountRef = useRef<number>(0);
+
+  // Synchronize ref on every state change to eliminate stale closure bugs
+  useEffect(() => {
+    conversationTurnsRef.current = conversationTurns;
+  }, [conversationTurns]);
 
   // Elder Topics of Interest Pool (Caregiver-Curated + Autonomously Discovered)
   const [elderTopics, setElderTopics] = useState<ElderTopicOfInterest[]>(() => {
@@ -136,6 +154,7 @@ export const useConversationEngine = ({
 
   const initiateCallGreeting = useCallback((browserTts: boolean) => {
     callTurnCountRef.current = 0;
+    turnsSinceFoldRef.current = 0;
     setActivePromptSlices({
       coreCompanion: true,
       subtleAdherence: false,
@@ -154,6 +173,7 @@ export const useConversationEngine = ({
       content: randomGreeting.fullTurnText
     };
 
+    conversationTurnsRef.current = [greetingTurn];
     setConversationTurns([greetingTurn]);
     seedInitialCallNode(browserTts);
 
@@ -163,6 +183,7 @@ export const useConversationEngine = ({
   }, [autoSpeak, speakTurn, seedInitialCallNode]);
 
   const resetConversation = useCallback(() => {
+    conversationTurnsRef.current = [];
     setConversationTurns([]);
     callTurnCountRef.current = 0;
     turnsSinceFoldRef.current = 0;
@@ -182,6 +203,67 @@ export const useConversationEngine = ({
   ) => {
     if (!content.trim()) return;
 
+    // 1. Acoustic Barge-in Interruption Detection (<50ms cutoff)
+    let bargeInDirective: string | null = null;
+    const isCompanionSpeaking = Boolean(currentlySpeakingTurnId) || gnaniAudioPlayer.isAudioActive();
+
+    if (speaker === 'senior' && isCompanionSpeaking) {
+      // Instantly cut off ongoing companion speech
+      if (stopActiveSpeech) {
+        stopActiveSpeech();
+      } else {
+        gnaniAudioPlayer.instantCutoff('senior_barge_in');
+      }
+
+      // Find the turn that was interrupted
+      const interruptedTurn = currentlySpeakingTurnId
+        ? conversationTurnsRef.current.find(t => t.id === currentlySpeakingTurnId)
+        : [...conversationTurnsRef.current].reverse().find(t => t.speaker === 'agent');
+
+      const interruptedText = interruptedTurn ? interruptedTurn.content : '';
+
+      bargeInDirective = `[CONVERSATIONAL BARGE-IN EVENT]:
+Ramesh Uncle interjected while you were in the middle of speaking.
+What you were saying before the interruption was: "${interruptedText}".
+What Ramesh Uncle just said is: "${content.trim()}".
+Instructions for your response:
+1. Act naturally and warmly like a loving, attentive niece/daughter.
+2. Acknowledge what Ramesh Uncle just said and directly respond to his point or question first.
+3. If what you were originally saying is still relevant and helpful, seamlessly transition back to it or wrap it up. If his point made it irrelevant, just focus on his new point.
+4. Keep tone affectionate, respectful, and grounded in conversational Hindi.`;
+
+      // Log Telemetry Node for Acoustic Barge-In
+      const bargeInNode: ToolExecutionNode = {
+        id: `node-barge-in-${Date.now()}`,
+        stepIndex: conversationTurnsRef.current.length,
+        nodeType: 'telephony',
+        brandName: 'Gnani.ai Full-Duplex',
+        toolName: 'acoustic_barge_in_detector',
+        title: '⚡ Acoustic Barge-In (<50ms Cutoff)',
+        actionSummary: `Senior interjected while companion was speaking. Companion audio halted immediately. Contextual pivot injected into Gemini 3.5 Flash-Lite reasoning pipeline.`,
+        timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
+        status: 'SUCCESS',
+        statusCode: 'BARGE_IN_TRIGGERED',
+        latencyMs: 28,
+        apiExchange: {
+          railName: 'Gnani Full-Duplex Telephony Protocol',
+          method: 'POST',
+          endpoint: '/v2/telephony/barge-in/cutoff',
+          headers: { 'X-Telephony-Channel': 'Full-Duplex-BargeIn' },
+          requestBody: { interrupter: 'senior', interruptedSpeaker: 'companion', interruptedThought: interruptedText },
+          responseStatus: 200,
+          responseStatusText: 'OK',
+          responseLatencyMs: 28,
+          responseHeaders: { 'Content-Type': 'application/json' },
+          responseBody: { status: 'AUDIO_HALTED', latencyMs: 28, pivotDirective: 'INJECTED' },
+          schemaStandard: 'Gnani Indic Telephony Standard v2'
+        },
+        reasoningSnippet: `[BARGE-IN]: Ramesh Uncle interrupted companion speech. Audio buffer aborted in 28ms. Prompt updated to acknowledge interjection before resuming.`,
+        brandColor: '#F59E0B'
+      };
+      addUniqueNodes([bargeInNode]);
+    }
+
     const newTurn: ConversationTurn = {
       id: `custom-turn-${Date.now()}`,
       timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
@@ -191,20 +273,25 @@ export const useConversationEngine = ({
       content: content.trim()
     };
 
-    setConversationTurns(prev => {
-      const updated = [...prev, newTurn];
+    // Update conversation history in ref and state
+    const updated = [...conversationTurnsRef.current, newTurn];
+    conversationTurnsRef.current = updated;
+    setConversationTurns(updated);
 
-      // Progressive Memory Folding: Compress conversation history every 4 turns
+    // 10-Turn Verbatim Retention & Compaction Policy:
+    // Turns 1-10 are 100% verbatim.
+    // When dialogue turns exceed 10, fold earlier turns into foldedMemory ledger
+    // while keeping the most recent 8 turns completely verbatim in prompt.
+    const allDialogueList = updated.filter(t => t.speaker === 'senior' || t.speaker === 'agent');
+    if (allDialogueList.length > 10 && turnsSinceFoldRef.current >= 3) {
+      const olderTurnsToFold = allDialogueList.slice(0, -8);
+      foldConversationMemory(olderTurnsToFold, foldedMemory).then(folded => {
+        setFoldedMemory(folded);
+        turnsSinceFoldRef.current = 0;
+      });
+    } else {
       turnsSinceFoldRef.current += 1;
-      if (turnsSinceFoldRef.current >= 4) {
-        foldConversationMemory(updated, foldedMemory).then(folded => {
-          setFoldedMemory(folded);
-          turnsSinceFoldRef.current = 0;
-        });
-      }
-
-      return updated;
-    });
+    }
 
     // Audio Read-Out Policy
     if (speaker === 'senior') {
@@ -219,6 +306,7 @@ export const useConversationEngine = ({
 
     // Agent response generation for senior input
     if (speaker === 'senior') {
+      setIsAgentGenerating(true);
       callTurnCountRef.current += 1;
       const lower = content.toLowerCase();
 
@@ -293,7 +381,7 @@ export const useConversationEngine = ({
         addUniqueNodes([
           {
             id: `node-topic-${Date.now()}`,
-            stepIndex: conversationTurns.length,
+            stepIndex: conversationTurnsRef.current.length,
             nodeType: 'caregiver',
             brandName: 'Cognitive Memory',
             toolName: 'topic_extraction_engine',
@@ -323,28 +411,37 @@ export const useConversationEngine = ({
       }
 
       // Build JIT modular system prompt (avoids upfront bloat & early escalation)
-      const { prompt: systemPrompt, activeSlices } = buildJitSystemPrompt(
+      const { prompt: baseSystemPrompt, activeSlices } = buildJitSystemPrompt(
         foldedMemory,
         callTurnCountRef.current,
         content,
         elderTopics,
         activeMentorshipQuestion,
         seniorProfile,
-        orderTotalLimitInr
+        orderTotalLimitInr,
+        [],
+        activeMolecules
       );
       setActivePromptSlices(activeSlices);
 
-      const allDialogueTurns: ChatMessage[] = [
-        ...conversationTurns
-          .filter(t => t.speaker === 'senior' || t.speaker === 'agent')
-          .map(t => ({
-            role: t.speaker === 'senior' ? ('user' as const) : ('assistant' as const),
-            content: t.content
-          })),
-        { role: 'user' as const, content: content.trim() }
-      ];
+      const systemPrompt = bargeInDirective
+        ? `${baseSystemPrompt}\n\n${bargeInDirective}`
+        : baseSystemPrompt;
+
+      // Dialogue Turns for LLM:
+      // If total dialogue turns > 10, keep latest 8 turns verbatim.
+      // Otherwise keep all past dialogue turns verbatim.
+      // Notice: `updated` already includes `newTurn` as its final item!
+      const pastDialogueList = conversationTurnsRef.current.filter(t => t.speaker === 'senior' || t.speaker === 'agent');
+      const recentVerbatim = pastDialogueList.length > 10 ? pastDialogueList.slice(-8) : pastDialogueList;
+
+      const allDialogueTurns: ChatMessage[] = recentVerbatim.map(t => ({
+        role: t.speaker === 'senior' ? ('user' as const) : ('assistant' as const),
+        content: t.content
+      }));
 
       const handleAgentInference = (result: any) => {
+        setIsAgentGenerating(false);
         if (result?.text) {
           const modelDisplayName = result.modelUsed || selectedModelConfig.name;
           const isFailover = Boolean(result.isFailover);
@@ -363,6 +460,9 @@ export const useConversationEngine = ({
             isFailover,
             providerBadge: effectiveBadge
           };
+
+          // Synchronously update ref & state
+          conversationTurnsRef.current = [...conversationTurnsRef.current, agentTurn];
           setConversationTurns(prev => [...prev, agentTurn]);
 
           // Dynamically log Cognitive Reasoning Node + Domain Rails
@@ -371,8 +471,22 @@ export const useConversationEngine = ({
           const hlNodes = isClinicalQuery ? createHealthLockerNodes(content, 184, result.text) : [];
           addUniqueNodes([llmNode, ...domainNodes, ...hlNodes]);
 
-          // If medication fulfillment cascade was triggered (and within cap), register order and debit
-          if (domainNodes.some(n => n.nodeType === 'pharmacy')) {
+          // If medication approval gate was triggered, dispatch approval request to caregiver Priya
+          if (
+            domainNodes.some(n => n.statusCode === 'AWAITING APPROVAL') ||
+            result?.functionCalls?.some((f: any) => f.name === 'request_medication_refill')
+          ) {
+            const funcCall = result?.functionCalls?.find((f: any) => f.name === 'request_medication_refill');
+            const args = funcCall?.args || {};
+            onRequestMedicationApproval?.({
+              medicationName: args.medication_name || 'Telma 40mg (Telmisartan)',
+              dosage: args.dosage || '40mg',
+              units: args.quantity_tablets || 30,
+              costInr: args.estimated_cost_inr || 840,
+              reason: args.reason || "Papa reported only 2 days of BP medication remaining in morning check-in call."
+            });
+            onFeedbackToast("🔔 Caregiver Gate: Approval request dispatched to Priya Sharma's phone & Telegram.");
+          } else if (domainNodes.some(n => n.nodeType === 'pharmacy')) {
             onDeductCashWallet(840, 'Pine Labs Auto-Debit: Telma 40 Refill via Netmeds');
             onAddInventoryOrder({
               id: `order-nmd-${Date.now()}`,
@@ -407,6 +521,7 @@ export const useConversationEngine = ({
         callOpenRouter(selectedModelId, allDialogueTurns, systemPrompt)
           .then(handleAgentInference)
           .catch(err => {
+            setIsAgentGenerating(false);
             console.warn('[OpenRouter] Live inference fallback:', err);
             const fallbackText = generateContextualCompanionResponse(content, allDialogueTurns, foldedMemory);
             handleAgentInference({
@@ -419,6 +534,7 @@ export const useConversationEngine = ({
         callGemini(selectedModelId, allDialogueTurns, systemPrompt)
           .then(handleAgentInference)
           .catch(err => {
+            setIsAgentGenerating(false);
             console.warn('[Gemini] Live inference fallback:', err);
             const fallbackText = generateContextualCompanionResponse(content, allDialogueTurns, foldedMemory);
             handleAgentInference({
@@ -433,6 +549,8 @@ export const useConversationEngine = ({
     autoSpeak,
     speakSeniorTurns,
     speakTurn,
+    stopActiveSpeech,
+    currentlySpeakingTurnId,
     elderTopics,
     addElderTopic,
     foldedMemory,
@@ -459,9 +577,11 @@ export const useConversationEngine = ({
       turnCountOverride ?? callTurnCountRef.current,
       recentText,
       seniorProfile,
-      orderTotalLimitInr
+      orderTotalLimitInr,
+      [],
+      activeMolecules
     );
-  }, [foldedMemory, seniorProfile, orderTotalLimitInr]);
+  }, [foldedMemory, seniorProfile, orderTotalLimitInr, activeMolecules]);
 
   return {
     selectedModelId,
@@ -481,6 +601,7 @@ export const useConversationEngine = ({
     injectCustomTurn,
     resetConversation,
     getSystemPromptSnapshot,
+    isAgentGenerating,
     callTurnCount: callTurnCountRef.current
   };
 };

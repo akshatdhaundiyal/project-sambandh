@@ -87,7 +87,14 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
     consultationSession,
     openConsultationModal,
     startDoctorConsultation,
-    toggleCaregiverAttendance
+    toggleCaregiverAttendance,
+    pendingMedicationApproval,
+    approveMedicationOrder,
+    declineMedicationOrder,
+    resetMedicationApproval,
+    dispatchTelegramCareBriefing,
+    latestCallSummary,
+    isGeneratingSummary
   } = useTelemetry();
 
   const profile = activeScenario.initialSeniorProfile;
@@ -102,13 +109,14 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
       setIsPlayingSummaryAudio(false);
     } else {
       setIsPlayingSummaryAudio(true);
+      const audioText = latestCallSummary?.audioTranscript || 'बेटा, 1982 में जब हम दिल्ली डिवीजन में सिग्नल इंस्पेक्टर थे... उस समय मैकेनिकल लीवर फ्रेम हुआ करता था। हाथ से खींचना पड़ता था भारी लीवर।';
       speakTurn({
         id: 'caregiver-summary-audio',
-        timestamp: '08:34 IST',
+        timestamp: latestCallSummary?.time || '08:34 IST',
         speaker: 'senior',
         lane: 'lane1',
         speakerLabel: 'Ramesh Chandra (Papa)',
-        content: 'बेटा, 1982 में जब हम दिल्ली डिवीजन में सिग्नल इंस्पेक्टर थे... उस समय मैकेनिकल लीवर फ्रेम हुआ करता था। हाथ से खींचना पड़ता था भारी लीवर।'
+        content: audioText
       });
       setTimeout(() => {
         setIsPlayingSummaryAudio(false);
@@ -296,6 +304,15 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
             </div>
 
             <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => dispatchTelegramCareBriefing()}
+                title="Live Telegram Care Channel · Click to test push to @Priya"
+                className="flex items-center gap-1 text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-sky-50 text-sky-800 border border-sky-200 cursor-pointer hover:bg-sky-100 transition-colors shadow-2xs"
+              >
+                <span>✈️</span>
+                <span>TG LIVE</span>
+              </button>
               <div 
                 title={dbHealth?.connected ? `Connected to PostgreSQL (${dbHealth.engine} on ${dbHealth.host})` : 'PostgreSQL Database Synchronized'}
                 className="flex items-center gap-1 text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200"
@@ -402,6 +419,142 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                   </div>
                 )}
 
+                {/* 1.5. HUMAN-IN-THE-LOOP CAREGIVER MEDICATION APPROVAL ALERT CARD */}
+                {pendingMedicationApproval?.status === 'AWAITING_APPROVAL' && (
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-50/95 via-white to-orange-50/80 border-2 border-amber-300 space-y-3 shadow-md animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="font-bold text-amber-950 flex items-center gap-1.5">
+                        <span className="relative flex h-2.5 w-2.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-600"></span>
+                        </span>
+                        <span className="font-serif tracking-tight text-xs font-bold">Action Required: Medication Refill Approval</span>
+                      </span>
+                      <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                        1-TAP GATE
+                      </span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-white/95 border border-amber-200 space-y-2">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+                            <Pill className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <div className="text-xs font-bold text-stone-900">
+                              {pendingMedicationApproval.medicationName}
+                            </div>
+                            <div className="text-[10px] text-stone-500 font-mono">
+                              Strength: {pendingMedicationApproval.dosage} · Quantity: {pendingMedicationApproval.units} Tablets
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs font-bold text-stone-900 font-mono">
+                            ₹{pendingMedicationApproval.costInr}
+                          </div>
+                          <div className="text-[9px] text-emerald-700 font-medium">
+                            Wallet: ₹{cashWallet.balanceInr}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="text-[11px] text-stone-600 bg-amber-50/60 p-2 rounded-lg border border-amber-100/70 leading-snug">
+                        <span className="font-semibold text-amber-900">Reason: </span>
+                        {pendingMedicationApproval.reason}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-[10px] text-stone-600 pt-0.5">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-stone-400 shrink-0" />
+                          <span className="truncate">{pendingMedicationApproval.vendor}</span>
+                        </div>
+                        <div className="flex items-center gap-1 justify-end font-medium text-red-700">
+                          <Truck className="w-3 h-3 text-red-600 shrink-0" />
+                          <span>Delhivery (ETA: 4:00 PM)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 pt-0.5">
+                      <button
+                        type="button"
+                        onClick={() => approveMedicationOrder(pendingMedicationApproval.id)}
+                        className="py-2 px-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-[11px] flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-sm hover:shadow active:scale-98"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>✓ Approve & Order (₹{pendingMedicationApproval.costInr})</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => declineMedicationOrder(pendingMedicationApproval.id)}
+                        className="py-2 px-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold text-[11px] flex items-center justify-center gap-1 cursor-pointer transition-colors border border-stone-300"
+                      >
+                        <X className="w-3.5 h-3.5 text-stone-500" />
+                        <span>✕ Decline Refill</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* 1.6. ACTIVE ORDER & LIVE COURIER TRACKING CARD (POST-APPROVAL) */}
+                {pendingMedicationApproval?.status === 'APPROVED' && (
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-50/90 via-white to-teal-50/70 border-2 border-emerald-300 space-y-2.5 shadow-xs animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="font-bold text-emerald-950 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span className="font-serif tracking-tight text-xs font-bold">Medication Order Dispatched</span>
+                      </span>
+                      <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        {pendingMedicationApproval.orderId || 'NMD-DEL-98421'}
+                      </span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-white border border-emerald-200 space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-stone-900">{pendingMedicationApproval.medicationName}</span>
+                        <span className="font-mono font-bold text-emerald-700">₹{pendingMedicationApproval.costInr} Paid</span>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[10px] text-stone-600 bg-stone-50 p-1.5 rounded-lg border border-stone-200">
+                        <span className="flex items-center gap-1">
+                          <Truck className="w-3 h-3 text-red-600" />
+                          <span className="font-mono font-bold">{pendingMedicationApproval.trackingWaybill || 'DLV-98234-DEL'}</span>
+                        </span>
+                        <span className="font-semibold text-stone-900">ETA: {pendingMedicationApproval.deliveryEta || 'Today by 4:00 PM'}</span>
+                      </div>
+
+                      {/* Mini Live Tracking Stepper */}
+                      <div className="grid grid-cols-4 gap-1 text-[8px] text-center pt-1 font-medium">
+                        <div className="p-1 rounded bg-emerald-100 text-emerald-900 font-bold border border-emerald-300">
+                          ✓ Ordered
+                        </div>
+                        <div className="p-1 rounded bg-emerald-100 text-emerald-900 font-bold border border-emerald-300">
+                          ✓ Packed
+                        </div>
+                        <div className="p-1 rounded bg-amber-100 text-amber-900 font-bold border border-amber-300 animate-pulse">
+                          🚚 In Transit
+                        </div>
+                        <div className="p-1 rounded bg-stone-100 text-stone-400">
+                          Delivered
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[10px] pt-0.5">
+                      <span className="text-stone-500 italic">Papa verbally comforted in active call</span>
+                      <button
+                        type="button"
+                        onClick={() => resetMedicationApproval()}
+                        className="text-stone-400 hover:text-stone-700 underline cursor-pointer text-[9px]"
+                      >
+                        Dismiss
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {/* 2. Daily Call Summary & Family Briefing Card (Click to open History Archive) */}
                 <div
                   onClick={() => setIsHistorySheetOpen(true)}
@@ -438,20 +591,34 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                   </div>
 
                   {/* Summary Content Body */}
-                  {callStatus === 'ended' ? (
+                  {isGeneratingSummary ? (
+                    <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200 flex items-center gap-2.5 animate-pulse">
+                      <Sparkles className="w-4 h-4 text-amber-600 animate-spin" />
+                      <div className="min-w-0">
+                        <span className="text-xs font-bold text-amber-950 block">Synthesizing AI Care Briefing...</span>
+                        <span className="text-[10px] text-amber-800/80 block">Extracting conversation narrative & dispatching to Telegram</span>
+                      </div>
+                    </div>
+                  ) : (callStatus === 'ended' || latestCallSummary) ? (
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-stone-900 leading-tight">
-                          Railway Signal Lore & Telma-40 Adherence
+                          {latestCallSummary?.topicTitle || 'Railway Signal Lore & Daily Adherence'}
                         </span>
                         <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-                          🌿 Cheerful (94%)
+                          {latestCallSummary?.sentiment === 'CHEERFUL' ? '🌿 Cheerful' : '😊 Stable'} ({latestCallSummary?.sentimentScore || 94}%)
                         </span>
                       </div>
 
                       <p className="text-[11px] text-stone-600 leading-relaxed font-sans">
-                        "Papa was in high spirits sitting in the balcony with morning tea, sharing memories from his 1982 railway signal interlocking days. Telma-40 confirmed taken with water."
+                        "{latestCallSummary?.summaryText || "Papa was in high spirits sitting in the balcony with morning tea, sharing memories from his railway signaling days. Prescribed medication confirmed taken with water."}"
                       </p>
+
+                      {latestCallSummary?.adherenceStatus && (
+                        <div className="text-[10px] text-emerald-800 bg-emerald-50/90 p-1.5 rounded-lg border border-emerald-200 font-medium">
+                          {latestCallSummary.adherenceStatus}
+                        </div>
+                      )}
 
                       {/* Interactive Audio Story Preview Snippet */}
                       <div
@@ -474,10 +641,10 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                           </button>
                           <div className="min-w-0">
                             <span className="text-[10px] font-bold text-amber-950 block truncate">
-                              Play Papa's Voice Story (0:42)
+                              Play Papa's Voice Story (0:35)
                             </span>
                             <span className="text-[9px] text-amber-800/80 truncate block">
-                              "बेटा, 1982 में जब हम दिल्ली डिवीजन में..."
+                              "{latestCallSummary?.audioTranscript?.slice(0, 38) || 'बेटा, 1982 में जब हम दिल्ली डिवीजन में...'}"
                             </span>
                           </div>
                         </div>
@@ -485,6 +652,19 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                           Awadhi
                         </span>
                       </div>
+
+                      {/* Interactive Telegram Push Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          dispatchTelegramCareBriefing();
+                        }}
+                        className="w-full mt-1.5 py-1.5 px-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 text-[10px] font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
+                      >
+                        <span>✈️</span>
+                        <span>Send Live Briefing to Telegram (@Priya)</span>
+                      </button>
                     </div>
                   ) : callStatus === 'active' || callStatus === 'calling' ? (
                     <div className="p-2.5 rounded-xl bg-sky-50 border border-sky-200 space-y-1">

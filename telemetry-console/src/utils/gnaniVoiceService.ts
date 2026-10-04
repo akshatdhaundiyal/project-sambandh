@@ -1,15 +1,22 @@
 /**
- * Sambandh Continuous Gnani.ai Voice Rail
+ * Sambandh Continuous Gnani.ai Voice Rail (timbre-v2.5 / prisma-v2.5)
  * Full-duplex Indic conversational telephony pipeline with:
- * - Sub-180ms streaming STT (Awadhi-Hindi acoustic models)
- * - Zero-pause gapless Web Audio API queue (sample-accurate AudioBuffer scheduling)
+ * - Sub-180ms streaming STT (Awadhi-Hindi acoustic models via prisma-v2.5)
+ * - Zero-pause gapless Web Audio API queue (sample-accurate AudioBuffer scheduling via timbre-v2.5)
  * - Instant acoustic barge-in (<50ms cutoff when user speaks)
  * - Native token-to-audio pipelining with Gemini 3.5 Flash-Lite
  */
 
+import {
+  getGnaniCompanionVoice,
+  getGnaniSeniorVoice,
+  GNANI_VOICE_CATALOG
+} from '../data/gnaniVoices';
+
 export interface GnaniVoiceOptions {
-  language?: string; // 'hi-IN' | 'awa-IN'
+  language?: string; // 'hi-IN' | 'awa-IN' | 'en-IN'
   speakerGender?: 'female' | 'male';
+  voiceId?: string; // e.g. 'Aarohi', 'Deepak', 'Gauri'
   sampleRate?: number;
   pitch?: number;
   rate?: number;
@@ -29,6 +36,21 @@ export interface GnaniEngineStatus {
   queueLength: number;
   carrierTrunk: string;
 }
+
+/**
+ * Resolves the Gnani Vachana API key across local storage and environment variables
+ */
+export const getGnaniApiKey = (): string | null => {
+  if (typeof window !== 'undefined') {
+    const localKey = localStorage.getItem('sambandh_gnani_key');
+    if (localKey && localKey.trim()) return localKey.trim();
+  }
+
+  const env = (typeof import.meta !== 'undefined' ? (import.meta as any).env : {}) || {};
+  const rawKey = env.GNANI_API_KEY || env.VITE_GNANI_API_KEY || '';
+  const cleaned = rawKey.replace(/^["']|["']$/g, '').trim();
+  return cleaned || null;
+};
 
 class GnaniStreamingAudioPlayer {
   private audioCtx: AudioContext | null = null;
@@ -81,7 +103,7 @@ class GnaniStreamingAudioPlayer {
 
     this.currentOptions = options;
     const now = this.audioCtx.currentTime;
-    // Schedule seamlessly right after the previous buffer ends, or immediately if queue was idle
+    // Schedule seamlessly right after previous buffer ends, or immediately if queue was idle
     const startTime = Math.max(now, this.nextPlayTime);
 
     const source = this.audioCtx.createBufferSource();
@@ -110,51 +132,78 @@ class GnaniStreamingAudioPlayer {
   }
 
   /**
-   * Synthesize audio from text via Gnani Indic Neural TTS or Web Audio synthesis.
+   * Synthesize audio from text via Gnani Indic Neural TTS (timbre-v2.5 on api.vachana.ai).
+   * Strips bracketed translations and markdown to ensure pure, natural Indic speech.
    * Plays with gapless buffer queueing.
    */
   public async playTextStream(text: string, options: GnaniVoiceOptions = {}) {
     this.initContext();
     if (!this.audioCtx) return;
 
-    const apiKey = (import.meta as any).env?.VITE_GNANI_API_KEY;
-    const endpoint = (import.meta as any).env?.VITE_GNANI_TTS_ENDPOINT || 'https://telephony.gnani.ai/v2/tts';
+    const apiKey = getGnaniApiKey();
+    const env = (typeof import.meta !== 'undefined' ? (import.meta as any).env : {}) || {};
+    const endpoint = env.GNANI_TTS_ENDPOINT || env.VITE_GNANI_TTS_ENDPOINT || 'https://api.vachana.ai/api/v1/tts/inference';
+
+    // Strip bracketed translation guides, parentheticals, and markdown symbols
+    const cleanText = text
+      .replace(/\[[\s\S]*?\]/g, '')
+      .replace(/\([\s\S]*?\)/g, '')
+      .replace(/[*_#`~]/g, '')
+      .trim();
+
+    if (!cleanText) {
+      options.onEnd?.();
+      return;
+    }
+
+    // Determine voice: explicit voiceId -> configured localStorage voice for role
+    const defaultVoice = options.speakerGender === 'male' ? getGnaniSeniorVoice() : getGnaniCompanionVoice();
+    const voiceToUse = options.voiceId || defaultVoice;
 
     if (apiKey) {
+      const startTime = Date.now();
       try {
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
-            'X-Rail-Standard': 'Gnani-Indic-v2.4',
+            'X-API-Key-ID': apiKey.trim(),
           },
           body: JSON.stringify({
-            text,
-            language: options.language || 'hi-IN',
-            dialect: 'awa-IN', // Awadhi-Hindi
-            speaker_gender: options.speakerGender || 'female',
-            audio_format: 'wav',
-            sample_rate: 16000,
-            streaming: true,
+            model: 'timbre-v2.5',
+            voice: voiceToUse,
+            text: cleanText,
+            audio_config: {
+              encoding: 'linear_pcm',
+              container: 'wav',
+              sample_rate: options.sampleRate || 24000,
+              num_channels: 1,
+              sample_width: 2
+            }
           }),
         });
 
         if (!response.ok) {
-          throw new Error(`Gnani TTS API returned HTTP ${response.status}`);
+          const errBody = await response.text();
+          throw new Error(`Gnani Vachana TTS API returned HTTP ${response.status}: ${errBody}`);
         }
 
         const arrayBuffer = await response.arrayBuffer();
+        const latencyMs = Date.now() - startTime;
+        console.info(`[GnaniAudioPlayer] Vachana Neural TTS stream received (${arrayBuffer.byteLength} bytes, ${latencyMs}ms, voice: ${voiceToUse})`);
         const decodedBuffer = await this.audioCtx.decodeAudioData(arrayBuffer);
         this.enqueueAudioBuffer(decodedBuffer, options);
         return;
       } catch (err) {
-        console.warn('[GnaniAudioPlayer] Gnani cloud endpoint error, falling back to local speech synthesis pipeline:', err);
+        console.warn('[GnaniAudioPlayer] Gnani cloud endpoint error:', err);
+        options.onError?.(err);
+        // If API key is present but failed, do not silently masquerade as browser TTS
+        return;
       }
     }
 
-    // Fallback: Use Web Speech API for utterance generation without inter-word lag
-    this.synthesizeBrowserSpeech(text, options);
+    // Fallback: If no Gnani API key is configured, synthesize via browser Web Speech API
+    this.synthesizeBrowserSpeech(cleanText, options);
   }
 
   private synthesizeBrowserSpeech(text: string, options: GnaniVoiceOptions) {
@@ -204,6 +253,67 @@ class GnaniStreamingAudioPlayer {
 }
 
 export const gnaniAudioPlayer = new GnaniStreamingAudioPlayer();
+
+/**
+ * Quick Audition helper for SettingsModal: Plays a short sample phrase with any selected Gnani persona
+ */
+export const playGnaniAudition = async (
+  voiceId: string,
+  samplePhrase?: string,
+  callbacks?: { onStart?: () => void; onEnd?: () => void; onError?: (err: any) => void }
+): Promise<void> => {
+  const voice = GNANI_VOICE_CATALOG.find(v => v.id === voiceId);
+  const text = samplePhrase || voice?.samplePhrase || 'प्रणाम! संबंध में आपका स्वागत है।';
+  gnaniAudioPlayer.instantCutoff('audition_start');
+  await gnaniAudioPlayer.playTextStream(text, {
+    voiceId,
+    speakerGender: voice?.gender || 'female',
+    onStart: () => {
+      console.info(`[GnaniAudition] Playing sample for ${voiceId}`);
+      callbacks?.onStart?.();
+    },
+    onEnd: () => {
+      console.info(`[GnaniAudition] Finished sample for ${voiceId}`);
+      callbacks?.onEnd?.();
+    },
+    onError: (err) => {
+      console.warn(`[GnaniAudition] Error playing sample for ${voiceId}:`, err);
+      callbacks?.onError?.(err);
+    }
+  });
+};
+
+/**
+ * Server-side / Cloud STT via Gnani.ai (prisma-v2.5 on api.vachana.ai)
+ */
+export const transcribeWithGnaniApi = async (audioBlob: Blob): Promise<string> => {
+  const apiKey = getGnaniApiKey();
+
+  if (!apiKey) {
+    throw new Error('Gnani API Key is not configured. Please set GNANI_API_KEY in .env');
+  }
+
+  const formData = new FormData();
+  formData.append('audio_file', audioBlob, 'speech.wav');
+  formData.append('language_code', 'hi-IN');
+  formData.append('model', 'prisma-v2.5');
+
+  const response = await fetch('https://api.vachana.ai/stt/v3', {
+    method: 'POST',
+    headers: {
+      'X-API-Key-ID': apiKey.trim()
+    },
+    body: formData
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Gnani STT API error ${response.status}: ${errText}`);
+  }
+
+  const data = await response.json();
+  return data?.transcript || data?.text || data?.data?.transcript || '';
+};
 
 /**
  * Continuous Full-Duplex Gnani STT Client

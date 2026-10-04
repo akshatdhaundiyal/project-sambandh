@@ -6,7 +6,12 @@
  */
 
 import { prepareTextForHindiTts, isDevanagari } from './hinglishTransliterator';
-import { gnaniAudioPlayer, GnaniVoiceOptions } from './gnaniVoiceService';
+import { gnaniAudioPlayer, getGnaniApiKey, GnaniVoiceOptions } from './gnaniVoiceService';
+import {
+  getGnaniCompanionVoice,
+  getGnaniSeniorVoice,
+  GNANI_VOICE_CATALOG
+} from '../data/gnaniVoices';
 
 export interface SpeechOptions {
   speaker?: 'senior' | 'agent' | 'mentee' | 'system';
@@ -90,15 +95,16 @@ export const getVoiceDiagnostics = (preferredEngine: 'browser' | 'gnani' = 'gnan
     v.name.includes('Heera')
   );
 
-  const apiKey = (import.meta as any).env?.VITE_GNANI_API_KEY;
-  const endpoint = (import.meta as any).env?.VITE_GNANI_TTS_ENDPOINT || 'https://telephony.gnani.ai/v2/stream';
+  const apiKey = getGnaniApiKey();
+  const env = (typeof import.meta !== 'undefined' ? (import.meta as any).env : {}) || {};
+  const endpoint = env.GNANI_TTS_ENDPOINT || env.VITE_GNANI_TTS_ENDPOINT || 'https://api.vachana.ai/api/v1/tts/inference';
 
   return {
     isSupported,
     totalVoices: voices.length,
     hindiVoice: hindi ? `${hindi.name} (${hindi.lang})` : null,
     indianEnglishVoice: indianEn ? `${indianEn.name} (${indianEn.lang})` : null,
-    gnaniConfigured: Boolean(apiKey) || true, // Gnani carrier emulation active by default
+    gnaniConfigured: Boolean(apiKey),
     activeRail: preferredEngine,
     endpoint
   };
@@ -221,7 +227,12 @@ export const getActiveHindiVoiceSource = (
   preferredEngine: 'browser' | 'gnani' = 'gnani'
 ): { source: 'browser' | 'gnani'; name: string } => {
   if (preferredEngine === 'gnani') {
-    return { source: 'gnani', name: 'Gnani.ai Full-Duplex Indic Carrier Rail' };
+    const voiceId = speaker === 'senior' ? getGnaniSeniorVoice() : getGnaniCompanionVoice();
+    const persona = GNANI_VOICE_CATALOG.find(v => v.id === voiceId);
+    return {
+      source: 'gnani',
+      name: persona ? `Gnani.ai Vachana (${persona.name} · ${persona.personaTitle})` : `Gnani.ai Vachana (${voiceId})`
+    };
   }
   const match = findOptimalHindiVoice(speaker, preferredEngine);
   if (match.voice) {
@@ -296,6 +307,7 @@ export const speakWithGnaniStreaming = async (text: string, options: SpeechOptio
 
   const gnaniOptions: GnaniVoiceOptions = {
     language: 'hi-IN',
+    voiceId: options.voiceName,
     speakerGender: options.speaker === 'senior' ? 'male' : 'female',
     pitch: options.speaker === 'senior' ? 0.85 : 1.05,
     rate: options.speaker === 'senior' ? 0.90 : 1.0,
@@ -324,3 +336,7 @@ export const speakDialogueTurn = (
 // Aliases for compatibility
 export const speakWithWindowsTts = speakWithBrowserTts;
 export const speakWithChromeTts = speakWithBrowserTts;
+
+export const speakHindiDevanagari = (text: string, onEnd?: () => void) => {
+  speakWithBrowserTts(text, { speaker: 'agent', onEnd });
+};

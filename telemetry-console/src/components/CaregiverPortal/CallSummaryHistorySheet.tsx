@@ -162,7 +162,7 @@ export const CallSummaryHistorySheet: React.FC<CallSummaryHistorySheetProps> = (
   onClose,
   onPlayAudioSnippet
 }) => {
-  const { speakTurn } = useTelemetry();
+  const { speakTurn, latestCallSummary } = useTelemetry();
   const [selectedSummaryId, setSelectedSummaryId] = useState<string>('summary-today');
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [summaries, setSummaries] = useState<CallSummaryItem[]>(FALLBACK_SUMMARIES);
@@ -173,15 +173,23 @@ export const CallSummaryHistorySheet: React.FC<CallSummaryHistorySheetProps> = (
       fetchCallSummaries('SENIOR_RAMESH_001')
         .then((rows) => {
           if (rows && rows.length > 0) {
-            setSummaries(rows as CallSummaryItem[]);
+            const list = latestCallSummary
+              ? [latestCallSummary as CallSummaryItem, ...rows.filter((r: any) => r.id !== latestCallSummary.id)]
+              : (rows as CallSummaryItem[]);
+            setSummaries(list);
             setIsFromPostgres(true);
+          } else if (latestCallSummary) {
+            setSummaries([latestCallSummary as CallSummaryItem, ...FALLBACK_SUMMARIES.filter(s => s.id !== latestCallSummary.id)]);
           }
         })
         .catch((err) => {
           console.debug('Failed to fetch call summaries from PostgreSQL:', err);
+          if (latestCallSummary) {
+            setSummaries([latestCallSummary as CallSummaryItem, ...FALLBACK_SUMMARIES.filter(s => s.id !== latestCallSummary.id)]);
+          }
         });
     }
-  }, [isOpen]);
+  }, [isOpen, latestCallSummary]);
 
   if (!isOpen) return null;
 

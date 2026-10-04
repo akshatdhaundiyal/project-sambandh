@@ -29,9 +29,18 @@ import {
   PromptSliceStatus,
   PreCallAgencyRequest,
   MentorshipExchangeItem,
-  YouthPersona
+  YouthPersona,
+  MedicationApprovalRequest,
+  MedicationItem
 } from '../types/telemetry';
-import { healthLockerService } from '../services/healthLockerService';
+import { healthLockerService, saveCallSummary } from '../services/healthLockerService';
+import { executeApprovedMedicationOrder } from '../services/toolCallingService';
+import {
+  sendTelegramMedicationApprovalCard,
+  sendTelegramDailyCareBriefing,
+  testTelegramBotConnection
+} from '../services/telegramBotService';
+import { generatePostCallSummary, GeneratedCallSummary } from '../services/llmService';
 import { ToolExecutionNode } from '../data/nodeMapping';
 import { SIMULATION_PRESETS } from '../data/simulationPrompts';
 import {
@@ -85,6 +94,7 @@ interface TelemetryContextType {
   activeTtsEngine: 'browser' | 'gnani';
   setActiveTtsEngine: (engine: 'browser' | 'gnani') => void;
   currentlySpeakingTurnId: string | null;
+  isAgentGenerating: boolean;
   speakTurn: (turn: ConversationTurn) => void;
   injectCustomTurn: (
     content: string,
@@ -137,6 +147,7 @@ interface TelemetryContextType {
   toggleElderTopic: (id: string) => void;
   foldedMemory: string;
   dynamicExecutionNodes: ToolExecutionNode[];
+  addDynamicExecutionNodes: (nodes: ToolExecutionNode[]) => void;
   triggerSimulationPreset: (presetId: string) => void;
   clearDynamicNodes: () => void;
   triggerHealthLockerRAG: (query: string, role?: 'elder' | 'caregiver') => Promise<string>;
@@ -183,18 +194,38 @@ interface TelemetryContextType {
   evaluateMentorshipQuestion: (questionId: string) => Promise<void>;
   simulateElderAnswerVoice: (questionId: string) => Promise<void>;
 
-  // In-Clinic Doctor Consultation Bridge & Multi-Speaker Diarization
+  // In-Clinic Doctor Consultation Bridge & Ambient Transformation
   consultationSession: DoctorConsultationSession;
   isConsultationModalOpen: boolean;
   setIsConsultationModalOpen: (open: boolean) => void;
   openConsultationModal: () => void;
   closeConsultationModal: () => void;
+  isListeningConsultation: boolean;
+  isTransformingConsultation: boolean;
+  liveSpokenSnippetConsultation: string;
+  startLiveListeningConsultation: () => void;
+  stopLiveListeningConsultation: () => void;
   startDoctorConsultation: (initiatedBy: 'senior' | 'caregiver', caregiverAttending: boolean) => void;
-  addDoctorConsultationTurn: (speaker: DoctorConsultationSpeaker, content: string, hindiText?: string) => void;
+  addDoctorConsultationTurn: (speaker: DoctorConsultationSpeaker | 'ambient', content: string, hindiText?: string) => void;
   toggleCaregiverAttendance: () => void;
   attachDocumentToConsultation: (attachment: Omit<DoctorConsultationAttachment, 'id' | 'uploadedAt'>) => void;
   completeDoctorConsultation: () => void;
   resetDoctorConsultation: () => void;
+
+  // Caregiver Medication Refill Approval Gate (Human-in-the-Loop)
+  pendingMedicationApproval: MedicationApprovalRequest | null;
+  createMedicationApprovalRequest: (req?: Partial<MedicationApprovalRequest>) => MedicationApprovalRequest;
+  approveMedicationOrder: (approvalId?: string) => Promise<void>;
+  declineMedicationOrder: (approvalId?: string) => void;
+  resetMedicationApproval: () => void;
+
+  // Live Telegram Bot Integration
+  dispatchTelegramCareBriefing: (summaryOverride?: string) => Promise<any>;
+
+  // Dynamic Post-Call Summary State
+  latestCallSummary: GeneratedCallSummary | null;
+  isGeneratingSummary: boolean;
+  setLatestCallSummary: (summary: GeneratedCallSummary | null) => void;
 }
 
 const TelemetryContext = createContext<TelemetryContextType | undefined>(undefined);
@@ -249,6 +280,8 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
   const [settingsActiveTab, setSettingsActiveTab] = useState<'brain' | 'telephony' | 'wallet' | 'routing'>('brain');
   const [isSystemPromptModalOpen, setIsSystemPromptModalOpen] = useState<boolean>(false);
+  const [latestCallSummary, setLatestCallSummary] = useState<GeneratedCallSummary | null>(null);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState<boolean>(false);
 
   // Feedback toast notification helper
   const showFeedbackToast = useCallback((msg: string) => {
@@ -346,13 +379,28 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     handleTelegramAction: showFeedbackToast
   });
 
-  // In-Clinic Doctor Consultation Bridge & Diarization - Isolated Domain Hook
+  // Dynamic Molecules State (Updated by In-Clinic Doctor Consultations & Refills)
+  const [customMolecules, setCustomMolecules] = useState<MedicationItem[]>([]);
+
+  const effectiveMolecules = useMemo<MedicationItem[]>(() => {
+    const base = activeScenario.initialClinicalState.activeMolecules;
+    if (customMolecules.length === 0) return base;
+    const filtered = base.filter(m => !customMolecules.some(c => c.id === m.id || c.name === m.name));
+    return [...filtered, ...customMolecules];
+  }, [activeScenario, customMolecules]);
+
+  // In-Clinic Doctor Consultation Bridge & Ambient Transformation - Isolated Domain Hook
   const {
     consultationSession,
     isConsultationModalOpen,
     setIsConsultationModalOpen,
     openConsultationModal,
     closeConsultationModal,
+    isListening: isListeningConsultation,
+    isTransforming: isTransformingConsultation,
+    liveSpokenSnippet: liveSpokenSnippetConsultation,
+    startLiveListening: startLiveListeningConsultation,
+    stopLiveListening: stopLiveListeningConsultation,
     startDoctorConsultation,
     addDoctorConsultationTurn,
     toggleCaregiverAttendance,
@@ -363,8 +411,71 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     onFeedbackToast: showFeedbackToast,
     onAddMedicalIssue: useCallback((newIssue: MedicalIssue) => {
       setMedicalIssues(prev => [newIssue, ...prev]);
-    }, [setMedicalIssues])
+    }, [setMedicalIssues]),
+    onAddNewMolecules: useCallback((newMolecules: MedicationItem[]) => {
+      setCustomMolecules(prev => {
+        const filtered = prev.filter(m => !newMolecules.some(n => n.id === m.id || n.name === m.name));
+        return [...filtered, ...newMolecules];
+      });
+      showFeedbackToast(`💊 Active Prescriptions Updated: Added ${newMolecules.map(m => m.brand).join(', ')} to clinical profile!`);
+    }, [showFeedbackToast]),
+    seniorProfile
   });
+
+  // Caregiver Medication Refill Approval Gate (HITL)
+  const [pendingMedicationApproval, setPendingMedicationApproval] = useState<MedicationApprovalRequest | null>(null);
+
+  const createMedicationApprovalRequest = useCallback((req?: Partial<MedicationApprovalRequest>): MedicationApprovalRequest => {
+    const defaultAddress = caregiverConfig.elderHomeAddress || 'Flat 402, Block C, Pocket 2, Rohini Sector 8, New Delhi 110085';
+    const defaultVendor = caregiverConfig.nearestPharmacyName || 'Netmeds / Apollo DarkStore Sector 11';
+    const newRequest: MedicationApprovalRequest = {
+      id: `approval-refill-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
+      medicationName: req?.medicationName || 'Telma 40mg (Telmisartan)',
+      dosage: req?.dosage || '40mg',
+      units: req?.units || 30,
+      costInr: req?.costInr || 840,
+      vendor: req?.vendor || defaultVendor,
+      deliveryAddress: req?.deliveryAddress || defaultAddress,
+      recipientPhone: req?.recipientPhone || '+91 98101 23456',
+      reason: req?.reason || "Papa reported only 2 days of BP medication remaining in morning check-in call.",
+      status: 'AWAITING_APPROVAL'
+    };
+    setPendingMedicationApproval(newRequest);
+
+    // Asynchronously dispatch live Telegram approval card to Priya's real phone
+    sendTelegramMedicationApprovalCard(newRequest)
+      .then(res => {
+        if (res.success) {
+          showFeedbackToast("✈️ Dispatched live approval alert card to Priya's Telegram!");
+        }
+      })
+      .catch(err => {
+        console.warn('[Telegram Dispatch Warning]:', err);
+      });
+
+    return newRequest;
+  }, [caregiverConfig, showFeedbackToast]);
+
+  const dispatchTelegramCareBriefing = useCallback(async (summaryOverride?: string) => {
+    const summary = summaryOverride || latestCallSummary?.summaryText || "Papa completed his check-in with high spirits. Prescribed medications confirmed taken with water.";
+    const vitality = latestCallSummary?.sentimentScore || 94;
+    const mood = latestCallSummary?.sentiment === 'CHEERFUL' ? '🌿 Cheerful & Nostalgic' : '😊 Calm & Stable';
+    const adherence = latestCallSummary?.adherenceStatus || '✅ Morning prescribed medication confirmed taken with fresh water';
+
+    const res = await sendTelegramDailyCareBriefing({
+      summaryText: summary,
+      vitalityScore: vitality,
+      mood,
+      adherence
+    });
+    if (res.success) {
+      showFeedbackToast("✈️ Live Care Briefing sent to Priya's Telegram chat!");
+    } else {
+      showFeedbackToast(`⚠️ Telegram Push: ${res.error || 'Failed'}`);
+    }
+    return res;
+  }, [latestCallSummary, showFeedbackToast]);
 
   // Conversation & LLM Inference Engine - Isolated Domain Hook
   const {
@@ -381,23 +492,102 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     initiateCallGreeting,
     injectCustomTurn,
     resetConversation,
-    getSystemPromptSnapshot
+    getSystemPromptSnapshot,
+    isAgentGenerating
   } = useConversationEngine({
     autoSpeak,
     speakSeniorTurns,
     speakTurn,
+    stopActiveSpeech,
+    currentlySpeakingTurnId,
     orderTotalLimitInr: caregiverConfig.orderTotalLimitInr,
     activeMentorshipQuestion,
     seniorProfile,
+    activeMolecules: effectiveMolecules,
     onFeedbackToast: showFeedbackToast,
     onDeductCashWallet: deductCashWallet,
     onAddInventoryOrder: addInventoryOrder,
+    onRequestMedicationApproval: createMedicationApprovalRequest,
     createLlmNode,
     createHealthLockerNodes,
     detectDomainNodes,
     addUniqueNodes,
     seedInitialCallNode
   });
+
+  const approveMedicationOrder = useCallback(async (approvalId?: string) => {
+    const target = pendingMedicationApproval;
+    if (!target) return;
+
+    try {
+      const result = await executeApprovedMedicationOrder(target, {
+        onAddNodes: addUniqueNodes,
+        onDeductWallet: deductCashWallet,
+        onAddInventoryOrder: addInventoryOrder,
+        onInjectTurn: (content, speaker) => {
+          injectCustomTurn(content, speaker);
+        },
+        onToast: showFeedbackToast
+      });
+
+      setPendingMedicationApproval(prev => prev ? {
+        ...prev,
+        status: 'APPROVED',
+        approvedAt: result.approvedAt,
+        orderId: result.orderId,
+        trackingWaybill: result.waybill,
+        deliveryEta: result.eta
+      } : null);
+    } catch (err: any) {
+      console.error('[ApproveMedicationOrder Error]:', err);
+      showFeedbackToast(`❌ Failed to execute order: ${err.message}`);
+    }
+  }, [pendingMedicationApproval, addUniqueNodes, deductCashWallet, addInventoryOrder, injectCustomTurn, showFeedbackToast]);
+
+  const declineMedicationOrder = useCallback((approvalId?: string) => {
+    setPendingMedicationApproval(prev => prev ? {
+      ...prev,
+      status: 'DECLINED',
+      declinedAt: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST'
+    } : null);
+
+    const timestamp = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST';
+    addUniqueNodes([
+      {
+        id: `node-declined-${Date.now()}`,
+        stepIndex: 2,
+        nodeType: 'caregiver',
+        brandName: 'Caregiver Human Gate',
+        toolName: 'decline_medication_refill',
+        title: 'Medication Refill Declined by Priya',
+        actionSummary: 'Caregiver Priya Sharma clicked [Decline Refill]. Order cancelled, zero wallet debit.',
+        timestamp,
+        status: 'BLOCKED',
+        statusCode: 'REFILL_DECLINED',
+        latencyMs: 20,
+        brandColor: '#6B7280',
+        reasoningSnippet: '[CAREGIVER SIGN-OFF]: Priya declined medication refill. No B2B order placed; fiduciary wallet remains untouched.',
+        apiExchange: {
+          railName: 'Sambandh HITL Caregiver Approval Rail',
+          method: 'POST',
+          endpoint: '/v1/caregiver/approvals/refill-decline',
+          schemaStandard: 'Sambandh HITL Safety Rail v2',
+          headers: { 'Content-Type': 'application/json' },
+          requestBody: { status: 'DECLINED', reason: 'Caregiver review' },
+          responseStatus: 200,
+          responseStatusText: 'OK (Refusal Recorded)',
+          responseLatencyMs: 20,
+          responseHeaders: { 'Content-Type': 'application/json' },
+          responseBody: { status: 'CANCELLED_BY_CAREGIVER', wallet_debit_inr: 0 }
+        }
+      }
+    ]);
+    showFeedbackToast('🛑 Refill Declined: Caregiver Priya declined the refill request. Zero money debited.');
+  }, [addUniqueNodes, showFeedbackToast]);
+
+  const resetMedicationApproval = useCallback(() => {
+    setPendingMedicationApproval(null);
+  }, []);
 
   const startCall = useCallback(() => {
     stopActiveSpeech();
@@ -416,10 +606,62 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     showFeedbackToast("📴 Call Declined: Ramesh Ji was unable to take the call. Next check-in scheduled in 30 mins.");
   }, [stopActiveSpeech, resetCallState, showFeedbackToast]);
 
-  const endCall = useCallback(() => {
+  const endCall = useCallback(async () => {
     stopActiveSpeech();
     endCallSession();
-  }, [stopActiveSpeech, endCallSession]);
+
+    // Fallback across live turns and scenario turns so summary always triggers
+    let turns = conversationTurns;
+    if (!turns || turns.length === 0) {
+      const collected: ConversationTurn[] = [];
+      for (let i = 0; i <= currentStepIndex && i < activeScenario.steps.length; i++) {
+        collected.push(...activeScenario.steps[i].turns);
+      }
+      turns = collected;
+    }
+
+    if (turns.length > 0) {
+      setIsGeneratingSummary(true);
+      showFeedbackToast("⏳ Synthesizing AI Care Briefing & dispatching to Telegram...");
+      try {
+        const summary = await generatePostCallSummary(
+          turns,
+          seniorProfile,
+          effectiveMolecules,
+          callDurationSeconds || 180
+        );
+        setLatestCallSummary(summary);
+        saveCallSummary(summary).catch(() => {});
+
+        const res = await sendTelegramDailyCareBriefing({
+          summaryText: summary.summaryText,
+          vitalityScore: summary.sentimentScore,
+          mood: summary.sentiment === 'CHEERFUL' ? '🌿 Cheerful & Nostalgic' : '😊 Calm & Stable',
+          adherence: summary.adherenceStatus,
+          seniorName: seniorProfile.name
+        });
+
+        if (res.success) {
+          showFeedbackToast(`✈️ Post-Call Briefing automatically delivered to ${seniorProfile.caregiverName || 'Caregiver'}'s Telegram!`);
+        } else {
+          showFeedbackToast(`📝 Call Summary ready in Caregiver App (${res.error || 'Telegram offline'})`);
+        }
+      } catch (err: any) {
+        console.warn('[TelemetryContext] Failed to generate post-call summary:', err);
+      } finally {
+        setIsGeneratingSummary(false);
+      }
+    }
+  }, [
+    stopActiveSpeech,
+    endCallSession,
+    conversationTurns,
+    currentStepIndex,
+    activeScenario,
+    seniorProfile,
+    callDurationSeconds,
+    showFeedbackToast
+  ]);
 
   const resetScenario = useCallback(() => {
     stopActiveSpeech();
@@ -627,6 +869,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         activeTtsEngine,
         setActiveTtsEngine,
         currentlySpeakingTurnId,
+        isAgentGenerating,
         speakTurn,
         injectCustomTurn,
         speakSeniorTurns,
@@ -680,6 +923,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         toggleElderTopic,
         foldedMemory,
         dynamicExecutionNodes,
+        addDynamicExecutionNodes: addUniqueNodes,
         triggerSimulationPreset,
         clearDynamicNodes,
         triggerHealthLockerRAG,
@@ -720,18 +964,38 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         evaluateMentorshipQuestion,
         simulateElderAnswerVoice,
 
-        // In-Clinic Doctor Consultation Bridge & Diarization
+        // In-Clinic Doctor Consultation Bridge & Ambient Transformation
         consultationSession,
         isConsultationModalOpen,
         setIsConsultationModalOpen,
         openConsultationModal,
         closeConsultationModal,
+        isListeningConsultation,
+        isTransformingConsultation,
+        liveSpokenSnippetConsultation,
+        startLiveListeningConsultation,
+        stopLiveListeningConsultation,
         startDoctorConsultation,
         addDoctorConsultationTurn,
         toggleCaregiverAttendance,
         attachDocumentToConsultation,
         completeDoctorConsultation,
-        resetDoctorConsultation
+        resetDoctorConsultation,
+
+        // Caregiver Medication Refill Approval Gate (HITL)
+        pendingMedicationApproval,
+        createMedicationApprovalRequest,
+        approveMedicationOrder,
+        declineMedicationOrder,
+        resetMedicationApproval,
+
+        // Live Telegram Bot Integration
+        dispatchTelegramCareBriefing,
+
+        // Dynamic Post-Call Summary State
+        latestCallSummary,
+        isGeneratingSummary,
+        setLatestCallSummary
       }}
     >
       {children}

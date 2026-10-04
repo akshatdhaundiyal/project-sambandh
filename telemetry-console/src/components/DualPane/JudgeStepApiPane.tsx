@@ -9,6 +9,10 @@ import {
   ToolNodeType
 } from '../../data/nodeMapping';
 import {
+  callNetmedsOrderTool,
+  callDelhiveryDispatchTool
+} from '../../services/toolCallingService';
+import {
   PineLabsLogo,
   DelhiveryLogo,
   GnaniLogo,
@@ -50,9 +54,13 @@ export const JudgeStepApiPane: React.FC<JudgeStepApiPaneProps> = ({
     callStatus,
     startCall,
     dynamicExecutionNodes,
+    addDynamicExecutionNodes,
+    createMedicationApprovalRequest,
     activeTtsEngine,
     clearDynamicNodes
   } = useTelemetry();
+
+  const [isExecutingTool, setIsExecutingTool] = useState<'netmeds' | 'delhivery' | 'refill' | null>(null);
 
   // Nodes dynamically pulled into the chain up to current step
   const baseNodes = getNodesForScenarioStep(activeScenario.id, currentStepIndex, callStatus);
@@ -239,6 +247,159 @@ export const JudgeStepApiPane: React.FC<JudgeStepApiPaneProps> = ({
           </div>
         </div>
       )}
+
+      {/* 2.5. Executable Tool Execution Bar (Manual Judge & Developer Playground) */}
+      <div className="mb-3.5 p-3 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-850 to-indigo-950 border border-slate-700/80 text-white shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="text-xs font-bold text-slate-100 flex items-center gap-1.5">
+              <span>Executable Tool Calling Drawer</span>
+              <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800/80">
+                LIVE SANDBOX
+              </span>
+            </span>
+          </div>
+          <span className="text-[10px] text-slate-400 font-mono">
+            Execute tools on-demand to test payloads & latency
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          {/* Tool 1: Netmeds B2B Order */}
+          <button
+            type="button"
+            onClick={async () => {
+              setIsExecutingTool('netmeds');
+              const res = await callNetmedsOrderTool({
+                medicationName: 'Telma 40mg (Telmisartan)',
+                dosage: '40mg',
+                quantity: 30,
+                costInr: 840,
+                vendor: 'Netmeds / Apollo DarkStore Sector 11'
+              });
+              addDynamicExecutionNodes([res.telemetryNode]);
+              setSelectedNodeId(res.telemetryNode.id);
+              setIsExecutingTool(null);
+            }}
+            disabled={isExecutingTool !== null}
+            className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-emerald-900/60 border border-slate-700 hover:border-emerald-500/60 text-left transition-all cursor-pointer group flex items-center justify-between"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 rounded-lg bg-emerald-950/80 border border-emerald-700/60 flex items-center justify-center shrink-0 text-emerald-400 group-hover:scale-105 transition-transform">
+                <Pill className="w-3.5 h-3.5" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-[11px] font-bold text-emerald-300 truncate">
+                  {isExecutingTool === 'netmeds' ? 'Executing API...' : 'netmeds_place_order'}
+                </div>
+                <div className="text-[9px] text-slate-400 font-mono truncate">
+                  POST /v2/orders/b2b · ₹840
+                </div>
+              </div>
+            </div>
+            <Zap className="w-3.5 h-3.5 text-emerald-400 opacity-60 group-hover:opacity-100 group-hover:fill-current transition-opacity shrink-0" />
+          </button>
+
+          {/* Tool 2: Delhivery CMU Dispatch */}
+          <button
+            type="button"
+            onClick={async () => {
+              setIsExecutingTool('delhivery');
+              const res = await callDelhiveryDispatchTool({
+                orderId: 'NMD-DEL-98421',
+                pickupLocation: 'Apollo Pharmacy DarkStore Sector 11',
+                destinationAddress: 'Flat 402, Block C, Pocket 2, Rohini Sector 8, Delhi 110085'
+              });
+              addDynamicExecutionNodes([res.telemetryNode]);
+              setSelectedNodeId(res.telemetryNode.id);
+              setIsExecutingTool(null);
+            }}
+            disabled={isExecutingTool !== null}
+            className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-red-950/60 border border-slate-700 hover:border-red-500/60 text-left transition-all cursor-pointer group flex items-center justify-between"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 rounded-lg bg-red-950/80 border border-red-700/60 flex items-center justify-center shrink-0 text-red-400 group-hover:scale-105 transition-transform">
+                <DelhiveryLogo className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-[11px] font-bold text-red-300 truncate">
+                  {isExecutingTool === 'delhivery' ? 'Booking Courier...' : 'delhivery_schedule_dispatch'}
+                </div>
+                <div className="text-[9px] text-slate-400 font-mono truncate">
+                  POST /api/cmu/create.json · ETA 4PM
+                </div>
+              </div>
+            </div>
+            <Zap className="w-3.5 h-3.5 text-red-400 opacity-60 group-hover:opacity-100 group-hover:fill-current transition-opacity shrink-0" />
+          </button>
+
+          {/* Tool 3: Request Refill (HITL Gate) */}
+          <button
+            type="button"
+            onClick={() => {
+              createMedicationApprovalRequest({
+                medicationName: 'Telma 40mg (Telmisartan)',
+                dosage: '40mg',
+                units: 30,
+                costInr: 840,
+                reason: 'Elder reported 2 pills remaining in morning check-in call.'
+              });
+              const gateNode: ToolExecutionNode = {
+                id: `node-gate-manual-${Date.now()}`,
+                stepIndex: executedNodes.length + 1,
+                nodeType: 'caregiver',
+                brandName: 'Sambandh HITL Gate',
+                toolName: 'request_medication_refill',
+                title: 'Refill Request Dispatched to Caregiver',
+                actionSummary: 'Dispatched 1-tap medication approval card to Priya Sharma in Bangalore. Ordering tools paused awaiting sign-off.',
+                timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
+                status: 'ACTIVE',
+                statusCode: 'AWAITING APPROVAL',
+                latencyMs: 25,
+                brandColor: '#F59E0B',
+                reasoningSnippet: '[MANUAL HITL TRIGGER]: Caregiver approval gate initiated. Ordering gated until sign-off.',
+                apiExchange: {
+                  railName: 'Sambandh HITL Caregiver Approval Rail',
+                  method: 'POST',
+                  endpoint: '/v1/caregiver/approvals/medication-refill',
+                  schemaStandard: 'Sambandh HITL Safety Standard v2',
+                  headers: { 'Content-Type': 'application/json' },
+                  requestBody: {
+                    senior_name: 'Ramesh Chandra',
+                    medication: 'Telma 40mg (Telmisartan)',
+                    cost_inr: 840,
+                    status: 'AWAITING_CAREGIVER_APPROVAL'
+                  },
+                  responseStatus: 202,
+                  responseStatusText: 'Accepted (Awaiting Decision)',
+                  responseLatencyMs: 25,
+                  responseHeaders: { 'Content-Type': 'application/json' },
+                  responseBody: { status: 'AWAITING_APPROVAL', notification_sent: true }
+                }
+              };
+              addDynamicExecutionNodes([gateNode]);
+              setSelectedNodeId(gateNode.id);
+            }}
+            className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-amber-950/60 border border-slate-700 hover:border-amber-500/60 text-left transition-all cursor-pointer group flex items-center justify-between"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 rounded-lg bg-amber-950/80 border border-amber-700/60 flex items-center justify-center shrink-0 text-amber-400 group-hover:scale-105 transition-transform">
+                <ShieldCheck className="w-3.5 h-3.5" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-[11px] font-bold text-amber-300 truncate">
+                  request_medication_refill
+                </div>
+                <div className="text-[9px] text-slate-400 font-mono truncate">
+                  HITL Caregiver Approval Gate
+                </div>
+              </div>
+            </div>
+            <Zap className="w-3.5 h-3.5 text-amber-400 opacity-60 group-hover:opacity-100 group-hover:fill-current transition-opacity shrink-0" />
+          </button>
+        </div>
+      </div>
 
       {/* 3. Dynamic Execution Chain (The Live Timeline) */}
       {!hideTimeline && (

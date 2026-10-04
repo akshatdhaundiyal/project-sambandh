@@ -227,42 +227,47 @@ export const useExecutionNodes = () => {
             });
           }
         } else {
-          // Within cap -> Autonomous fulfillment cascade
-          const pine = SCENARIO_NODE_REGISTRY['scenario-1']?.find(n => n.nodeType === 'fiduciary');
-          if (pine) {
-            detected.push({
-              ...pine,
-              id: `node-pine-${Date.now()}`,
-              timestamp
-            });
-          }
-
-          const netmeds = SCENARIO_NODE_REGISTRY['scenario-1']?.find(n => n.nodeType === 'pharmacy');
-          if (netmeds) {
-            detected.push({
-              ...netmeds,
-              id: `node-netmeds-${Date.now()}`,
-              timestamp
-            });
-          }
-
-          const dlv = SCENARIO_NODE_REGISTRY['scenario-1']?.find(n => n.nodeType === 'logistics');
-          if (dlv) {
-            detected.push({
-              ...dlv,
-              id: `node-dlv-${Date.now()}`,
-              timestamp
-            });
-          }
-
-          const tg = SCENARIO_NODE_REGISTRY['scenario-1']?.find(n => n.nodeType === 'caregiver');
-          if (tg) {
-            detected.push({
-              ...tg,
-              id: `node-tg-${Date.now()}`,
-              timestamp
-            });
-          }
+          // HITL Mandate: Even within cap, autonomous ordering requires caregiver approval first!
+          detected.push({
+            id: `node-refill-gate-${Date.now()}`,
+            stepIndex: 2,
+            nodeType: 'caregiver',
+            brandName: 'HITL Caregiver Gate',
+            toolName: 'request_medication_refill',
+            title: 'Caregiver Approval Required (₹840 Refill)',
+            actionSummary: 'Low stock reported for Telma 40mg. Ordering paused. High-priority approval card dispatched to Priya Sharma (Bangalore).',
+            timestamp,
+            status: 'ACTIVE',
+            statusCode: 'AWAITING APPROVAL',
+            latencyMs: 35,
+            brandColor: '#F59E0B',
+            reasoningSnippet: '[HITL GATE ENFORCED]: Autonomous medication ordering requires caregiver sign-off. Tools (Netmeds/Delhivery/PineLabs) will execute upon approval.',
+            apiExchange: {
+              railName: 'HITL Caregiver Refill Approval Rail',
+              method: 'POST',
+              endpoint: 'https://api.sambandh.ai/v1/caregiver/approvals/refill-request',
+              schemaStandard: 'Sambandh HITL Safety Rail v2',
+              headers: { 'Content-Type': 'application/json' },
+              requestBody: {
+                senior_name: 'Ramesh Chandra',
+                medication: 'Telma 40mg (Telmisartan)',
+                quantity: 30,
+                estimated_cost_inr: 840,
+                vendor: 'Netmeds DarkStore Sector 11',
+                courier: 'Delhivery CMU',
+                status: 'AWAITING_CAREGIVER_APPROVAL'
+              },
+              responseStatus: 202,
+              responseStatusText: 'Accepted (Awaiting Decision)',
+              responseLatencyMs: 35,
+              responseHeaders: { 'Content-Type': 'application/json' },
+              responseBody: {
+                approval_id: `apr-${Date.now()}`,
+                status: 'AWAITING_APPROVAL',
+                notified_channels: ['CAREGIVER_MOBILE_APP', 'TELEGRAM_BOT_API']
+              }
+            }
+          });
         }
       }
     } else {

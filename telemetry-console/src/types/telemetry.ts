@@ -490,9 +490,9 @@ export type DoctorConsultationSpeaker = 'doctor' | 'senior' | 'caregiver' | 'sys
 export interface DoctorConsultationTurn {
   id: string;
   timestamp: string;
-  speaker: DoctorConsultationSpeaker;
-  speakerName: string; // e.g. "Dr. Arvind Saxena", "Ramesh Chandra", "Priya Sharma"
-  channel: 'in_clinic_mic' | 'remote_telephony' | 'system';
+  speaker?: DoctorConsultationSpeaker | 'ambient';
+  speakerName?: string;
+  channel?: 'in_clinic_mic' | 'remote_telephony' | 'system' | 'ambient';
   content: string;
   hindiText?: string;
 }
@@ -514,8 +514,10 @@ export interface DoctorConsultationClinicalSummary {
   pulse?: string;
   clinicalAssessment: string;
   medicationChanges: string[];
-  actionItems: string[];
+  elderVernacularInstructions: string[]; // Tier 2: Simple Hindi instructions for Ramesh Ji
+  caregiverActionItems: string[];       // Tier 3: Caregiver actionable tasks
   followUpDate?: string;
+  newMoleculesToAdd?: MedicationItem[];
 }
 
 export interface DoctorConsultationSession {
@@ -537,5 +539,28 @@ export interface DoctorConsultationSession {
   clinicalSummary?: DoctorConsultationClinicalSummary;
   syncedToEhr: boolean;
   caregiverBriefingSent: boolean;
+}
+
+// ============================================================================
+// HUMAN-IN-THE-LOOP CAREGIVER MEDICATION APPROVAL GATE TYPES
+// ============================================================================
+
+export interface MedicationApprovalRequest {
+  id: string;
+  timestamp: string;
+  medicationName: string;
+  dosage: string;
+  units: number;
+  costInr: number;
+  vendor: string;
+  deliveryAddress: string;
+  recipientPhone: string;
+  reason: string;
+  status: 'AWAITING_APPROVAL' | 'APPROVED' | 'DECLINED';
+  approvedAt?: string;
+  declinedAt?: string;
+  orderId?: string;
+  trackingWaybill?: string;
+  deliveryEta?: string;
 }
 

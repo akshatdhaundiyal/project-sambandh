@@ -29,17 +29,21 @@ export const RecommendedPromptsModal: React.FC<RecommendedPromptsModalProps> = (
   if (!isOpen) return null;
 
   const categories = [
-    { id: 'all', label: 'All', icon: '✨' },
+    { id: 'all', label: 'All Scenarios', icon: '✨' },
+    { id: 'happy', label: '6 Happy Flows', icon: '🌟' },
+    { id: 'sad', label: '13 Sad Flows & Guardrails', icon: '🛡️' },
+    { id: 'refill', label: 'Refill & Fiduciary', icon: '💊' },
     { id: 'companion', label: 'Companion & News', icon: '💬' },
-    { id: 'refill', label: 'Refill', icon: '💊' },
-    { id: 'mcp', label: 'MCP Orders', icon: '🌸' },
-    { id: 'sadness', label: 'Sad Mood', icon: '🌧️' },
-    { id: 'crisis', label: 'Crisis', icon: '🚨' },
-    { id: 'fiduciary', label: '2FA Limit', icon: '💳' },
+    { id: 'mcp', label: 'MCP & Orders', icon: '🌸' },
+    { id: 'crisis', label: 'Crisis & Safety', icon: '🚨' },
   ];
 
   const filteredPresets = selectedCategory === 'all'
     ? SIMULATION_PRESETS
+    : selectedCategory === 'happy'
+    ? SIMULATION_PRESETS.filter(p => p.flowTag?.toLowerCase().includes('flow') && !p.flowTag?.toLowerCase().includes('sad'))
+    : selectedCategory === 'sad'
+    ? SIMULATION_PRESETS.filter(p => p.flowTag?.toLowerCase().includes('sad') || p.category === 'sadness' || p.category === 'crisis' || p.category === 'fiduciary')
     : SIMULATION_PRESETS.filter(p => p.category === selectedCategory);
 
   const handleCopyPrompt = (preset: SimulationPreset, e: React.MouseEvent) => {
@@ -178,6 +182,17 @@ export const RecommendedPromptsModal: React.FC<RecommendedPromptsModalProps> = (
                 className="bg-white border border-[#E7E2DB] hover:border-stone-400 rounded-2xl p-3.5 flex flex-col justify-between transition-all shadow-2xs group"
               >
                 <div className="space-y-2">
+                  {preset.flowTag && (
+                    <div className="flex items-center gap-1.5">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                        preset.flowTag.toLowerCase().includes('sad')
+                          ? 'bg-rose-50 text-rose-800 border-rose-200'
+                          : 'bg-amber-50 text-amber-900 border-amber-300'
+                      }`}>
+                        {preset.flowTag}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{preset.icon}</span>
