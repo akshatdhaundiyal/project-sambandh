@@ -27,12 +27,20 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ currentLang, onOpenSig
             </span>
           </div>
 
-          {/* Main Headline (Document thesis) */}
+          {/* Main Headline (Major Quote) */}
           <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold text-stone-900 tracking-tight leading-[1.15]">
             {currentLang === 'hi' ? (
-              'माता-पिता का ख्याल, जब आप व्यस्त हों। आपका अपना आत्मीय साथी।'
+              <>
+                माता-पिता को मिले सच्चा ख्याल।
+                <br className="hidden sm:inline" />
+                आपको मिले मानसिक शांति।
+              </>
             ) : (
-              'Your extended arm when you can’t be there.'
+              <>
+                Your parents deserve care.
+                <br className="hidden sm:inline" />
+                You deserve peace of mind.
+              </>
             )}
           </h1>
 
