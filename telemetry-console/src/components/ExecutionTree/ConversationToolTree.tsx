@@ -60,7 +60,7 @@ export const ConversationToolTree: React.FC = () => {
       title: '08:20 IST Pre-Call Caregiver Agency Gate',
       category: 'decision',
       toolName: 'caregiver_precall_consent',
-      description: 'Pre-call approval dispatched to Priya via Telegram. Caregiver chooses whether to call Papa herself or delegate to Sambandh AI.',
+      description: 'Pre-call approval dispatched to Rohan via Telegram. Caregiver chooses whether to call Papa himself or delegate to Sambandh AI.',
       branchLabel: 'BRANCH: CAREGIVER DIRECT CALL vs AI CHECK-IN',
       branchGroup: 'Caregiver Agency Rail',
       apiExchange: CAREGIVER_PRECALL_APPROVAL_EXCHANGE,
@@ -128,7 +128,7 @@ export const ConversationToolTree: React.FC = () => {
       branchLabel: 'BRANCH: SECURITY TERMINATION',
       branchGroup: 'Mentorship Safety Rail',
       toolName: 'telegram_security_alert',
-      description: 'Priya notified silently on Telegram with caller metadata. Zero elder panic or vulnerability exposure.',
+      description: 'Rohan notified silently on Telegram with caller metadata. Zero elder panic or vulnerability exposure.',
       apiExchange: TELEGRAM_DISPATCH_EXCHANGE,
       hitInScenarios: ['scenario-3'],
       scenarioStepMap: { 'scenario-3': 2 }
@@ -170,7 +170,7 @@ export const ConversationToolTree: React.FC = () => {
       branchLabel: 'BRANCH: CLINICAL EMERGENCY',
       branchGroup: 'Clinical Safety Rail',
       toolName: 'telegram_emergency_alert',
-      description: 'Immediate high-priority Telegram alert sent to Priya with 1-tap direct call button.',
+      description: 'Immediate high-priority Telegram alert sent to Rohan with 1-tap direct call button.',
       apiExchange: TELEGRAM_DISPATCH_EXCHANGE,
       hitInScenarios: ['scenario-5'],
       scenarioStepMap: { 'scenario-5': 2 }
@@ -308,7 +308,7 @@ export const ConversationToolTree: React.FC = () => {
       branchLabel: 'BRANCH: POST-INTERACTION TRANSPARENCY',
       branchGroup: 'Autonomous Refill Rail',
       toolName: 'telegram_caregiver_brief',
-      description: 'Reassurance card delivered to Priya on Telegram with interactive story playback.',
+      description: 'Reassurance card delivered to Rohan on Telegram with interactive story playback.',
       apiExchange: TELEGRAM_DISPATCH_EXCHANGE,
       hitInScenarios: ['scenario-1'],
       scenarioStepMap: { 'scenario-1': 6 }
@@ -329,12 +329,12 @@ export const ConversationToolTree: React.FC = () => {
     },
     {
       id: 'fork4b-stepup-card',
-      title: '1-Tap UPI Mandate Authorization Card to Priya',
+      title: '1-Tap UPI Mandate Authorization Card to Rohan',
       category: 'tool',
       branchLabel: 'BRANCH: CAREGIVER STEP-UP AUTHORIZATION',
       branchGroup: 'Fiduciary Step-Up Rail',
       toolName: 'telegram_stepup_brief',
-      description: 'Interactive Telegram card allows Priya to approve ₹5,600 bulk pack or switch to 30-day.',
+      description: 'Interactive Telegram card allows Rohan to approve ₹5,600 bulk pack or switch to 30-day.',
       apiExchange: TELEGRAM_DISPATCH_EXCHANGE,
       hitInScenarios: ['scenario-4'],
       scenarioStepMap: { 'scenario-4': 1 }

@@ -232,7 +232,7 @@ export const CaregiverProfileTab: React.FC = () => {
             <label className="block text-[10px] font-bold text-stone-600 mb-0.5">Primary Caregiver Name</label>
             <input
               type="text"
-              value={formData.caregiverName || 'Priya Sharma'}
+              value={formData.caregiverName || 'Rohan Sharma'}
               onChange={e => setFormData({ ...formData, caregiverName: e.target.value })}
               className="w-full text-xs font-medium bg-[#FAF8F5] border border-stone-200 rounded-xl px-2.5 py-1.5 text-stone-800 focus:bg-white focus:border-teal-700 outline-none"
             />

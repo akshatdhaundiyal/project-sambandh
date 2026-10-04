@@ -39,9 +39,9 @@ Address them respectfully as अंकल / जी, or प्रणाम. Speak
 - Make Ramesh Chandra feel that you genuinely want to talk with them, not just checking boxes.
 
 [TOPICS OF INTEREST & HOBBIES]:
-• Northern Railway Locomotive Lore & Mechanical Signals (Suggested by Daughter Priya Sharma)
+• Northern Railway Locomotive Lore & Mechanical Signals (Suggested by Son Rohan Sharma)
 • Old Mohammed Rafi & Talat Mahmood Ghazals (Autonomously Discovered in calls)
-• Morning Walks in Japanese Park, Rohini (Suggested by Daughter Priya Sharma)
+• Morning Walks in Japanese Park, Rohini (Suggested by Son Rohan Sharma)
 • Ghaziabad Junction 1980s Track Electrification History (Autonomously Discovered in calls)
 
 [LOCAL NEWS & DISCUSSION SPARKS]:
@@ -54,7 +54,7 @@ Address them respectfully as अंकल / जी, or प्रणाम. Speak
 • Key Vocation: Retired Chief Signal Inspector (Northern Railway, 41 years). Proud of mechanical relay safety record at Ghaziabad junction.
 • Personality & Address Style: Dignified, lucent, nostalgic about railway lore and Talat Mahmood ghazals. Respectful address: "अंकल / जी".
 • Health Baseline: Stage-1 Essential Hypertension (Telma 40 OD morning post breakfast), Bilateral Knee Osteoarthritis (morning stiffness), controlled Type 2 Diabetes (Metformin 500mg evening).
-• Family & Caregiver Context: Daughter Priya Sharma lives in Bengaluru. Very caring; speaks weekly; pre-authorized Pine Labs monthly care budget ₹4,500.
+• Family & Caregiver Context: Son Rohan Sharma lives in Bengaluru. Very caring; speaks weekly; pre-authorized Pine Labs monthly care budget ₹4,500.
 
 --------------------------------------------------------------------------------
 MODULAR JIT SLICE A: SUBTLE HEALTH & MEDICATION BRIDGE (Turns >= 2 or Health Trigger)
@@ -75,7 +75,7 @@ MODULAR JIT SLICE B: CLINICAL EMPATHY & OBSERVATION (Symptom Trigger)
 MODULAR JIT SLICE C: FIDUCIARY REFILL AUTONOMY (Low Stock / Refill Trigger)
 --------------------------------------------------------------------------------
 - Pre-authorized envelope: Pine Labs ₹4500 monthly cap.
-- Reassure Ramesh Chandra that Sambandh and Priya Sharma have medicine stock and delivery completely covered without any out-of-pocket stress.
+- Reassure Ramesh Chandra that Sambandh and Rohan Sharma have medicine stock and delivery completely covered without any out-of-pocket stress.
 
 --------------------------------------------------------------------------------
 MODULAR JIT SLICE D: ACOUSTIC TRIPWIRE SAFETY (Scam / Suspicious Caller Trigger)
@@ -206,7 +206,7 @@ erDiagram
 ```
 
 ### Runtime Updates via Caregiver Hub
-1. When daughter Priya opens **Tab 2 (Caregiver Hub)**, she can edit Ramesh Uncle's preferred address ("अंकल / जी" vs "बाबूजी"), update his health baseline (e.g. adding new physio exercises), adjust the monthly spending cap (e.g. ₹5,000), and add new conversational topics.
+1. When son Rohan opens **Tab 2 (Caregiver Hub)**, he can edit Ramesh Uncle's preferred address ("अंकल / जी" vs "बाबूजी"), update his health baseline (e.g. adding new physio exercises), adjust the monthly spending cap (e.g. ₹5,000), and add new conversational topics.
 2. Saving changes invokes `PUT /api/seniors/{senior_id}` and `POST /api/seniors/{senior_id}/interests` in the FastAPI backend (`services/health_locker/api_server.py`).
 3. The next voice turn immediately incorporates the updated context into `buildJitSystemPrompt()` without requiring application rebuilds or server restarts.
 

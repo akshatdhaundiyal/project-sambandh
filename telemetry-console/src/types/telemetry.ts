@@ -534,7 +534,7 @@ export interface DoctorConsultationSession {
   seniorId: string;
   caregiverName: string;
   caregiverRelationship: string;
-  caregiverAttending: boolean; // true if Priya is connected live; false if elder is solo
+  caregiverAttending: boolean; // true if Rohan is connected live; false if elder is solo
   initiatedBy: 'senior' | 'caregiver';
   startedAt: string;
   endedAt?: string;

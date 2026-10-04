@@ -105,7 +105,7 @@ export const useCallSession = (props?: UseCallSessionProps) => {
         const timeStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST';
         setLastMissedCallAt(timeStr);
         props?.onEscalateMissedCall?.(2);
-        props?.onToast?.("🚨 Escalation: 2nd check-in call missed. Telegram priority alert dispatched to Priya Sharma.");
+        props?.onToast?.("🚨 Escalation: 2nd check-in call missed. Telegram priority alert dispatched to Rohan Sharma.");
         return 2;
       }
     });

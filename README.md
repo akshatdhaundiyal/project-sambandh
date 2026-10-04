@@ -18,9 +18,9 @@
 **Project Sambandh** is an autonomous care platform engineered for India's digital health landscape. Rather than acting as an intrusive medical monitor or clinical overseer ("nanny-ware"), Sambandh operates across a unified, multi-tier autonomous architecture:
 
 1. **Conversational Companion & Wisdom Bond (Lane 1):** Operates **companion-first, health-monitor-second**. Morning calls open with randomized, authentic vernacular sparks (Delhi weather, local Rohini park/metro developments, wholesome elder humor, and intergenerational mentorship). Sambandh engages in 30+ seconds of natural, warm banter before subtly checking on morning medications, validating elder dignity and banishing loneliness.
-2. **Subtle Adherence & Human-in-the-Loop Approval (Lane 2):** After establishing warm rapport over 2 to 3 natural turns of banter, Sambandh casually and subtly checks on breakfast and time-relevant medication (resolved dynamically via `getMoleculesForTimeOfDay` without hardcoding). When a refill is required, a high-priority **1-Tap Medication Approval Gate** is dispatched to caregiver Priya on Telegram before any wallet debit or pharmacy dispatch takes place.
+2. **Subtle Adherence & Human-in-the-Loop Approval (Lane 2):** After establishing warm rapport over 2 to 3 natural turns of banter, Sambandh casually and subtly checks on breakfast and time-relevant medication (resolved dynamically via `getMoleculesForTimeOfDay` without hardcoding). When a refill is required, a high-priority **1-Tap Medication Approval Gate** is dispatched to caregiver Rohan on Telegram before any wallet debit or pharmacy dispatch takes place.
 3. **Just-In-Time (JIT) Modular Prompt & Hybrid Topic Engine:** Prevents prompt bloat and early escalation through a lean companion core prompt that conditionally attaches specialized instructions (`Subtle Adherence`, `Clinical Dossier`, `Fiduciary Refill`, `Acoustic Tripwire`) **only as and when required**, achieving 77% token cost savings.
-4. **Ambient In-Clinic Doctor Consultation Transcriber & 3-Tier Transformation:** Replaces artificial speaker tagging with continuous ambient audio capture during doctor visits. Uses **MedGemma 4B / Gemini 2.5 Flash** to perform a 3-tier clinical transformation: (1) Structured Clinical EHR & measured vitals, (2) Papa's Vernacular Guide in spoken Devanagari Hindi with TTS playback, and (3) Actionable Telegram Briefing dispatched to daughter Priya with follow-up lab orders and prescription changes.
+4. **Ambient In-Clinic Doctor Consultation Transcriber & 3-Tier Transformation:** Replaces artificial speaker tagging with continuous ambient audio capture during doctor visits. Uses **MedGemma 4B / Gemini 2.5 Flash** to perform a 3-tier clinical transformation: (1) Structured Clinical EHR & measured vitals, (2) Papa's Vernacular Guide in spoken Devanagari Hindi with TTS playback, and (3) Actionable Telegram Briefing dispatched to son Rohan with follow-up lab orders and prescription changes.
 5. **Live Telegram Bot REST MTProto Integration:** Real-time post-call care briefings, instant 1-tap approval cards, doctor consultation summaries, and emergency crisis alerts delivered directly to `@SambandhCare_Bot`.
 
 ---
@@ -51,7 +51,7 @@ For live testing and competition demonstration, Project Sambandh provides a unif
 │                              PROJECT SAMBANDH TELEMETRY CONSOLE                         │
 ├──────────────────────────┬─────────────────────────────┬───────────────────────────────┤
 │ TAB 1: ELDER COMPANION   │ TAB 2: CAREGIVER HUB        │ TAB 3: YOUTH & WISDOM BRIDGE  │
-│ (Ramesh Chandra, 72/M)   │ (Priya Sharma, Daughter)    │ (DTU Engineering Students)    │
+│ (Ramesh Chandra, 72/M)   │ (Rohan Sharma, Son)         │ (DTU Engineering Students)    │
 ├──────────────────────────┼─────────────────────────────┼───────────────────────────────┤
 │ • Companion-first Voice  │ • Profile & Clinical Editor │ • Intergenerational Questions │
 │ • Dual-Pane Telephony    │ • Activity & Sparks Manager │ • Real-time Safety Gate (LLM) │
@@ -64,7 +64,7 @@ For live testing and competition demonstration, Project Sambandh provides a unif
 ### Key Console Highlights:
 1. **Persona Tab 1 (Elder Companion):** Senior-friendly telephony interface with authentic **Devanagari Hindi** dialogue, real-time audio visualization, multi-engine Indic speech synthesis (Gnani Continuous Duplex & Browser Push-to-Talk), active call termination, and live partner rail execution tracking.
 2. **In-Clinic Doctor Consultation Bridge:** Ambient audio transcriber capturing in-room OPD conversations (Doctor, Senior, Caregiver) with **3-Tier MedGemma Transformation** (EHR Vitals, Papa's Vernacular Hindi Guide, Caregiver Actionable Checklist).
-3. **Persona Tab 2 (Caregiver Hub):** Full command deck for daughter Priya Sharma. Enables editing Ramesh Uncle's baseline diagnoses, preferred address style, monthly spending envelope (Pine Labs), and conversational hobbies directly backed by PostgreSQL.
+3. **Persona Tab 2 (Caregiver Hub):** Full command deck for son Rohan Sharma. Enables editing Ramesh Uncle's baseline diagnoses, preferred address style, monthly spending envelope (Pine Labs), and conversational hobbies directly backed by PostgreSQL.
 4. **Persona Tab 3 (Youth & Wisdom Bridge):** Allows engineering youth to seek career wisdom from retired elders. Features an autonomous **LLM Safety Gate** that screens questions for PII harvesting or financial exploitation before queuing approved questions into morning calls.
 5. **Just-In-Time (JIT) Modular Prompting:** Employs lean turn-based prompt slicing that saves >60–77% of prompt tokens while allowing judges to inspect both live sliced prompts and full concatenated instructions via the in-app modal.
 

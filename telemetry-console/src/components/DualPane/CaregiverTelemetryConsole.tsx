@@ -309,7 +309,7 @@ export const CaregiverTelemetryConsole: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-[11px] text-stone-600 mt-0.5">
-                  Dual-channel acoustic capture active at Apollo Clinic. Participants: Dr. Arvind Saxena & Ramesh Chandra in clinic; Priya Sharma {consultationSession.caregiverAttending ? '(Attending live)' : '(Async briefing mode)'}. {consultationSession.turns.length} turns recorded.
+                  Dual-channel acoustic capture active at Apollo Clinic. Participants: Dr. Arvind Saxena & Ramesh Chandra in clinic; Rohan Sharma {consultationSession.caregiverAttending ? '(Attending live)' : '(Async briefing mode)'}. {consultationSession.turns.length} turns recorded.
                 </p>
                 <div className="flex gap-2 mt-1 text-[9px] font-mono text-emerald-800 flex-wrap">
                   <span>CHANNEL: IN_CLINIC_MIC + SIP_TRUNK</span>
@@ -401,7 +401,7 @@ export const CaregiverTelemetryConsole: React.FC = () => {
                   <span className="text-[10px] font-mono text-stone-400">08:29:40 IST</span>
                 </div>
                 <p className="text-[11px] text-stone-600 mt-0.5">
-                  Signed HIP consent token verified with National Health Authority sandbox. Primary caregiver Priya Sharma designated consent manager.
+                  Signed HIP consent token verified with National Health Authority sandbox. Primary caregiver Rohan Sharma designated consent manager.
                 </p>
                 <div className="flex gap-2 mt-1 text-[9px] font-mono text-emerald-700">
                   <span>ABDM ID: ramesh.chandra@abdm</span>

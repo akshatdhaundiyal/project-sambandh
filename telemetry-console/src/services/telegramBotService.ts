@@ -303,7 +303,7 @@ export const sendTelegramDoctorAppointmentApprovalCard = async (
  */
 export const sendTelegramDoctorAppointmentBookingMessage = async (
   req: DoctorAppointmentApprovalRequest,
-  caregiverName: string = 'Priya Sharma'
+  caregiverName: string = 'Rohan Sharma'
 ): Promise<TelegramSendResult> => {
   const seniorName = escapeHtml(req.seniorName || 'Ramesh Chandra');
   const seniorAge = req.seniorAge || 72;
@@ -385,7 +385,7 @@ export const sendTelegramMissedCallAlert = async (alert: {
 };
 
 /**
- * 2. Dispatches Post-Call Daily Care Briefing to Priya
+ * 2. Dispatches Post-Call Daily Care Briefing to Rohan
  */
 export const sendTelegramDailyCareBriefing = async (briefing: {
   time?: string;
@@ -468,7 +468,7 @@ ${seniorName} sounded a bit sad/low during today's call.
 };
 
 /**
- * 3. Dispatches Critical Medical or Security Alert to Priya
+ * 3. Dispatches Critical Medical or Security Alert to Rohan
  */
 export const sendTelegramEmergencyAlert = async (alert: {
   type: 'FALL_DETECTED' | 'CHEST_PAIN' | 'FINANCIAL_SCAM' | 'MEDICATION_DISCONTINUED';
@@ -511,7 +511,7 @@ ${
 };
 
 /**
- * 4. Dispatches In-Clinic Doctor Consultation Briefing & 3-Tier Transformation to Priya
+ * 4. Dispatches In-Clinic Doctor Consultation Briefing & 3-Tier Transformation to Rohan
  */
 export const sendTelegramDoctorConsultationReport = async (report: {
   doctorName?: string;
@@ -549,7 +549,7 @@ ${medChangesList || '• No change to maintenance medications'}
 👵🏼 <b>Papa's Vernacular Instructions (सरल निर्देश):</b>
 ${elderInstList || '• नियमित दिनचर्या जारी रखें'}
 
-🎯 <b>Caregiver Action Checklist (Priya):</b>
+🎯 <b>Caregiver Action Checklist (Rohan):</b>
 ${actionItemsList || '• Routine monitoring'}
 • <b>Next Review:</b> ${followUp}
 

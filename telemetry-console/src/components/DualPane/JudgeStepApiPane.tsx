@@ -352,7 +352,7 @@ export const JudgeStepApiPane: React.FC<JudgeStepApiPaneProps> = ({
                 brandName: 'Sambandh HITL Gate',
                 toolName: 'request_medication_refill',
                 title: 'Refill Request Dispatched to Caregiver',
-                actionSummary: 'Dispatched 1-tap medication approval card to Priya Sharma in Bangalore. Ordering tools paused awaiting sign-off.',
+                actionSummary: 'Dispatched 1-tap medication approval card to Rohan Sharma in Bangalore. Ordering tools paused awaiting sign-off.',
                 timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
                 status: 'ACTIVE',
                 statusCode: 'AWAITING APPROVAL',

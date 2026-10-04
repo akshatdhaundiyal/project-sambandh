@@ -99,10 +99,10 @@ export const DEFAULT_DYNAMIC_PROFILE: DynamicElderProfile = {
   vocation: 'Retired Chief Signal Inspector (Northern Railway, 41 years). Proud of mechanical relay safety record at Ghaziabad junction.',
   personalityNotes: 'Dignified, lucent, nostalgic about railway lore and Talat Mahmood ghazals.',
   healthBaseline: 'Stage-1 Essential Hypertension (Telma 40 OD morning post breakfast), Bilateral Knee Osteoarthritis (morning stiffness), controlled Type 2 Diabetes (Metformin 500mg evening).',
-  familyContext: 'Daughter Priya Sharma lives in Bengaluru. Very caring; speaks weekly; pre-authorized Pine Labs monthly care budget ₹4,500.',
+  familyContext: 'Son Rohan Sharma lives in Bengaluru. Very caring; speaks weekly; pre-authorized Pine Labs monthly care budget ₹4,500.',
   preferredAddress: 'अंकल / जी',
-  caregiverName: 'Priya Sharma',
-  caregiverRelationship: 'Daughter',
+  caregiverName: 'Rohan Sharma',
+  caregiverRelationship: 'Son',
   monthlySpendingCapInr: 4500,
   doctorName: 'Dr. Arvind Saxena (MD, Cardiology)',
   doctorClinic: 'Apollo Clinic Rohini (+91 11 2790 1200)'

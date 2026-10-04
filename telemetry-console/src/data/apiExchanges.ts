@@ -18,7 +18,7 @@ export const PINE_LABS_SUCCESS_EXCHANGE: HttpApiExchange = {
     "order_id": "SAMBANDH_REFILL_20261012_01",
     "amount": 84000,
     "currency": "INR",
-    "customer_upi_id": "priya.sharma@okhdfcbank",
+    "customer_upi_id": "rohan.sharma@okhdfcbank",
     "auto_debit_type": "UPI_AUTOPAY",
     "pre_authorized_cap": 450000,
     "debit_execution_type": "AUTONOMOUS_L3_BOUNDED",
@@ -70,7 +70,7 @@ export const PINE_LABS_LIMIT_EXCEEDED_EXCHANGE: HttpApiExchange = {
     "order_id": "SAMBANDH_BULK_20261012_04",
     "amount": 560000,
     "currency": "INR",
-    "customer_upi_id": "priya.sharma@okhdfcbank",
+    "customer_upi_id": "rohan.sharma@okhdfcbank",
     "auto_debit_type": "UPI_AUTOPAY",
     "pre_authorized_cap": 450000
   },
@@ -90,7 +90,7 @@ export const PINE_LABS_LIMIT_EXCEEDED_EXCHANGE: HttpApiExchange = {
     "monthly_cap_inr": 4500.0,
     "action_required": "ASYNC_CAREGIVER_STEP_UP_AUTHORIZATION",
     "step_up_channel": "TELEGRAM_BOT_API",
-    "caregiver": "Priya Sharma (@priya_sharma_care)"
+    "caregiver": "Rohan Sharma (@rohan_sharma_care)"
   }
 };
 
@@ -329,7 +329,7 @@ export const TELEGRAM_DISPATCH_EXCHANGE: HttpApiExchange = {
     "Content-Type": "application/json"
   },
   requestBody: {
-    "chat_id": "@priya_sharma_care",
+    "chat_id": "@rohan_sharma_care",
     "parse_mode": "HTML",
     "text": "🌿 <b>Daily Care Briefing: Papa's Morning Call (08:32 AM)</b>\n...",
     "reply_markup": {
@@ -350,7 +350,7 @@ export const TELEGRAM_DISPATCH_EXCHANGE: HttpApiExchange = {
     "result": {
       "message_id": 98412,
       "date": 1791804768,
-      "chat": { "id": -1001928341, "username": "priya_sharma_care", "type": "supergroup" }
+      "chat": { "id": -1001928341, "username": "rohan_sharma_care", "type": "supergroup" }
     }
   }
 };
@@ -457,7 +457,7 @@ export const AMAZON_MCP_ORDER_EXCHANGE: HttpApiExchange = {
       "quantity": 1,
       "price_inr": 1249.0,
       "delivery_address": "Flat 402, Block C, Pocket 2, Rohini Sector 8, Delhi 110085",
-      "fiduciary_source": "Priya Sharma Sambandh Wallet Envelope",
+      "fiduciary_source": "Rohan Sharma Sambandh Wallet Envelope",
       "authorized_by": "SAMBANDH_L3_AUTONOMOUS_CONNECTOR"
     }
   },
@@ -552,7 +552,7 @@ export const TRANSCRIBER_MODE_EXCHANGE: HttpApiExchange = {
       "advice": "Daily 20m morning walk, restrict salt, repeat fasting lipid profile in 4 weeks"
     },
     "caregiver_brief_dispatched": true,
-    "telegram_target": "@priya_sharma_care"
+    "telegram_target": "@rohan_sharma_care"
   }
 };
 
@@ -576,7 +576,7 @@ export const NETMEDS_PHARMACY_ORDER_EXCHANGE: HttpApiExchange = {
       "address_line": "Flat 402, Block C, Pocket 2, Rohini Sector 8",
       "city": "Delhi",
       "pincode": "110085",
-      "pre_fed_by": "Priya Sharma (Caregiver)"
+      "pre_fed_by": "Rohan Sharma (Caregiver)"
     },
     "nearest_fulfillment_pharmacy": {
       "store_id": "NETMEDS_DARKSTORE_ROHINI_11",
@@ -729,7 +729,7 @@ export const CAREGIVER_PRECALL_APPROVAL_EXCHANGE: HttpApiExchange = {
   },
   requestBody: {
     "chat_id": 9812491,
-    "recipient": "Priya Sharma (@priya_sharma_care)",
+    "recipient": "Rohan Sharma (@rohan_sharma_care)",
     "notification_type": "PRE_CALL_AGENCY_GATE",
     "scheduled_time_ist": "08:30 IST",
     "senior_profile": {
@@ -738,7 +738,7 @@ export const CAREGIVER_PRECALL_APPROVAL_EXCHANGE: HttpApiExchange = {
       "phone": "+91 98101 23456",
       "clinical_vitals_summary": "Omron BP 128/82 mmHg, Telmisartan stock: 6 days runway"
     },
-    "message": "Namaste Priya. Today's 08:30 AM morning check-in with Papa is scheduled. Would you like to call him directly yourself today, or should Sambandh AI conduct the morning check-in?",
+    "message": "Namaste Rohan. Today's 08:30 AM morning check-in with Papa is scheduled. Would you like to call him directly yourself today, or should Sambandh AI conduct the morning check-in?",
     "reply_markup": {
       "inline_keyboard": [
         [

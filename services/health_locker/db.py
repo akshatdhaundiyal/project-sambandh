@@ -99,10 +99,10 @@ class HealthLockerDB:
             "vocation": "Retired Chief Signal Inspector (Northern Railway, 41 years). Proud of mechanical relay safety record at Ghaziabad junction.",
             "personality_notes": "Dignified, lucent, nostalgic about railway lore and Talat Mahmood ghazals.",
             "health_baseline": "Stage-1 Essential Hypertension (Telma 40 OD morning post breakfast), Bilateral Knee Osteoarthritis (morning stiffness), controlled Type 2 Diabetes (Metformin 500mg evening).",
-            "family_context": "Daughter Priya Sharma lives in Bengaluru. Very caring; speaks weekly; pre-authorized Pine Labs monthly care budget ₹4,500.",
+            "family_context": "Son Rohan Sharma lives in Bengaluru. Very caring; speaks weekly; pre-authorized Pine Labs monthly care budget ₹4,500.",
             "preferred_address": "अंकल / जी",
-            "caregiver_name": "Priya Sharma",
-            "caregiver_relationship": "Daughter",
+            "caregiver_name": "Rohan Sharma",
+            "caregiver_relationship": "Son",
             "doctor_name": "Dr. Arvind Saxena (MD, Cardiology)",
             "doctor_clinic": "Apollo Clinic Rohini (+91 11 2790 1200)"
         }
@@ -160,7 +160,7 @@ class HealthLockerDB:
                 "topic": "Northern Railway Signaling Lore & WDM-2 Diesel Locos",
                 "category": "RAILWAYS_CAREER",
                 "source": "CAREGIVER_CURATED",
-                "added_by": "Priya Sharma (Daughter)",
+                "added_by": "Rohan Sharma (Son)",
                 "enthusiasm_level": "VERY_HIGH",
                 "notes": "Father loves discussing interlocking signals and locomotive lore.",
                 "is_active": True
@@ -170,7 +170,7 @@ class HealthLockerDB:
                 "topic": "Mohammed Rafi, Talat Mahmood & Manna Dey Melodies",
                 "category": "MUSIC_CULTURE",
                 "source": "CAREGIVER_CURATED",
-                "added_by": "Priya Sharma (Daughter)",
+                "added_by": "Rohan Sharma (Son)",
                 "enthusiasm_level": "HIGH",
                 "notes": "Listens to morning old classics on transistor radio while sipping ginger tea.",
                 "is_active": True
@@ -433,7 +433,7 @@ class HealthLockerDB:
 
         return {
             "senior_id": "SENIOR_RAMESH_001",
-            "caregiver_name": "Priya Sharma",
+            "caregiver_name": "Rohan Sharma",
             "caregiver_phone": "+91 98765 43210",
             "notification_channel": "telegram",
             "order_total_limit_inr": 4500,

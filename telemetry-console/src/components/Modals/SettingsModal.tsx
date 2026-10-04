@@ -154,7 +154,7 @@ export const SettingsModal: React.FC = () => {
     setTelegramSendFeedback(null);
     const now = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const result = await sendTelegramMessage(
-      `🔔 <b>Project Sambandh Diagnostic Ping (${now} IST)</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n• <b>Caregiver:</b> Priya Sharma (+91 98765 43210)\n• <b>Senior:</b> Ramesh Chandra (Rohini Circle)\n• <b>Channel:</b> Live Telegram Bot Bridge\n\n✅ <i>Connection verified. High-priority medication refill approvals and daily check-in briefings are linked to this chat.</i>`,
+      `🔔 <b>Project Sambandh Diagnostic Ping (${now} IST)</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n• <b>Caregiver:</b> Rohan Sharma (+91 98765 43210)\n• <b>Senior:</b> Ramesh Chandra (Rohini Circle)\n• <b>Channel:</b> Live Telegram Bot Bridge\n\n✅ <i>Connection verified. High-priority medication refill approvals and daily check-in briefings are linked to this chat.</i>`,
       { parseMode: 'HTML' }
     );
     setIsSendingTelegramTestMsg(false);
@@ -1031,7 +1031,7 @@ export const SettingsModal: React.FC = () => {
                 <div>
                   <span className="text-stone-500 block text-[11px]">Low-Balance Alert Threshold</span>
                   <span className="font-extrabold text-stone-800">
-                    ₹{cashWallet.lowBalanceThresholdInr.toLocaleString('en-IN')} (Automatic Telegram alert to Priya)
+                    ₹{cashWallet.lowBalanceThresholdInr.toLocaleString('en-IN')} (Automatic Telegram alert to Rohan)
                   </span>
                 </div>
                 <div>
@@ -1170,7 +1170,7 @@ export const SettingsModal: React.FC = () => {
                   />
                 </div>
                 <span className="text-[11px] text-stone-500 max-w-xs">
-                  Any automated Netmeds refill request exceeding this amount is intercepted and routed to Priya for 1-tap Telegram sign-off.
+                  Any automated Netmeds refill request exceeding this amount is intercepted and routed to Rohan for 1-tap Telegram sign-off.
                 </span>
               </div>
             </div>
@@ -1246,7 +1246,7 @@ export const SettingsModal: React.FC = () => {
                 </div>
                 <div className="p-2.5 bg-white rounded-xl border border-sky-100">
                   <span className="text-[10px] font-bold text-stone-400 block uppercase tracking-wider">
-                    Caregiver Telegram Chat ID (Priya)
+                    Caregiver Telegram Chat ID (Rohan)
                   </span>
                   <span className="font-mono text-[11px] font-bold text-sky-900">
                     {telegramCreds.chatId || 'Not configured'}

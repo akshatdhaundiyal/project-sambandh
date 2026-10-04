@@ -263,7 +263,7 @@ export const SCENARIO_NODE_REGISTRY: Record<string, ToolExecutionNode[]> = {
       statusCode: '200 ORDER PACKED',
       latencyMs: 215,
       apiExchange: NETMEDS_PHARMACY_ORDER_EXCHANGE,
-      reasoningSnippet: 'Pre-fed nearest pharmacy location selected by caregiver Priya Sharma. Auto-generates invoice NMD_INV_9812401.',
+      reasoningSnippet: 'Pre-fed nearest pharmacy location selected by caregiver Rohan Sharma. Auto-generates invoice NMD_INV_9812401.',
       brandColor: '#059669'
     },
     {
@@ -289,13 +289,13 @@ export const SCENARIO_NODE_REGISTRY: Record<string, ToolExecutionNode[]> = {
       brandName: 'Telegram MTProto Bot',
       toolName: 'telegram_caregiver_brief',
       title: 'Family Briefing & Audio Story Card',
-      actionSummary: 'Telegram summary delivered to Priya with 30s audio story snippet and live order tracking.',
+      actionSummary: 'Telegram summary delivered to Rohan with 30s audio story snippet and live order tracking.',
       timestamp: '08:32:48 IST',
       status: 'SUCCESS',
       statusCode: 'DELIVERED',
       latencyMs: 240,
       apiExchange: TELEGRAM_DISPATCH_EXCHANGE,
-      reasoningSnippet: 'Priya reassured on high vitality, verified adherence, and doorstep delivery.',
+      reasoningSnippet: 'Rohan reassured on high vitality, verified adherence, and doorstep delivery.',
       brandColor: '#24A1DE'
     },
     {
@@ -372,7 +372,7 @@ export const SCENARIO_NODE_REGISTRY: Record<string, ToolExecutionNode[]> = {
       brandName: 'Telegram MTProto Bot',
       toolName: 'telegram_caregiver_brief',
       title: 'Vitality Reassurance Briefing',
-      actionSummary: 'Priya notified: Papa in spirited mood (Vitality: 96%). Medicine cabinet safe.',
+      actionSummary: 'Rohan notified: Papa in spirited mood (Vitality: 96%). Medicine cabinet safe.',
       timestamp: '08:33:05 IST',
       status: 'SUCCESS',
       statusCode: 'DELIVERED',
@@ -423,13 +423,13 @@ export const SCENARIO_NODE_REGISTRY: Record<string, ToolExecutionNode[]> = {
       brandName: 'Telegram MTProto Bot',
       toolName: 'telegram_mentorship_card',
       title: 'Caregiver Daily Story & Vitality Digest',
-      actionSummary: 'Delivered 30s audio wisdom snippet to Priya on Telegram. Papa\'s mood: spirited & cheerful.',
+      actionSummary: 'Delivered 30s audio wisdom snippet to Rohan on Telegram. Papa\'s mood: spirited & cheerful.',
       timestamp: '08:31:05 IST',
       status: 'SUCCESS',
       statusCode: 'DELIVERED',
       latencyMs: 190,
       apiExchange: TELEGRAM_DISPATCH_EXCHANGE,
-      reasoningSnippet: 'Daughter receives daily warm touchpoint without intrusive clinical monitoring.',
+      reasoningSnippet: 'Caregiver receives daily warm touchpoint without intrusive clinical monitoring.',
       brandColor: '#24A1DE'
     }
   ],
@@ -474,7 +474,7 @@ export const SCENARIO_NODE_REGISTRY: Record<string, ToolExecutionNode[]> = {
       brandName: 'Telegram MTProto Bot',
       toolName: 'telegram_stepup_brief',
       title: '1-Tap UPI Mandate Authorization Card',
-      actionSummary: 'Interactive approval card routed to Priya on Telegram to approve ₹5,600 or fallback to 30-day.',
+      actionSummary: 'Interactive approval card routed to Rohan on Telegram to approve ₹5,600 or fallback to 30-day.',
       timestamp: '08:31:55 IST',
       status: 'ACTIVE',
       statusCode: 'ACTION REQUIRED',
@@ -525,7 +525,7 @@ export const SCENARIO_NODE_REGISTRY: Record<string, ToolExecutionNode[]> = {
       brandName: 'Telegram MTProto Bot',
       toolName: 'telegram_emergency_alert',
       title: 'Urgent Red Alert with 1-Tap Call',
-      actionSummary: 'Emergency alert dispatched to Priya with 1-tap direct call to Papa and Dr. Saxena.',
+      actionSummary: 'Emergency alert dispatched to Rohan with 1-tap direct call to Papa and Dr. Saxena.',
       timestamp: '08:31:15 IST',
       status: 'SUCCESS',
       statusCode: 'CRITICAL ALERT',
@@ -555,3 +555,4 @@ export const getNodesForScenarioStep = (
 export const getAllNodesForScenario = (scenarioId: string): ToolExecutionNode[] => {
   return SCENARIO_NODE_REGISTRY[scenarioId] || SCENARIO_NODE_REGISTRY['scenario-1'] || [];
 };
+

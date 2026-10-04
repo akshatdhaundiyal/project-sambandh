@@ -148,7 +148,7 @@ const FALLBACK_SUMMARIES: CallSummaryItem[] = [
       highlights: [
         'Dr. Saxena review slip verified on ABDM Health Locker.',
         'Northern Railway pension credit confirmed in SBI Rohini branch.',
-        'Priya notified on Telegram of stable weekly trajectory.'
+        'Rohan notified on Telegram of stable weekly trajectory.'
       ],
       audioTranscript:
         'पेंशन खाते में समय से आ गई है बेटा। कोई चिंता की बात नहीं है, सब बढ़िया चल रहा है।',

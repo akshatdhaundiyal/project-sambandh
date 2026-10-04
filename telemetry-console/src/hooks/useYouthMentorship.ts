@@ -117,7 +117,7 @@ export const useYouthMentorship = ({
       if (!isSafe) {
         handleTelegramAction('SECURITY_ALERT');
       } else {
-        handleTelegramAction('🛡️ Sambandh AI Safety Cleared! Question sent to Priya for Caregiver Approval.');
+        handleTelegramAction('🛡️ Sambandh AI Safety Cleared! Question sent to Rohan for Caregiver Approval.');
       }
     }, 500);
 
@@ -188,7 +188,7 @@ export const useYouthMentorship = ({
     if (targetItem) {
       await syncYouthQuestionToBackend(targetItem);
     }
-    handleTelegramAction("✨ Question approved by Priya! Queued for Papa's next companion call.");
+    handleTelegramAction("✨ Question approved by Rohan! Queued for Papa's next companion call.");
   }, [handleTelegramAction]);
 
   // Caregiver HITL Decline / Reject
@@ -267,7 +267,7 @@ export const useYouthMentorship = ({
       {}
     );
 
-    // Notify Priya on Telegram with proud summary
+    // Notify Rohan on Telegram with proud summary
     handleTelegramAction('MEDICATION_REASSURANCE_PING');
   }, [activeMentorshipQuestion, mentorshipHistory, activeTtsEngine, handleTelegramAction]);
 

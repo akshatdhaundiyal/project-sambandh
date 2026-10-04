@@ -195,11 +195,11 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
                     : 'bg-stone-700/60 text-stone-300 border-stone-600'
                 }`}
               >
-                <span>👩‍💼</span>
+                <span>👨‍💼</span>
                 <span>
                   {consultationSession.caregiverAttending
-                    ? 'Priya (Remote Live Stream)'
-                    : 'Priya (Async Telegram Briefing)'}
+                    ? 'Rohan (Remote Live Stream)'
+                    : 'Rohan (Async Telegram Briefing)'}
                 </span>
               </span>
 
@@ -210,7 +210,7 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
                   className="px-2 py-0.5 bg-white/15 hover:bg-white/25 text-white rounded-md text-[10px] font-bold cursor-pointer transition-colors"
                   title="Toggle Caregiver remote live attendance"
                 >
-                  {consultationSession.caregiverAttending ? 'Drop Remote Stream' : '+ Bridge Priya'}
+                  {consultationSession.caregiverAttending ? 'Drop Remote Stream' : '+ Bridge Rohan'}
                 </button>
               )}
             </div>
@@ -241,7 +241,7 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
                   className="py-2.5 px-3.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-2xs cursor-pointer active:scale-95"
                 >
                   <Phone className="w-3.5 h-3.5" />
-                  <span>Start with Priya Bridged</span>
+                  <span>Start with Rohan Bridged</span>
                 </button>
 
                 <button
@@ -250,7 +250,7 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
                   className="py-2.5 px-3.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-2xs cursor-pointer active:scale-95"
                 >
                   <User className="w-3.5 h-3.5" />
-                  <span>Start Solo (Auto-Brief Priya)</span>
+                  <span>Start Solo (Auto-Brief Rohan)</span>
                 </button>
               </div>
             </div>
@@ -515,7 +515,7 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
                       : 'text-stone-600 hover:text-stone-900'
                   }`}
                 >
-                  <span>📱 Telegram Card (Priya)</span>
+                  <span>📱 Telegram Card (Rohan)</span>
                 </button>
               </div>
 
@@ -624,7 +624,7 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-sky-950 font-serif font-bold text-xs">
                       <Share2 className="w-4 h-4 text-sky-600" />
-                      <span>Telegram Dispatch Briefing (Priya Sharma)</span>
+                      <span>Telegram Dispatch Briefing (Rohan Sharma)</span>
                     </div>
                     <span className="text-[9px] font-mono font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md flex items-center gap-1">
                       <Check className="w-3 h-3" /> Delivered

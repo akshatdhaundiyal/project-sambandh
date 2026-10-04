@@ -110,7 +110,7 @@ export const callNetmedsOrderTool = async (
       address_line: deliveryAddress,
       city: 'Delhi',
       pincode: '110085',
-      pre_fed_by: 'Priya Sharma (Caregiver)'
+      pre_fed_by: 'Rohan Sharma (Caregiver)'
     },
     nearest_fulfillment_pharmacy: {
       store_id: 'NETMEDS_DARKSTORE_ROHINI_11',
@@ -308,7 +308,7 @@ export const callPineLabsPaymentTool = async (
     order_id: params.orderId,
     amount: params.amountInr * 100, // paise
     currency: 'INR',
-    customer_upi_id: params.customerUpiId || 'priya.sharma@okhdfcbank',
+    customer_upi_id: params.customerUpiId || 'rohan.sharma@okhdfcbank',
     auto_debit_type: 'UPI_AUTOPAY',
     pre_authorized_cap: 450000,
     debit_execution_type: 'AUTONOMOUS_L3_BOUNDED',
@@ -372,7 +372,7 @@ export const callPineLabsPaymentTool = async (
 
 /**
  * 4. Master Orchestration: Execute Approved Medication Order Cascade
- * Invoked once Priya Sharma clicks [✓ Approve & Order Now]
+ * Invoked once Rohan Sharma clicks [✓ Approve & Order Now]
  */
 export const executeApprovedMedicationOrder = async (
   request: MedicationApprovalRequest,

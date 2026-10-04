@@ -97,7 +97,7 @@ export const useFiduciaryLedger = ({ onFeedbackToast }: UseFiduciaryLedgerProps)
       const newBal = Math.max(0, prev.balanceInr - amountInr);
       const isNowLow = newBal < prev.lowBalanceThresholdInr;
       if (isNowLow) {
-        onFeedbackToast(`⚠️ Low Cash Balance Alert: Care wallet dropped to ₹${newBal.toLocaleString('en-IN')}. Dispatched alert to Priya.`);
+        onFeedbackToast(`⚠️ Low Cash Balance Alert: Care wallet dropped to ₹${newBal.toLocaleString('en-IN')}. Dispatched alert to Rohan.`);
       }
       return {
         ...prev,

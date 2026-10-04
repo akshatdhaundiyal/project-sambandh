@@ -116,7 +116,7 @@ export const useConversationEngine = ({
       topic: newTopicData.topic || 'General Interest',
       category: newTopicData.category || 'GENERAL',
       source: newTopicData.source || 'CAREGIVER_CURATED',
-      addedBy: newTopicData.addedBy || 'Priya Sharma (Daughter)',
+      addedBy: newTopicData.addedBy || 'Rohan Sharma (Son)',
       enthusiasmLevel: newTopicData.enthusiasmLevel || 'HIGH',
       lastDiscussed: 'Just added',
       notes: newTopicData.notes || '',
@@ -486,7 +486,7 @@ Instructions for your response:
           const hlNodes = isClinicalQuery ? createHealthLockerNodes(content, 184, result.text) : [];
           addUniqueNodes([llmNode, ...domainNodes, ...hlNodes]);
 
-          // If medication approval gate was triggered, dispatch approval request to caregiver Priya
+          // If medication approval gate was triggered, dispatch approval request to caregiver Rohan
           if (
             domainNodes.some(n => n.statusCode === 'AWAITING APPROVAL') ||
             result?.functionCalls?.some((f: any) => f.name === 'request_medication_refill')
@@ -500,7 +500,7 @@ Instructions for your response:
               costInr: args.estimated_cost_inr || 840,
               reason: args.reason || "Papa reported only 2 days of BP medication remaining in morning check-in call."
             });
-            onFeedbackToast("🔔 Caregiver Gate: Approval request dispatched to Priya Sharma's phone & Telegram.");
+            onFeedbackToast("🔔 Caregiver Gate: Approval request dispatched to Rohan Sharma's phone & Telegram.");
           } else if (domainNodes.some(n => n.nodeType === 'pharmacy')) {
             onDeductCashWallet(840, 'Pine Labs Auto-Debit: Telma 40 Refill via Netmeds');
             onAddInventoryOrder({
@@ -519,7 +519,7 @@ Instructions for your response:
           } else if (domainNodes.some(n => n.statusCode === '402 LIMIT EXCEEDED')) {
             onFeedbackToast(`🛑 Fiduciary Limit Safety Rail: Order exceeds configured limit of ₹${orderTotalLimitInr}. Auto-debit blocked. Step-up authorization card dispatched to Telegram.`);
           } else if (domainNodes.some(n => n.statusCode === 'CRITICAL ALERT')) {
-            onFeedbackToast('🚨 RED ALERT: Acute symptoms reported by Papa. Instructed to call 112. Emergency call card dispatched to Priya & Dr. Saxena.');
+            onFeedbackToast('🚨 RED ALERT: Acute symptoms reported by Papa. Instructed to call 112. Emergency call card dispatched to Rohan & Dr. Saxena.');
           } else if (domainNodes.some(n => n.statusCode === 'NON-ADHERENCE WARNING')) {
             onFeedbackToast('⚠️ Clinical Adherence Warning: Papa reported stopping BP medication. Dr. Saxena consultation recommended.');
           } else if (domainNodes.some(n => n.statusCode === 'ADHERENCE CONFIRMED')) {

@@ -81,14 +81,14 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
   const handleRemind10m = () => {
     declineCall();
     setActiveScreen('dashboard');
-    showToast('⏰ Reminder set for 10 minutes. Sambandh AI will call at 08:45 AM. Priya notified.', 'info');
+    showToast('⏰ Reminder set for 10 minutes. Sambandh AI will call at 08:45 AM. Rohan notified.', 'info');
   };
 
   const handleSendQuickNote = (noteText: string) => {
     setIsQuickNoteModalOpen(false);
     declineCall();
     setActiveScreen('dashboard');
-    showToast(`Quick note sent to Priya: "${noteText}"`, 'success');
+    showToast(`Quick note sent to Rohan: "${noteText}"`, 'success');
   };
 
   // Sync activeScreen with live callStatus
@@ -162,9 +162,19 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                   </div>
                 </div>
 
-                <div className="w-9 h-9 rounded-full bg-white border border-[#DFDAD1] flex items-center justify-center text-stone-700 shadow-2xs relative">
-                  <Bell className="w-4 h-4" />
-                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 bg-[#FAF4EC] px-2 py-1 rounded-xl border border-[#E2D7C5] shadow-2xs">
+                    <img
+                      src="/favicon.svg"
+                      alt="Sambandh"
+                      className="w-4 h-4 object-contain rounded-full shrink-0"
+                    />
+                    <span className="text-[10px] font-bold text-stone-800">Sambandh</span>
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-white border border-[#DFDAD1] flex items-center justify-center text-stone-700 shadow-2xs relative shrink-0">
+                    <Bell className="w-3.5 h-3.5" />
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
+                  </div>
                 </div>
               </div>
 
@@ -229,7 +239,7 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                         2 Missed Check-Ins ({lastMissedCallAt})
                       </span>
                       <span className="text-[10px] text-rose-300 block leading-tight">
-                        High-priority Telegram safety alert dispatched to Priya
+                        High-priority Telegram safety alert dispatched to Rohan
                       </span>
                     </div>
                   </div>
@@ -507,10 +517,10 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                     <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-200 space-y-1 text-[11px]">
                       <div className="font-bold text-amber-950 flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5 text-amber-600" />
-                        <span>अपॉइंटमेंट की अनुमति प्रिया बेटा के पास भेजी गई है</span>
+                        <span>अपॉइंटमेंट की अनुमति रोहन बेटा के पास भेजी गई है</span>
                       </div>
                       <p className="text-[10px] text-amber-900 leading-snug">
-                        Approval request sent to Priya for Dr. Arvind Saxena (Apollo Clinic Rohini). Slot will be confirmed as soon as Priya approves.
+                        Approval request sent to Rohan for Dr. Arvind Saxena (Apollo Clinic Rohini). Slot will be confirmed as soon as Rohan approves.
                       </p>
                     </div>
                   )}
@@ -572,12 +582,12 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                             symptoms: ['घुटने का दर्द / Knee pain and stiffness reported by Ramesh Uncle'],
                             chiefComplaint: 'Papa requested a doctor consultation with Dr. Arvind Saxena.'
                           });
-                          showToast('🩺 Doctor Appointment request sent to Priya for approval!', 'info');
+                          showToast('🩺 Doctor Appointment request sent to Rohan for approval!', 'info');
                         }}
                         className="py-2 px-1.5 bg-gradient-to-r from-sky-600 to-blue-700 hover:from-sky-500 text-white rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 shadow-xs transition-all cursor-pointer text-center"
                       >
                         <Stethoscope className="w-3.5 h-3.5 text-sky-200 shrink-0" />
-                        <span>Request Doctor (प्रिया से पूछें)</span>
+                        <span>Request Doctor (रोहन से पूछें)</span>
                       </button>
                       <button
                         type="button"
@@ -596,7 +606,7 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                       <div className="flex items-center justify-between text-[11px]">
                         <span className="font-bold text-stone-100 flex items-center gap-1">
                           <Users className="w-3.5 h-3.5 text-cyan-400" />
-                          <span>Add Priya (Daughter) to consultation?</span>
+                          <span>Add Rohan (Son) to consultation?</span>
                         </span>
                         <button
                           type="button"
@@ -607,7 +617,7 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                         </button>
                       </div>
                       <p className="text-[10px] text-stone-300 leading-snug">
-                        Would you like to bridge Priya on live telephony, or conduct a solo consultation with Dr. Saxena?
+                        Would you like to bridge Rohan on live telephony, or conduct a solo consultation with Dr. Saxena?
                       </p>
                       <div className="grid grid-cols-2 gap-1.5 pt-1">
                         <button
@@ -619,7 +629,7 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                           className="py-1.5 px-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[10px] font-bold flex items-center justify-center gap-1 cursor-pointer"
                         >
                           <Phone className="w-3 h-3" />
-                          <span>Bridge Priya Live</span>
+                          <span>Bridge Rohan Live</span>
                         </button>
                         <button
                           type="button"
@@ -639,14 +649,14 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
 
                 <div className="bg-white rounded-2xl p-3 border border-stone-200/80 shadow-xs flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center text-base">
-                      👩‍💼
+                    <div className="w-9 h-9 rounded-full bg-sky-100 flex items-center justify-center text-base">
+                      👨‍💼
                     </div>
                     <div>
                       <span className="text-xs font-extrabold text-stone-900 block leading-tight">
-                        Priya Sharma
+                        Rohan Sharma
                       </span>
-                      <span className="text-[10px] text-stone-500">Daughter (Bengaluru)</span>
+                      <span className="text-[10px] text-stone-500">Son (Bengaluru)</span>
                     </div>
                   </div>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -707,7 +717,7 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
               <div className="z-10 bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/15 text-center space-y-1">
                 <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-emerald-300">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                  <span>Authorized by Priya Sharma (Daughter)</span>
+                  <span>Authorized by Rohan Sharma (Son)</span>
                 </div>
                 <p className="text-[11px] text-stone-300 leading-snug">
                   Routine morning vitals check-in & Awadhi companionship
@@ -786,7 +796,7 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                   <div className="flex items-center justify-between border-b border-stone-800 pb-2">
                     <span className="text-xs font-bold text-white flex items-center gap-1.5">
                       <MessageCircle className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>Send Quick Note to Priya</span>
+                      <span>Send Quick Note to Rohan</span>
                     </span>
                     <button
                       type="button"
@@ -992,7 +1002,7 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-stone-900 flex items-center gap-1.5">
                     <Heart className="w-4 h-4 text-amber-700" />
-                    <span>Caregiver Tunnel (Priya)</span>
+                    <span>Caregiver Tunnel (Rohan)</span>
                   </span>
                   <span className="text-[10px] font-mono font-medium text-stone-600 bg-white px-1.5 py-0.2 rounded border border-stone-200">
                     Telegram Verified

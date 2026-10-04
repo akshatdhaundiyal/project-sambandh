@@ -40,7 +40,7 @@ const NINETEEN_CLINICAL_GUARDRAILS: ClinicalGuardrail[] = [
     category: 'emergency',
     title: 'Severe Chest Pain / Angina Triage',
     rule: 'If elder reports chest pain, pressure, radiating arm/jaw pain, or cardiac distress, halt standard conversation immediately.',
-    fallbackOrAction: 'Immediately instruct calling 112, stay calmly on the line, and trigger high-priority Red Alert to caregiver Priya and Dr. Arvind Saxena.',
+    fallbackOrAction: 'Immediately instruct calling 112, stay calmly on the line, and trigger high-priority Red Alert to caregiver Rohan and Dr. Arvind Saxena.',
     severity: 'CRITICAL'
   },
   {
@@ -106,7 +106,7 @@ const NINETEEN_CLINICAL_GUARDRAILS: ClinicalGuardrail[] = [
     category: 'clinical',
     title: 'Unprescribed Medication Stoppage Warning',
     rule: 'If elder reports unilaterally stopping or skipping essential drugs (e.g. Telma 40 due to dizziness).',
-    fallbackOrAction: 'Warn against stopping without doctor oversight, explain rebound hypertension risks, and notify Dr. Saxena & Priya.',
+    fallbackOrAction: 'Warn against stopping without doctor oversight, explain rebound hypertension risks, and notify Dr. Saxena & Rohan.',
     severity: 'HIGH'
   },
   {
@@ -131,7 +131,7 @@ const NINETEEN_CLINICAL_GUARDRAILS: ClinicalGuardrail[] = [
     id: 'CG-12',
     category: 'fiduciary',
     title: 'Pine Labs ₹4,500 Monthly Spending Ceiling',
-    rule: 'Autonomous wallet debits across all pharmacy and grocery fulfillments cannot exceed Priya’s ₹4,500 monthly limit.',
+    rule: 'Autonomous wallet debits across all pharmacy and grocery fulfillments cannot exceed Rohan’s ₹4,500 monthly limit.',
     fallbackOrAction: 'Halt debit immediately with PL_402_LIMIT_EXCEEDED if cumulative spend breaches envelope.',
     severity: 'STRICT'
   },
@@ -140,7 +140,7 @@ const NINETEEN_CLINICAL_GUARDRAILS: ClinicalGuardrail[] = [
     category: 'fiduciary',
     title: 'Per-Order Dynamic Cap & Step-Up Card',
     rule: 'If a single refill exceeds caregiver pre-set limit (e.g. ₹1,500 default or configured order cap).',
-    fallbackOrAction: 'Do not auto-charge elder; instantly route interactive 1-Tap Authorization Card to Priya Sharma on Telegram.',
+    fallbackOrAction: 'Do not auto-charge elder; instantly route interactive 1-Tap Authorization Card to Rohan Sharma on Telegram.',
     severity: 'STRICT'
   },
   {
@@ -173,15 +173,15 @@ const NINETEEN_CLINICAL_GUARDRAILS: ClinicalGuardrail[] = [
     id: 'CG-17',
     category: 'caregiver',
     title: 'Pre-Call Caregiver Agency Gate',
-    rule: 'Before morning check-in call initiates, caregiver Priya receives pre-call agency notification.',
-    fallbackOrAction: 'Priya can choose to call Papa directly herself, delegate call to Sambandh AI, or snooze for 30 minutes.',
+    rule: 'Before morning check-in call initiates, caregiver Rohan receives pre-call agency notification.',
+    fallbackOrAction: 'Rohan can choose to call Papa directly himself, delegate call to Sambandh AI, or snooze for 30 minutes.',
     severity: 'HIGH'
   },
   {
     id: 'CG-18',
     category: 'caregiver',
     title: 'Daily End-of-Day Structured Telegram Dossier',
-    rule: 'Every evening, Priya receives a structured clinical & conversational audit recap.',
+    rule: 'Every evening, Rohan receives a structured clinical & conversational audit recap.',
     fallbackOrAction: 'Summarizes vital trends (BP 112/80), mood score, medicine adherence, and delivers 30s audio story snippet.',
     severity: 'HIGH'
   },
@@ -190,7 +190,7 @@ const NINETEEN_CLINICAL_GUARDRAILS: ClinicalGuardrail[] = [
     category: 'caregiver',
     title: 'Missed Call 3-Tier Escalation Ladder',
     rule: 'If elder declines or misses morning companion call.',
-    fallbackOrAction: 'Retry 1 queued in 15m; Retry 2 in 30m; after 3 missed attempts, high-priority alert sent to Priya with last known status.',
+    fallbackOrAction: 'Retry 1 queued in 15m; Retry 2 in 30m; after 3 missed attempts, high-priority alert sent to Rohan with last known status.',
     severity: 'HIGH'
   }
 ];
@@ -524,7 +524,7 @@ export const SystemPromptModal: React.FC<SystemPromptModalProps> = ({
                   <ul className="space-y-1.5 text-[11px] text-stone-600">
                     <li>• <strong>Monthly Pre-Authorized Cap:</strong> ₹4,500.00 (Pine Labs UPI AutoPay)</li>
                     <li>• <strong>Per-Order Max Limit:</strong> ₹{caregiverConfig.orderTotalLimitInr.toLocaleString('en-IN')} (Configurable in Settings)</li>
-                    <li>• <strong>Step-Up Policy:</strong> Orders exceeding ₹{caregiverConfig.orderTotalLimitInr} require Priya’s 1-tap Telegram sign-off.</li>
+                    <li>• <strong>Step-Up Policy:</strong> Orders exceeding ₹{caregiverConfig.orderTotalLimitInr} require Rohan’s 1-tap Telegram sign-off.</li>
                     <li>• <strong>Payment Mode:</strong> 100% cashless; senior Ramesh is never asked for OTP, PIN, cash, or card CVV.</li>
                   </ul>
                 </div>
@@ -536,7 +536,7 @@ export const SystemPromptModal: React.FC<SystemPromptModalProps> = ({
                     <h3 className="font-bold text-stone-900 text-xs">Caregiver Primacy Tier</h3>
                   </div>
                   <ul className="space-y-1.5 text-[11px] text-stone-600">
-                    <li>• <strong>Designated Caregiver:</strong> Priya Sharma (Daughter, Bengaluru)</li>
+                    <li>• <strong>Designated Caregiver:</strong> Rohan Sharma (Son, Bengaluru)</li>
                     <li>• <strong>Pre-Call Gate:</strong> 08:15 AM agency prompt (Call directly vs. Delegate to Sambandh AI)</li>
                     <li>• <strong>Urgent Alerts:</strong> Chest pain / fall / missed meds trigger immediate Telegram Red Alert.</li>
                     <li>• <strong>Daily Digest:</strong> Delivered at 08:00 PM with voice story snippet & vitals recap.</li>

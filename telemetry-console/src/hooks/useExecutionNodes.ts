@@ -141,7 +141,7 @@ export const useExecutionNodes = () => {
         brandName: 'ABDM Clinical Safety Rail',
         toolName: 'clinical_adherence_interceptor',
         title: 'Medication Discontinuation Safety Rail',
-        actionSummary: 'Elder reported discontinuing BP medication. Autonomous system enforces no unapproved titration rule and alerts Dr. Saxena & Priya.',
+        actionSummary: 'Elder reported discontinuing BP medication. Autonomous system enforces no unapproved titration rule and alerts Dr. Saxena & Rohan.',
         timestamp,
         status: 'BLOCKED',
         statusCode: 'NON-ADHERENCE WARNING',
@@ -155,7 +155,7 @@ export const useExecutionNodes = () => {
         detected.push({
           ...tgAlert,
           id: `node-tg-adherence-${Date.now()}`,
-          title: 'Adherence Warning Dispatched to Priya',
+          title: 'Adherence Warning Dispatched to Rohan',
           actionSummary: 'Urgent Telegram notification sent: Papa stopped BP meds due to dizziness. Recommended Dr. Saxena follow-up.',
           timestamp
         });
@@ -214,7 +214,7 @@ export const useExecutionNodes = () => {
             detected.push({
               ...haltNode,
               id: `node-pine-cap-${Date.now()}`,
-              actionSummary: `Auto-debit HALTED: ₹${refillCost} exceeds Priya's configured cap of ₹${spendingCapInr}. Mandate returned 402 Limit Exceeded.`,
+              actionSummary: `Auto-debit HALTED: ₹${refillCost} exceeds Rohan's configured cap of ₹${spendingCapInr}. Mandate returned 402 Limit Exceeded.`,
               timestamp
             });
           }
@@ -235,7 +235,7 @@ export const useExecutionNodes = () => {
             brandName: 'HITL Caregiver Gate',
             toolName: 'request_medication_refill',
             title: 'Caregiver Approval Required (₹840 Refill)',
-            actionSummary: 'Low stock reported for Telma 40mg. Ordering paused. High-priority approval card dispatched to Priya Sharma (Bangalore).',
+            actionSummary: 'Low stock reported for Telma 40mg. Ordering paused. High-priority approval card dispatched to Rohan Sharma (Bangalore).',
             timestamp,
             status: 'ACTIVE',
             statusCode: 'AWAITING APPROVAL',
@@ -383,10 +383,10 @@ export const useExecutionNodes = () => {
         ? 'Caregiver Snoozed Call (30m)'
         : 'Caregiver Delegated Check-In to AI',
       actionSummary: isDirect
-        ? 'Priya elected to call Papa directly (+91 98101 23456). AI dialing suspended.'
+        ? 'Rohan elected to call Papa directly (+91 98101 23456). AI dialing suspended.'
         : isSnooze
-        ? 'Priya requested 30-minute delay. Next check-in scheduled for 09:00 IST.'
-        : 'Priya verified morning briefing and pre-approved Sambandh AI companion call.',
+        ? 'Rohan requested 30-minute delay. Next check-in scheduled for 09:00 IST.'
+        : 'Rohan verified morning briefing and pre-approved Sambandh AI companion call.',
       timestamp,
       status: 'SUCCESS',
       statusCode: '200 OK (88ms)',

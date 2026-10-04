@@ -103,7 +103,7 @@ export const useCaregiverState = ({
     seniorPhone: '+91 98101 23456',
     scheduledTimeIst: '08:30 AM IST',
     status: 'awaiting_approval',
-    caregiverName: 'Priya Sharma (Daughter)',
+    caregiverName: 'Rohan Sharma (Son)',
     clinicalBriefingSnippet: 'Omron BP 128/82 mmHg · Telmisartan 40mg (6 days stock runway) · High vitality'
   });
 
@@ -116,7 +116,7 @@ export const useCaregiverState = ({
       caregiverDecision: undefined,
       caregiverNotes: undefined
     }));
-    onFeedbackToast('🔔 Pre-Call Agency Prompt Dispatched to Priya (@priya_sharma_care). Awaiting choice: Direct Call vs AI Delegated.');
+    onFeedbackToast('🔔 Pre-Call Agency Prompt Dispatched to Rohan (@rohan_sharma_care). Awaiting choice: Direct Call vs AI Delegated.');
   }, [onFeedbackToast]);
 
   // Longitudinal Emotional Memory Across 3-4 Subsequent Calls
@@ -161,7 +161,7 @@ export const useCaregiverState = ({
       const updated = [newEntry, ...prev.slice(0, 3)];
       const sadCount = updated.filter(m => m.primaryEmotion === 'SAD').length;
       if (sadCount >= 2) {
-        onFeedbackToast('🌧️ Longitudinal Care Alert: Papa reported low mood across consecutive calls. Proactive advisory dispatched to Priya on Telegram.');
+        onFeedbackToast('🌧️ Longitudinal Care Alert: Papa reported low mood across consecutive calls. Proactive advisory dispatched to Rohan on Telegram.');
       }
       return updated;
     });
@@ -196,7 +196,7 @@ export const useCaregiverState = ({
       treatingDoctor: 'Dr. Arvind Saxena (Cardiologist)',
       activeSymptoms: ['Lipid profile monitoring']
     });
-    onFeedbackToast('🏥 Synced to Medical Dossier: Titrations updated & clinical summary pushed to Priya on Telegram.');
+    onFeedbackToast('🏥 Synced to Medical Dossier: Titrations updated & clinical summary pushed to Rohan on Telegram.');
   }, [onAddMedicalIssue, onFeedbackToast]);
 
   return {

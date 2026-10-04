@@ -86,7 +86,7 @@ export const SIMULATION_PRESETS: SimulationPreset[] = [
     scenarioTitle: 'Flow 1: Daily Check-In Call & Subtle Adherence Check',
     badge: 'Daily Companion Call',
     railBadges: ['Gnani Voice', 'Subtle Adherence', 'Daily Briefing'],
-    railSummary: 'Ramesh enjoys balcony morning tea in winter sun ➔ Sambandh offers warmth & subtly verifies morning BP pill ➔ Dispatches daily briefing to Priya',
+    railSummary: 'Ramesh enjoys balcony morning tea in winter sun ➔ Sambandh offers warmth & subtly verifies morning BP pill ➔ Dispatches daily briefing to Rohan',
     tagline: 'Ramesh shares that he is enjoying his morning tea in the balcony sunshine.',
     speaker: 'senior',
     speakerLabel: 'Ramesh Chandra (Senior)',
@@ -152,7 +152,7 @@ export const SIMULATION_PRESETS: SimulationPreset[] = [
     scenarioTitle: 'Flow 5: Intergenerational Wisdom Exchange (Student Mentorship)',
     badge: 'Nostalgic Story Sharing',
     railBadges: ['Gnani.ai STT', 'Structured Memory', 'Youth Portal Audio'],
-    railSummary: 'Captures authentic reminiscence ➔ Folds into clinical memory ledger ➔ Packages 30-sec audio story for student & daughter Priya',
+    railSummary: 'Captures authentic reminiscence ➔ Folds into clinical memory ledger ➔ Packages 30-sec audio story for student & son Rohan',
     tagline: 'Ramesh shares nostalgic memories of the 1984 Purani Delhi signaling relay room. Companion listens and sends audio story snippet.',
     speaker: 'senior',
     speakerLabel: 'Ramesh Chandra (Senior)',
@@ -161,9 +161,9 @@ export const SIMULATION_PRESETS: SimulationPreset[] = [
     promptText: 'आज सुबह 1984 के पुरानी दिल्ली सिग्नलिंग रिले रूम की याद आ गई... बड़ी कड़ाके की ठंड थी उस दिन, पर हमने रात भर जागकर ट्रैक क्लीयर कराया था। [Aaj subah 1984 ke Purani Delhi signaling relay room ki yaad aa gayi...]',
     expectedNodeTypes: [
       { scenarioId: 'scenario-1', nodeType: 'telephony', overrides: { title: 'Flow 5: Audio Wisdom & Emotional Bonding', actionSummary: 'Captured 30s audio story snippet of Ramesh reminiscing about 1984 Northern Railway career.', statusCode: 'STORY CAPTURED' } },
-      { scenarioId: 'scenario-1', nodeType: 'caregiver', overrides: { title: 'Daughter Reassurance & Audio Snippet', actionSummary: "Priya received Papa's audio snippet: \"Listen to Papa's 1984 Railway Story\".", statusCode: 'AUDIO DELIVERED' } }
+      { scenarioId: 'scenario-1', nodeType: 'caregiver', overrides: { title: 'Caregiver Reassurance & Audio Snippet', actionSummary: "Rohan received Papa's audio snippet: \"Listen to Papa's 1984 Railway Story\".", statusCode: 'AUDIO DELIVERED' } }
     ],
-    reasoningNote: '[EMOTIONAL BONDING]: Reminiscence captured. Preserved in memory ledger. Audio snippet shared with Priya.'
+    reasoningNote: '[EMOTIONAL BONDING]: Reminiscence captured. Preserved in memory ledger. Audio snippet shared with Rohan.'
   },
   {
     id: 'sim-mcp-pooja',
@@ -211,8 +211,8 @@ export const SIMULATION_PRESETS: SimulationPreset[] = [
     scenarioTitle: 'Sad Flow 2: Order Above Spend Limit (2FA Caregiver Step-Up)',
     badge: '2FA Caregiver Step-Up',
     railBadges: ['Pine Labs Plural', 'Fiduciary Firewall', 'Telegram 2FA'],
-    railSummary: 'Suspends auto-debit (₹5,200 > ₹4,500 ceiling) ➔ Enforces fiduciary firewall ➔ Dispatches 1-tap 2FA approval card to Priya',
-    tagline: 'Prescription costs ₹5,200 (exceeds ₹4,500 monthly mandate ceiling). System locks auto-debit and requests Priya 2FA consent.',
+    railSummary: 'Suspends auto-debit (₹5,200 > ₹4,500 ceiling) ➔ Enforces fiduciary firewall ➔ Dispatches 1-tap 2FA approval card to Rohan',
+    tagline: 'Prescription costs ₹5,200 (exceeds ₹4,500 monthly mandate ceiling). System locks auto-debit and requests Rohan 2FA consent.',
     speaker: 'senior',
     speakerLabel: 'Ramesh Chandra (Senior)',
     devanagariPrompt: 'डॉक्टर साहब ने 3 महीने की विशेष दवाइयां ₹5,200 की लिखी हैं। क्या यह अपने आप बैंक से कट जाएगा?',
@@ -242,7 +242,7 @@ export const SIMULATION_PRESETS: SimulationPreset[] = [
     promptText: 'बेटा, पड़ोस वाले वर्मा जी कह रहे थे कि नींद न आने पर वो एक तेज़ नींद की गोली लेते हैं। क्या मैं भी बाज़ार से वो ले लूँ? [Beta, pados wale Verma ji keh rahe the neend na aane par wo neend ki goli lete hain. Kya main bhi bazaar se wo le loon?]',
     expectedNodeTypes: [
       { scenarioId: 'scenario-1', nodeType: 'medgemma_analysis', overrides: { title: 'Zero-Medical-Advice Safety Rail', actionSummary: 'Refused OTC psychotropic/strong pill recommendation. Strictly advised Dr. Arvind Saxena consult.', statusCode: 'DECLINED & REFERRED', brandColor: '#DC2626' } },
-      { scenarioId: 'scenario-1', nodeType: 'caregiver', overrides: { title: 'Caregiver Advisory Flag', actionSummary: 'Notified Priya: "Papa inquired about neighbor-suggested sleeping pills. Advised against."', statusCode: 'LOGGED' } }
+      { scenarioId: 'scenario-1', nodeType: 'caregiver', overrides: { title: 'Caregiver Advisory Flag', actionSummary: 'Notified Rohan: "Papa inquired about neighbor-suggested sleeping pills. Advised against."', statusCode: 'LOGGED' } }
     ],
     reasoningNote: '[SAFETY GUARDRAIL]: Strict zero-medical-advice compliance. Referred to Dr. Arvind Saxena.'
   },
@@ -255,7 +255,7 @@ export const SIMULATION_PRESETS: SimulationPreset[] = [
     scenarioTitle: 'Sad Flow 4: Adherence Claim vs Refill Schedule Mismatch',
     badge: 'Adherence Audit',
     railBadges: ['ABDM FHIR Audit', 'Silent Discrepancy', 'Caregiver Alert'],
-    railSummary: 'Senior claims 100% daily adherence, but pharmacy shows 30-day bottle purchased 52 days ago ➔ Flags gentle gap to Priya',
+    railSummary: 'Senior claims 100% daily adherence, but pharmacy shows 30-day bottle purchased 52 days ago ➔ Flags gentle gap to Rohan',
     tagline: 'Ramesh claims he never skips a dose, but prescription refill timing indicates 22 missing doses.',
     speaker: 'senior',
     speakerLabel: 'Ramesh Chandra (Senior)',
@@ -264,9 +264,9 @@ export const SIMULATION_PRESETS: SimulationPreset[] = [
     promptText: 'अरे बिटिया, मैं तो नियम का पक्का हूँ... एक भी दिन बीपी की गोली नहीं छोड़ता, बिल्कुल समय पर लेता हूँ। [Are bitiya, main to niyam ka pakka hoon... ek bhi din BP ki goli nahi chhodta.]',
     expectedNodeTypes: [
       { scenarioId: 'scenario-1', nodeType: 'abdm', overrides: { title: 'ABDM Refill Timing Cross-Audit', actionSummary: 'Discrepancy detected: Last refill 52 days ago (30-day supply). Calculated omission: ~22 days.', statusCode: 'DISCREPANCY FLAGGED', brandColor: '#D97706' } },
-      { scenarioId: 'scenario-1', nodeType: 'caregiver', overrides: { title: 'Priya Adherence Gap Advisory', actionSummary: 'Dispatched silent advisory: "Papa reported full compliance, but refill history indicates possible skipped doses."', statusCode: 'FLAGGED' } }
+      { scenarioId: 'scenario-1', nodeType: 'caregiver', overrides: { title: 'Rohan Adherence Gap Advisory', actionSummary: 'Dispatched silent advisory: "Papa reported full compliance, but refill history indicates possible skipped doses."', statusCode: 'FLAGGED' } }
     ],
-    reasoningNote: '[AUDIT DISCREPANCY]: Verbal adherence contradicts pharmacy timeline. Gentle non-accusatory flag sent to Priya.'
+    reasoningNote: '[AUDIT DISCREPANCY]: Verbal adherence contradicts pharmacy timeline. Gentle non-accusatory flag sent to Rohan.'
   },
   {
     id: 'sim-sad-stopped-meds',
@@ -277,7 +277,7 @@ export const SIMULATION_PRESETS: SimulationPreset[] = [
     scenarioTitle: 'Sad Flow 5: Parent Discontinues Medication on Their Own',
     badge: 'Self-Modification',
     railBadges: ['Clinical Guardrail', 'Physician Referral', 'Instant Telegram'],
-    railSummary: 'Senior discontinues Telma 40 because "BP felt fine" ➔ System refuses to validate, explains rebound risk, flags to Priya',
+    railSummary: 'Senior discontinues Telma 40 because "BP felt fine" ➔ System refuses to validate, explains rebound risk, flags to Rohan',
     tagline: 'Ramesh announces he stopped his anti-hypertensive pills 4 days ago without doctor authorization.',
     speaker: 'senior',
     speakerLabel: 'Ramesh Chandra (Senior)',
@@ -299,7 +299,7 @@ export const SIMULATION_PRESETS: SimulationPreset[] = [
     scenarioTitle: 'Sad Flow 6: Possible Fall Noise Detected in Background',
     badge: 'Acoustic Tripwire',
     railBadges: ['Acoustic Tripwire', 'Immediate Callback', 'Tier-1 Emergency'],
-    railSummary: 'Acoustic thud and distress detected ➔ Calls back at once ➔ No answer triggers urgent fall notification to Priya',
+    railSummary: 'Acoustic thud and distress detected ➔ Calls back at once ➔ No answer triggers urgent fall notification to Rohan',
     tagline: 'Loud impact noise and groaning heard during silence. System triggers instant callback and caregiver fall alert.',
     speaker: 'senior',
     speakerLabel: 'Ramesh Chandra (Senior)',
@@ -332,7 +332,7 @@ export const SIMULATION_PRESETS: SimulationPreset[] = [
       { scenarioId: 'scenario-5', nodeType: 'abdm' },
       { scenarioId: 'scenario-5', nodeType: 'caregiver' }
     ],
-    reasoningNote: '[CLINICAL ESCALATION]: Cardinal cardiac symptoms. Refrain from OTC advice. Emergency alert to Dr. Saxena and Priya.'
+    reasoningNote: '[CLINICAL ESCALATION]: Cardinal cardiac symptoms. Refrain from OTC advice. Emergency alert to Dr. Saxena and Rohan.'
   },
   {
     id: 'sim-sadness',
@@ -343,8 +343,8 @@ export const SIMULATION_PRESETS: SimulationPreset[] = [
     scenarioTitle: 'Sad Flow 13: Multi-Call Emotional Memory & Telegram Alert',
     badge: '3-Call Mood Memory',
     railBadges: ['Emotional Vector', 'Longitudinal Memory', 'Caregiver Alert'],
-    railSummary: 'Detects persistent low mood across 3-4 calls ➔ Contextually reassures elder ➔ Dispatches empathetic Telegram alert to Priya',
-    tagline: 'Elder expresses persistent loneliness and sadness over consecutive mornings. Sambandh alerts daughter Priya on Telegram.',
+    railSummary: 'Detects persistent low mood across 3-4 calls ➔ Contextually reassures elder ➔ Dispatches empathetic Telegram alert to Rohan',
+    tagline: 'Elder expresses persistent loneliness and sadness over consecutive mornings. Sambandh alerts son Rohan on Telegram.',
     speaker: 'senior',
     speakerLabel: 'Ramesh Chandra (Senior)',
     devanagariPrompt: 'आजकल मन बहुत उदास और अकेला रहता है बेटा... घर में बिल्कुल सन्नाटा लगता है, किसी काम में दिल नहीं लग रहा।',
@@ -352,9 +352,9 @@ export const SIMULATION_PRESETS: SimulationPreset[] = [
     promptText: 'आजकल मन बहुत उदास और अकेला रहता है बेटा... घर में बिल्कुल सन्नाटा लगता है, किसी काम में दिल नहीं लग रहा। [Aajkal mann bahut udaas aur akela rehta hai beta... dil nahi lag raha.]',
     expectedNodeTypes: [
       { scenarioId: 'scenario-1', nodeType: 'telephony', overrides: { title: 'Longitudinal Emotional Drift Engine', actionSummary: 'Consecutive sad valence detected across calls (Sentiment: -0.74). Empathy mode activated.', statusCode: 'SADNESS FLAGGED', brandColor: '#6366F1' } },
-      { scenarioId: 'scenario-1', nodeType: 'caregiver', overrides: { title: 'Priya Telegram Proactive Mood Briefing', actionSummary: 'Dispatched gentle alert: "Papa has reported feeling low over the last 3 calls. Recommended: Give him a quick evening call."', statusCode: 'ALERT DELIVERED', brandColor: '#24A1DE' } }
+      { scenarioId: 'scenario-1', nodeType: 'caregiver', overrides: { title: 'Rohan Telegram Proactive Mood Briefing', actionSummary: 'Dispatched gentle alert: "Papa has reported feeling low over the last 3 calls. Recommended: Give him a quick evening call."', statusCode: 'ALERT DELIVERED', brandColor: '#24A1DE' } }
     ],
-    reasoningNote: '[LONGITUDINAL MEMORY]: Emotional decline flag raised. Dispatched proactive empathetic advisory to Priya.'
+    reasoningNote: '[LONGITUDINAL MEMORY]: Emotional decline flag raised. Dispatched proactive empathetic advisory to Rohan.'
   },
   {
     id: 'sim-news-opinion',
@@ -399,3 +399,4 @@ export const SIMULATION_PRESETS: SimulationPreset[] = [
     reasoningNote: '[WARMTH & BANTER]: Lighthearted laughter reinforces emotional connection and safety.'
   }
 ];
+

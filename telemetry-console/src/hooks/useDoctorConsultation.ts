@@ -42,10 +42,10 @@ export const classifySpeaker = (
   // 1. Remote Caregiver indicators
   if (
     caregiverAttending &&
-    (lower.includes('priya') ||
+    (lower.includes('rohan') ||
      lower.includes('बेंगलुरु') ||
      lower.includes('bengaluru') ||
-     lower.includes('प्रिया') ||
+     lower.includes('रोहन') ||
      lower.includes('पापा का') ||
      lower.includes('papa ka') ||
      lower.includes('डॉक्टर अंकल') ||
@@ -54,7 +54,7 @@ export const classifySpeaker = (
   ) {
     return {
       speaker: 'caregiver',
-      speakerName: 'Priya Sharma (Daughter - Remote)',
+      speakerName: 'Rohan Sharma (Son - Remote)',
       channel: 'remote_telephony'
     };
   }
@@ -125,8 +125,8 @@ const INITIAL_CONSULTATION_STATE: DoctorConsultationSession = {
   clinicName: 'Apollo Clinic Rohini (Sector 8)',
   seniorName: 'Ramesh Chandra',
   seniorId: 'SENIOR_RAMESH_001',
-  caregiverName: 'Priya Sharma',
-  caregiverRelationship: 'Daughter',
+  caregiverName: 'Rohan Sharma',
+  caregiverRelationship: 'Son',
   caregiverAttending: true,
   initiatedBy: 'senior',
   startedAt: '',
@@ -326,7 +326,7 @@ export const useDoctorConsultation = ({
         );
       } else {
         onFeedbackToast(
-          `🩺 Doctor Consultation Started: Ambient In-Clinic mode active. Auto-transformation will dispatch summary to Priya.`
+          `🩺 Doctor Consultation Started: Ambient In-Clinic mode active. Auto-transformation will dispatch summary to Rohan.`
         );
       }
     },
@@ -377,8 +377,8 @@ export const useDoctorConsultation = ({
       const nextAttending = !prev.caregiverAttending;
       onFeedbackToast(
         nextAttending
-          ? '📞 Priya Sharma joined the Doctor Consultation live!'
-          : '📴 Priya Sharma left the live call. Asynchronous summary mode active.'
+          ? '📞 Rohan Sharma joined the Doctor Consultation live!'
+          : '📴 Rohan Sharma left the live call. Asynchronous summary mode active.'
       );
       return {
         ...prev,
@@ -512,7 +512,7 @@ export const useDoctorConsultation = ({
       });
     }
 
-    // 3. Dispatch structured 3-tier report to Priya on Telegram
+    // 3. Dispatch structured 3-tier report to Rohan on Telegram
     sendTelegramDoctorConsultationReport({
       doctorName: consultationSession.doctorName,
       clinicName: consultationSession.clinicName,
@@ -527,7 +527,7 @@ export const useDoctorConsultation = ({
     }).catch(err => console.warn('[TelegramDocReport] Dispatch error:', err));
 
     onFeedbackToast(
-      '✅ 3-Tier Transformation Complete: Synced to Health Locker, Active Meds updated, and Briefing sent to Priya on Telegram!'
+      '✅ 3-Tier Transformation Complete: Synced to Health Locker, Active Meds updated, and Briefing sent to Rohan on Telegram!'
     );
   }, [
     stopLiveListening,
@@ -547,7 +547,7 @@ export const useDoctorConsultation = ({
     if (currentCount < CLINIC_SIMULATION_SCRIPT.length) {
       const scriptItem = CLINIC_SIMULATION_SCRIPT[currentCount];
       addDoctorConsultationTurn(scriptItem.speaker, scriptItem.text, scriptItem.hindiText);
-      onFeedbackToast(`🎙️ Transcribed Live Turn ${currentCount + 1}: ${scriptItem.speaker === 'doctor' ? '👨‍⚕️ Dr. Saxena' : scriptItem.speaker === 'senior' ? '👴🏼 Ramesh' : '👩‍💼 Priya'}`);
+      onFeedbackToast(`🎙️ Transcribed Live Turn ${currentCount + 1}: ${scriptItem.speaker === 'doctor' ? '👨‍⚕️ Dr. Saxena' : scriptItem.speaker === 'senior' ? '👴🏼 Ramesh' : '👨‍💼 Rohan'}`);
     } else if (consultationSession.attachments.length === 0) {
       // Step 5: Attach Dr. Saxena Prescription Review Slip
       attachDocumentToConsultation({

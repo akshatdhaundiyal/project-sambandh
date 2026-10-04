@@ -149,7 +149,7 @@ class SeniorInterestPayload(BaseModel):
     topic: str
     category: str = "GENERAL"
     source: str = "CAREGIVER_CURATED"
-    added_by: str = "Priya Sharma (Daughter)"
+    added_by: str = "Rohan Sharma (Son)"
     enthusiasm_level: str = "HIGH"
     notes: Optional[str] = ""
     is_active: bool = True

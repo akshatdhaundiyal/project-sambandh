@@ -288,7 +288,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   // Missed Call Safety Escalation Dispatcher (2-tier failure -> Telegram alert + Telemetry DAG)
   const handleMissedCallEscalation = useCallback((attempts: number) => {
-    // 1. Send live Telegram Alert to Priya
+    // 1. Send live Telegram Alert to Rohan
     sendTelegramMissedCallAlert({
       seniorName: 'Ramesh Chandra',
       seniorAge: 72,
@@ -308,13 +308,13 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         brandName: 'Gnani.ai Jio PSTN Rail',
         toolName: 'telephony_safety_escalation',
         title: `🚨 Emergency Escalation: 2 Unanswered Calls`,
-        actionSummary: `Ramesh Uncle did not answer 2 consecutive morning check-in calls (1 min apart). Priority Telegram alert dispatched to Priya Sharma suggesting neighbour (Verma Ji) physical check.`,
+        actionSummary: `Ramesh Uncle did not answer 2 consecutive morning check-in calls (1 min apart). Priority Telegram alert dispatched to Rohan Sharma suggesting neighbour (Verma Ji) physical check.`,
         timestamp: timeStr,
         status: 'TERMINATED',
         statusCode: '408 REQUEST TIMEOUT (ESCALATED)',
         latencyMs: 140,
         brandColor: '#E11D48',
-        reasoningSnippet: `[SAFETY SENTINEL ESCALATION]: Both dial attempt 1 and attempt 2 (after 1m pause) timed out after 20s. Telegram alert pushed to @priya_sharma_care suggesting contact with Papa or neighbours (Verma Ji).`,
+        reasoningSnippet: `[SAFETY SENTINEL ESCALATION]: Both dial attempt 1 and attempt 2 (after 1m pause) timed out after 20s. Telegram alert pushed to @rohan_sharma_care suggesting contact with Papa or neighbours (Verma Ji).`,
         apiExchange: {
           railName: 'Telegram MTProto Bot Gateway Rail',
           method: 'POST',
@@ -322,7 +322,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
           schemaStandard: 'Telegram Bot API v7.2 Urgent Safety Alert Protocol',
           headers: { 'Content-Type': 'application/json' },
           requestBody: {
-            chat_id: '@priya_sharma_care',
+            chat_id: '@rohan_sharma_care',
             notification_type: 'URGENT_UNANSWERED_CHECKIN',
             senior_name: 'Ramesh Chandra',
             attempts: 2,
@@ -535,11 +535,11 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     };
     setPendingMedicationApproval(newRequest);
 
-    // Asynchronously dispatch live Telegram approval card to Priya's real phone
+    // Asynchronously dispatch live Telegram approval card to Rohan's real phone
     sendTelegramMedicationApprovalCard(newRequest)
       .then(res => {
         if (res.success) {
-          showFeedbackToast("✈️ Dispatched live approval alert card to Priya's Telegram!");
+          showFeedbackToast("✈️ Dispatched live approval alert card to Rohan's Telegram!");
         }
       })
       .catch(err => {
@@ -562,7 +562,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
       adherence
     });
     if (res.success) {
-      showFeedbackToast("✈️ Live Care Briefing sent to Priya's Telegram chat!");
+      showFeedbackToast("✈️ Live Care Briefing sent to Rohan's Telegram chat!");
     } else {
       showFeedbackToast(`⚠️ Telegram Push: ${res.error || 'Failed'}`);
     }
@@ -654,14 +654,14 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         nodeType: 'caregiver',
         brandName: 'Caregiver Human Gate',
         toolName: 'decline_medication_refill',
-        title: 'Medication Refill Declined by Priya',
-        actionSummary: 'Caregiver Priya Sharma clicked [Decline Refill]. Order cancelled, zero wallet debit.',
+        title: 'Medication Refill Declined by Rohan',
+        actionSummary: 'Caregiver Rohan Sharma clicked [Decline Refill]. Order cancelled, zero wallet debit.',
         timestamp,
         status: 'BLOCKED',
         statusCode: 'REFILL_DECLINED',
         latencyMs: 20,
         brandColor: '#6B7280',
-        reasoningSnippet: '[CAREGIVER SIGN-OFF]: Priya declined medication refill. No B2B order placed; fiduciary wallet remains untouched.',
+        reasoningSnippet: '[CAREGIVER SIGN-OFF]: Rohan declined medication refill. No B2B order placed; fiduciary wallet remains untouched.',
         apiExchange: {
           railName: 'Sambandh HITL Caregiver Approval Rail',
           method: 'POST',
@@ -677,7 +677,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         }
       }
     ]);
-    showFeedbackToast('🛑 Refill Declined: Caregiver Priya declined the refill request. Zero money debited.');
+    showFeedbackToast('🛑 Refill Declined: Caregiver Rohan declined the refill request. Zero money debited.');
   }, [addUniqueNodes, showFeedbackToast]);
 
   const resetMedicationApproval = useCallback(() => {
@@ -707,11 +707,11 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     };
     setPendingDoctorAppointment(newRequest);
 
-    // Asynchronously dispatch live Telegram approval card to Priya's Telegram
+    // Asynchronously dispatch live Telegram approval card to Rohan's Telegram
     sendTelegramDoctorAppointmentApprovalCard(newRequest)
       .then(res => {
         if (res.success) {
-          showFeedbackToast("🩺 Dispatched Doctor Consultation approval card to Priya's Telegram!");
+          showFeedbackToast("🩺 Dispatched Doctor Consultation approval card to Rohan's Telegram!");
         }
       })
       .catch(err => {
@@ -730,7 +730,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
       const bookingRef = `APOLLO-ROH-${target.id.slice(-6).toUpperCase()}`;
 
       // 1. Dispatch automated booking message to the Doctor's clinic gateway
-      await sendTelegramDoctorAppointmentBookingMessage(target, 'Priya Sharma');
+      await sendTelegramDoctorAppointmentBookingMessage(target, 'Rohan Sharma');
 
       // 2. Commit Clinical Telemetry DAG Node
       addUniqueNodes([
@@ -747,7 +747,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
           statusCode: '200 OK (CONFIRMED)',
           latencyMs: 160,
           brandColor: '#0284C7',
-          reasoningSnippet: `[CLINICAL APPOINTMENT GATEWAY]: Priya authorized doctor consultation after Papa reported symptoms. Official booking dispatched to ${target.doctorClinic} reception rail.`,
+          reasoningSnippet: `[CLINICAL APPOINTMENT GATEWAY]: Rohan authorized doctor consultation after Papa reported symptoms. Official booking dispatched to ${target.doctorClinic} reception rail.`,
           apiExchange: {
             railName: 'Apollo Hospitals Clinical Scheduling Gateway Rail',
             method: 'POST',
@@ -756,7 +756,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
             headers: {
               'Content-Type': 'application/json',
               'Authorization': 'Bearer AP_AUTH_TOKEN_ROHINI_SEC8',
-              'X-Caregiver-Consent': 'DIGITALLY_SIGNED_PRIYA_SHARMA'
+              'X-Caregiver-Consent': 'DIGITALLY_SIGNED_ROHAN_SHARMA'
             },
             requestBody: {
               patient_name: target.seniorName,
@@ -815,14 +815,14 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         nodeType: 'caregiver',
         brandName: 'Caregiver Human Gate',
         toolName: 'decline_doctor_appointment',
-        title: 'Doctor Appointment Declined by Priya',
-        actionSummary: 'Caregiver Priya Sharma clicked [Decline / Monitor]. Clinical consultation request paused for home monitoring.',
+        title: 'Doctor Appointment Declined by Rohan',
+        actionSummary: 'Caregiver Rohan Sharma clicked [Decline / Monitor]. Clinical consultation request paused for home monitoring.',
         timestamp,
         status: 'BLOCKED',
         statusCode: 'APPOINTMENT_DECLINED',
         latencyMs: 18,
         brandColor: '#6B7280',
-        reasoningSnippet: '[CAREGIVER SIGN-OFF]: Priya declined doctor booking at this time. Family will monitor symptoms at home.',
+        reasoningSnippet: '[CAREGIVER SIGN-OFF]: Rohan declined doctor booking at this time. Family will monitor symptoms at home.',
         apiExchange: {
           railName: 'Sambandh HITL Caregiver Approval Rail',
           method: 'POST',
@@ -838,7 +838,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         }
       }
     ]);
-    showFeedbackToast('🛑 Appointment Declined: Priya elected to monitor symptoms at home.');
+    showFeedbackToast('🛑 Appointment Declined: Rohan elected to monitor symptoms at home.');
   }, [addUniqueNodes, showFeedbackToast]);
 
   const resetDoctorAppointmentApproval = useCallback(() => {
@@ -940,24 +940,24 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         ...prev,
         status: 'caregiver_calling',
         caregiverDecision: decision,
-        caregiverNotes: customNote || "Priya: 'I will call Papa myself today. Automated AI call suspended.'"
+        caregiverNotes: customNote || "Rohan: 'I will call Papa myself today. Automated AI call suspended.'"
       }));
-      showFeedbackToast("📞 Direct Call Mode: Priya is speaking with Papa directly (+91 98101 23456). AI dialing suspended.");
+      showFeedbackToast("📞 Direct Call Mode: Rohan is speaking with Papa directly (+91 98101 23456). AI dialing suspended.");
     } else if (decision === 'agent_approved') {
       setPreCallAgency(prev => ({
         ...prev,
         status: 'agent_approved',
         caregiverDecision: decision,
-        caregiverNotes: customNote || "Priya: 'Approved Sambandh AI morning companionship call.'"
+        caregiverNotes: customNote || "Rohan: 'Approved Sambandh AI morning companionship call.'"
       }));
-      showFeedbackToast("🤖 Pre-Call Consent Captured: Priya approved Sambandh AI check-in. Ringing Ramesh Ji's phone over Jio PSTN...");
+      showFeedbackToast("🤖 Pre-Call Consent Captured: Rohan approved Sambandh AI check-in. Ringing Ramesh Ji's phone over Jio PSTN...");
       initiateIncomingCall();
     } else if (decision === 'snooze_30m') {
       setPreCallAgency(prev => ({
         ...prev,
         status: 'snoozed',
         caregiverDecision: decision,
-        caregiverNotes: customNote || "Priya requested a 30-minute delay."
+        caregiverNotes: customNote || "Rohan requested a 30-minute delay."
       }));
       showFeedbackToast("⏰ Check-In Postponed: Snoozed by 30 minutes. Next notification scheduled for 09:00 AM IST.");
     }
@@ -1015,7 +1015,7 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
       setIsAudioSnippetOpen(true);
       showFeedbackToast("🎧 Playing Papa's 30s Railway Wisdom snippet...");
     } else if (action === 'APPROVE_UPI_5600') {
-      showFeedbackToast("⚡ 1-Tap UPI Authorization Captured: ₹5,600 mandate charge approved by Priya Sharma.");
+      showFeedbackToast("⚡ 1-Tap UPI Authorization Captured: ₹5,600 mandate charge approved by Rohan Sharma.");
     } else if (action === 'FALLBACK_30DAY') {
       showFeedbackToast("📦 Reverted to Standard 30-Day Refill: ₹840 debited under normal cap.");
     } else if (action === 'CALL_PAPA') {

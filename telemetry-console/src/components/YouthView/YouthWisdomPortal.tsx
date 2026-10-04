@@ -151,10 +151,15 @@ export const YouthWisdomPortal: React.FC = () => {
   return (
     <div className="flex-1 p-2 sm:p-4 max-w-[1920px] w-full mx-auto flex flex-col h-full min-h-0 overflow-hidden">
       {/* Top Banner: Product Flow 5 & DPDP Anonymization Notice */}
-      <div className="bg-gradient-to-r from-indigo-900 via-stone-900 to-amber-950 text-white rounded-2xl px-4 py-2.5 mb-3 flex flex-wrap items-center justify-between gap-3 shadow-sm border border-stone-800 shrink-0">
+      <div className="bg-gradient-to-r from-indigo-950 via-stone-900 to-amber-950 text-white rounded-2xl px-4 py-2.5 mb-3 flex flex-wrap items-center justify-between gap-3 shadow-sm border border-stone-800 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center border border-indigo-400/30 shrink-0">
-            <GraduationCap className="w-4 h-4" />
+          <div className="flex items-center gap-2 bg-[#FAF4EC] px-2.5 py-1 rounded-xl border border-[#E7E2DB] shadow-xs shrink-0">
+            <img
+              src="/favicon.svg"
+              alt="Sambandh"
+              className="w-5 h-5 object-contain rounded-full"
+            />
+            <span className="font-serif font-bold text-xs text-stone-900">Sambandh</span>
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -698,7 +703,7 @@ export const YouthWisdomPortal: React.FC = () => {
                       <span className="text-stone-300">→</span>
                       <div className="flex items-center gap-1.5 text-amber-900 animate-pulse">
                         <Clock className="w-3.5 h-3.5 text-amber-600" />
-                        <span>2. Caregiver (Priya): PENDING</span>
+                        <span>2. Caregiver (Rohan): PENDING</span>
                       </div>
                       <span className="text-stone-300">→</span>
                       <div className="flex items-center gap-1.5 text-stone-400">
@@ -723,7 +728,7 @@ export const YouthWisdomPortal: React.FC = () => {
                           </span>
                         </div>
                         <p className="text-[11px] text-amber-800">
-                          Sambandh Safety Gate verified zero threat. Sent to Priya Sharma's phone for family approval.
+                          Sambandh Safety Gate verified zero threat. Sent to Rohan Sharma's phone for family approval.
                         </p>
                       </div>
                     </div>
@@ -764,7 +769,7 @@ export const YouthWisdomPortal: React.FC = () => {
                       <Clock className="w-4 h-4 text-amber-700 animate-spin shrink-0" />
                       <div>
                         <span className="text-xs font-bold text-amber-950 block">
-                          Waiting for Priya's approval in Caregiver App
+                          Waiting for Rohan's approval in Caregiver App
                         </span>
                         <span className="text-[10px] text-amber-800">
                           Question will be unlocked for live calls immediately upon approval.
@@ -778,7 +783,7 @@ export const YouthWisdomPortal: React.FC = () => {
                       className="flex items-center justify-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-700 to-teal-800 hover:from-emerald-800 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer shrink-0"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Approve as Caregiver (Priya)</span>
+                      <span>Approve as Caregiver (Rohan)</span>
                     </button>
                   </div>
                 </div>
@@ -799,7 +804,7 @@ export const YouthWisdomPortal: React.FC = () => {
                       <span className="text-emerald-500">→</span>
                       <div className="flex items-center gap-1.5 text-emerald-800">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>2. Caregiver (Priya): APPROVED</span>
+                        <span>2. Caregiver (Rohan): APPROVED</span>
                       </div>
                       <span className="text-emerald-500">→</span>
                       <div className="flex items-center gap-1.5 text-indigo-900 animate-pulse">
@@ -824,7 +829,7 @@ export const YouthWisdomPortal: React.FC = () => {
                           </span>
                         </div>
                         <p className="text-[11px] text-emerald-800">
-                          Approved by <strong>Priya Sharma</strong> · Authorized for Papa's morning check-in call.
+                          Approved by <strong>Rohan Sharma</strong> · Authorized for Papa's morning check-in call.
                         </p>
                       </div>
                     </div>
@@ -894,7 +899,7 @@ export const YouthWisdomPortal: React.FC = () => {
                     </div>
                     <div>
                       <h4 className="font-serif font-bold text-sm text-stone-900">
-                        DECLINED BY PRIMARY CAREGIVER (PRIYA SHARMA)
+                        DECLINED BY PRIMARY CAREGIVER (ROHAN SHARMA)
                       </h4>
                       <p className="text-[11px] text-stone-500">
                         The caregiver opted not to include this question in Papa's daily call.
@@ -957,7 +962,7 @@ export const YouthWisdomPortal: React.FC = () => {
                       <br />
                       • Zero telephony relay: Senior citizen's telephone will <strong>NOT</strong> receive this inquiry.
                       <br />
-                      • Security incident logged and silent notification dispatched to Caregiver Priya on Telegram.
+                      • Security incident logged and silent notification dispatched to Caregiver Rohan on Telegram.
                     </p>
                   </div>
                 </div>
@@ -1020,12 +1025,12 @@ export const YouthWisdomPortal: React.FC = () => {
                     <strong className="text-stone-900">English Translation:</strong> "Ah son, in Ghaziabad yard whenever there was a relay or signal malfunction, we immediately coordinated with the Station Master to physically clamp and padlock the facing points. Discipline was the greatest safety!"
                   </div>
 
-                  {/* Delivery Loop to Priya on Telegram */}
+                  {/* Delivery Loop to Rohan on Telegram */}
                   <div className="bg-teal-50 border border-teal-200 rounded-xl p-2.5 flex items-center justify-between text-xs text-teal-950">
                     <div className="flex items-center gap-2">
                       <span className="text-base">📱</span>
                       <span>
-                        Delivered to Priya's Telegram: <em>"Papa shared his 1988 Ghaziabad yard wisdom with student Aarav Mehta (DTU)"</em>
+                        Delivered to Rohan's Telegram: <em>"Papa shared his 1988 Ghaziabad yard wisdom with student Aarav Mehta (DTU)"</em>
                       </span>
                     </div>
                     <span className="text-[10px] font-mono font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded border border-teal-300">

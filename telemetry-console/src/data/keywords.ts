@@ -48,9 +48,9 @@ export const FINANCIAL_KEYWORDS = [
 ];
 
 export const FAMILY_KEYWORDS = [
-  'priya', 'beti', 'bitiya', 'daughter', 'bangalore', 'family',
+  'rohan', 'beta', 'son', 'bangalore', 'family',
   'bachhe', 'caregiver', 'telegram',
-  'प्रिया', 'बिटिया', 'बेटी', 'बंगलौर', 'परिवार'
+  'रोहन', 'बेटा', 'बंगलौर', 'परिवार'
 ];
 
 export const LOGISTICS_KEYWORDS = [
@@ -118,7 +118,7 @@ export const matchesKeywords = (text: string, keywords: string[]): boolean => {
  * Used as initial state in TelemetryContext and as fallback in foldConversationMemory.
  */
 export const DEFAULT_MEMORY_LEDGER = `• [Patient Profile]: Ramesh Chandra (72, Rohini, Delhi); retired Northern Railway supervisor.
-• [Primary Caregiver]: Daughter Priya Sharma (Bengaluru); linked to daily care summary.
+• [Primary Caregiver]: Son Rohan Sharma (Bengaluru); linked to daily care summary.
 • [Clinical Baseline]: Hypertension (Telma 40 OD), Type 2 Diabetes (Metformin 500 BD); ABDM record active.
 • [Fiduciary Boundary]: Autonomous refill pre-authorization active up to ₹4,500 monthly limit.
 • [Session State]: Morning check-in active; listening attentively to elder's morning report.`;

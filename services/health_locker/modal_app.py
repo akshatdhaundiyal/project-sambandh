@@ -235,7 +235,7 @@ class MedGemmaWorker:
             analysis = (
                 "Dr. Saxena's cardiology consultation notes specifically emphasize dietary salt restriction "
                 "(< 2g sodium per day) to support blood pressure management alongside Telmisartan 40mg. "
-                "Priya's caregiver directive confirms strict low-sodium cooking without added salt on salads or curd."
+                "Rohan's caregiver directive confirms strict low-sodium cooking without added salt on salads or curd."
             )
             tokens = 84
         else:

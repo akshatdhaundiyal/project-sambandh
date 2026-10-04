@@ -227,8 +227,8 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
       );
     } else {
       setUploadCategory('caregiver_note');
-      setUploadTitle("Priya's Kitchen Diet Protocol (Low Salt)");
-      setUploadDoctor('Priya Sharma (Primary Caregiver)');
+      setUploadTitle("Rohan's Kitchen Diet Protocol (Low Salt)");
+      setUploadDoctor('Rohan Sharma (Primary Caregiver)');
       setUploadText(
         'Caregiver Protocol: Morning oats with unsalted almonds. No pickle or papad. Potassium-rich fruits like papaya allowed in moderate portions.'
       );
@@ -298,13 +298,21 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
           {/* Caregiver Profile Header */}
           <div className="px-3.5 py-2 bg-white border-b border-[#E7E2DB] flex items-center justify-between shrink-0 shadow-2xs">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-xs shrink-0">
-                PS
+              <div className="relative shrink-0">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-xs">
+                  RS
+                </div>
+                <img
+                  src="/favicon.svg"
+                  alt="Sambandh"
+                  title="Sambandh Caregiver Rail"
+                  className="w-3.5 h-3.5 absolute -bottom-0.5 -right-0.5 rounded-full ring-1 ring-white shadow-2xs"
+                />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs font-serif font-bold text-stone-900 truncate">
-                    Priya Sharma
+                    Rohan Sharma
                   </span>
                   <span className="text-[9px] font-mono font-semibold text-sky-700 bg-sky-50 px-1.5 py-0.2 rounded border border-sky-200">
                     Caregiver
@@ -321,7 +329,7 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
               <button
                 type="button"
                 onClick={() => dispatchTelegramCareBriefing()}
-                title="Live Telegram Care Channel · Click to test push to @Priya"
+                title="Live Telegram Care Channel · Click to test push to @Rohan"
                 className="flex items-center gap-1 text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-sky-50 text-sky-800 border border-sky-200 cursor-pointer hover:bg-sky-100 transition-colors shadow-2xs"
               >
                 <span>✈️</span>
@@ -924,7 +932,7 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                         className="w-full mt-1.5 py-1.5 px-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 text-[10px] font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
                       >
                         <span>✈️</span>
-                        <span>Send Live Briefing to Telegram (@Priya)</span>
+                        <span>Send Live Briefing to Telegram (@Rohan)</span>
                       </button>
                     </div>
                   ) : callStatus === 'active' || callStatus === 'calling' ? (
@@ -1065,7 +1073,7 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                       <div className="h-full bg-teal-600 rounded-full w-[19%]"></div>
                     </div>
                     <span className="text-[9px] text-stone-500 block">
-                      ₹3,660.00 pre-approved headroom available without disturbing Priya
+                      ₹3,660.00 pre-approved headroom available without disturbing Rohan
                     </span>
                   </div>
 

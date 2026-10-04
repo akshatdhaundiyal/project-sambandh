@@ -521,10 +521,10 @@ export async function fetchSeniorProfile(seniorId: string = 'SENIOR_RAMESH_001')
     vocation: 'Retired Chief Signal Inspector (Northern Railway, 41 years). Proud of mechanical relay safety record at Ghaziabad junction.',
     personality_notes: 'Dignified, lucent, nostalgic about railway lore and Talat Mahmood ghazals.',
     health_baseline: 'Stage-1 Essential Hypertension (Telma 40 OD morning post breakfast), Bilateral Knee Osteoarthritis (morning stiffness), controlled Type 2 Diabetes (Metformin 500mg evening).',
-    family_context: 'Daughter Priya Sharma lives in Bengaluru. Very caring; speaks weekly; pre-authorized Pine Labs monthly care budget ₹4,500.',
+    family_context: 'Son Rohan Sharma lives in Bengaluru. Very caring; speaks weekly; pre-authorized Pine Labs monthly care budget ₹4,500.',
     preferred_address: 'अंकल / जी',
-    caregiver_name: 'Priya Sharma',
-    caregiver_relationship: 'Daughter',
+    caregiver_name: 'Rohan Sharma',
+    caregiver_relationship: 'Son',
     doctor_name: 'Dr. Arvind Saxena (MD, Cardiology)',
     doctor_clinic: 'Apollo Clinic Rohini (+91 11 2790 1200)'
   };
@@ -581,7 +581,7 @@ export async function saveSeniorInterest(interest: Partial<ElderTopicOfInterest>
         topic: interest.topic,
         category: interest.category || 'GENERAL',
         source: interest.source || 'CAREGIVER_CURATED',
-        added_by: interest.addedBy || 'Priya Sharma (Daughter)',
+        added_by: interest.addedBy || 'Rohan Sharma (Son)',
         enthusiasm_level: interest.enthusiasmLevel || 'HIGH',
         notes: interest.notes || '',
         is_active: interest.isActive ?? true

@@ -66,7 +66,7 @@ export const CaregiverTopicsTab: React.FC = () => {
       topic: newTopicText.trim(),
       category: newTopicCategory,
       source: 'CAREGIVER_CURATED',
-      addedBy: `${seniorProfile.caregiverName || 'Priya Sharma'} (${seniorProfile.caregiverRelationship || 'Daughter'})`,
+      addedBy: `${seniorProfile.caregiverName || 'Rohan Sharma'} (${seniorProfile.caregiverRelationship || 'Son'})`,
       enthusiasmLevel: 'HIGH',
       notes: 'Added by caregiver via Caregiver App',
       isActive: true
@@ -88,7 +88,7 @@ export const CaregiverTopicsTab: React.FC = () => {
             </span>
           </div>
           <span className="text-[9px] font-mono text-teal-800 bg-teal-50 px-1.5 py-0.2 rounded border border-teal-200">
-            Curated by Priya
+            Curated by Rohan
           </span>
         </div>
 
@@ -159,7 +159,7 @@ export const CaregiverTopicsTab: React.FC = () => {
                           : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                       }`}
                     >
-                      {topic.source === 'CAREGIVER_CURATED' ? 'Curated by Priya' : 'AI Discovered'}
+                      {topic.source === 'CAREGIVER_CURATED' ? 'Curated by Rohan' : 'AI Discovered'}
                     </span>
                     <span className="text-[9px] font-mono text-stone-400">
                       {topic.category}

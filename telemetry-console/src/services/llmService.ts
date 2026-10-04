@@ -48,7 +48,7 @@ export const SAMBANDH_GEMINI_TOOLS = [
     functionDeclarations: [
       {
         name: 'request_medication_refill',
-        description: 'Call this tool when elder reports low medication stock, running out of pills, or needing a refill. Does NOT charge immediately; dispatches a mandatory approval request to caregiver Priya first.',
+        description: 'Call this tool when elder reports low medication stock, running out of pills, or needing a refill. Does NOT charge immediately; dispatches a mandatory approval request to caregiver Rohan first.',
         parameters: {
           type: 'OBJECT',
           properties: {
@@ -250,7 +250,7 @@ export const generateContextualCompanionResponse = (
 
   // 5. Medication / Prescriptions / Pill Counts / Stock / Refill Low
   if (matchesKeywords(text, MEDICATION_KEYWORDS)) {
-    return 'रमेश अंकल, मैंने प्रिया बिटिया को आपके दवा के रिफिल का अप्रूवल भेज दिया है। जैसे ही वह हरी झंडी देंगी, दवा तुरंत आपके घर के लिए निकल जाएगी! आप बिल्कुल बेफिक्र होकर आराम से चाय पीजिए।';
+    return 'रमेश अंकल, मैंने रोहन बेटा को आपके दवा के रिफिल का अप्रूवल भेज दिया है। जैसे ही वह हरी झंडी देंगे, दवा तुरंत आपके घर के लिए निकल जाएगी! आप बिल्कुल बेफिक्र होकर आराम से चाय पीजिए।';
   }
 
   // 6. Physical Symptoms / Knee Pain / Stiffness / BP / Walking
@@ -258,9 +258,9 @@ export const generateContextualCompanionResponse = (
     return 'अंकल जी, घुटने के दर्द में बिल्कुल ज़ोर मत लगाइएगा और थोड़ा आराम कीजिए। सुबह के वक्त गुनगुने पानी की सिकाई और हल्की धूप सेकने से बहुत आराम मिलता है। क्या दर्द सीढ़ियां उतरते वक्त ज्यादा बढ़ रहा है या सुबह उठते ही था?';
   }
 
-  // 7. Daughter Priya / Caregiver / Bangalore / Family
-  if (matchesKeywords(text, FAMILY_KEYWORDS) || lower.includes('priya') || lower.includes('bitiya')) {
-    return 'जी अंकल, प्रिया बिटिया से रोज़ की तरह टेलीमेट्री अपडेट साझा हो चुका है और वह बैंगलोर में निश्चिंत हैं। वह हमेशा कहती हैं कि पापा की मुस्कान ही उनकी सबसे बड़ी ताकत है। आज शाम को उनसे फोन पर बतियाने का समय तय हुआ क्या आपका?';
+  // 7. Son Rohan / Caregiver / Bangalore / Family
+  if (matchesKeywords(text, FAMILY_KEYWORDS) || lower.includes('rohan') || lower.includes('beta')) {
+    return 'जी अंकल, रोहन बेटा से रोज़ की तरह टेलीमेट्री अपडेट साझा हो चुका है और वह बैंगलोर में निश्चिंत हैं। वह हमेशा कहते हैं कि पापा की मुस्कान ही उनकी सबसे बड़ी ताकत है। आज शाम को उनसे फोन पर बतियाने का समय तय हुआ क्या आपका?';
   }
 
   // 8. Financial / Pension / Bank / UPI / Pine Labs / Mandate
@@ -745,7 +745,7 @@ Task: Update the Structured Memory Ledger by incorporating all facts from the ne
 Output strictly in the following 5 structured bullet points:
 • [Clinical & Symptoms]: All reported vitals, physical complaints (knee pain, stiffness, BP), morning routine, appetite, sleep quality.
 • [Medication & Adherence]: Specific drug names (Telmisartan, Metformin, Amlodipine), exact pill counts remaining, confirmed doses taken or pending.
-• [Emotional & Psycho-Social]: Elder's emotional tone, warmth, mentions of daughter Priya, family stories, memories.
+• [Emotional & Psycho-Social]: Elder's emotional tone, warmth, mentions of son Rohan, family stories, memories.
 • [Active Rails & Actions]: Triggered rails, mandate debits (₹840 Pine Labs auto-debit / ₹4,500 cap), ABDM queries, Delhivery dispatch, caregiver briefs.
 • [Open Topics & Continuity]: Topics or questions initiated by Ramesh that need ongoing conversational follow-up.
 
@@ -793,7 +793,7 @@ export interface GeneratedCallSummary {
 
 /**
  * Extracts and synthesizes a structured post-call clinical & emotional care briefing
- * for caregiver Priya and dispatches via Telegram.
+ * for caregiver Rohan and dispatches via Telegram.
  */
 export const generatePostCallSummary = async (
   turns: Array<{ speaker: string; speakerLabel: string; content: string }>,
@@ -914,7 +914,7 @@ export interface DoctorTransformationResult {
  * Transforms raw ambient in-clinic doctor consultation notes & attached prescriptions into 3 tiers:
  * Tier 1: Structured Clinical EHR & Vitals
  * Tier 2: Simple spoken Hindi instructions for Ramesh Ji
- * Tier 3: Actionable Caregiver Telegram briefing for Priya
+ * Tier 3: Actionable Caregiver Telegram briefing for Rohan
  */
 export const transformDoctorConsultationTranscript = async (
   rawTranscript: string,

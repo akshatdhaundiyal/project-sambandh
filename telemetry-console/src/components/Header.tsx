@@ -31,20 +31,27 @@ export const Header: React.FC = () => {
         <div className="flex items-center justify-between w-full md:w-auto">
           {/* Brand Identity */}
           <div className="flex items-center gap-2.5 sm:gap-3">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#16233B] text-amber-300 flex items-center justify-center shadow-xs border border-stone-800 shrink-0">
-              {/* Bespoke Sambandh Interlocking Ring / Knot SVG */}
-              <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 21a9 9 0 0 0 9-9 9 9 0 0 0-9-9 9 9 0 0 0 9 9Z" stroke="#D97706" opacity="0.4" />
-                <path d="M7 12a5 5 0 0 1 5-5c2.76 0 5 2.24 5 5s-2.24 5-5 5" stroke="#FDE68A" />
-                <circle cx="12" cy="12" r="2" fill="#10B981" stroke="#10B981" />
-              </svg>
+            <div className="flex items-center gap-2 sm:gap-2.5">
+              <img
+                src="/favicon.svg"
+                alt="Sambandh Emblem"
+                className="w-7 h-7 sm:w-8 sm:h-8 object-contain rounded-xl shadow-2xs border border-[#E7E2DB] bg-[#FAF4EC] shrink-0"
+              />
+              <div>
+                <span className="font-serif font-bold text-sm sm:text-base tracking-tight text-stone-900 block leading-tight">
+                  Sambandh
+                </span>
+                <span className="text-[10px] text-amber-900/80 font-medium tracking-normal hidden sm:block leading-none mt-0.5">
+                  Closer today. Always.
+                </span>
+              </div>
             </div>
-            <div>
-              <span className="font-serif font-bold text-sm sm:text-base tracking-tight text-stone-900 whitespace-nowrap block leading-tight">
-                Project Sambandh
+            <div className="hidden xl:block pl-2.5 border-l border-stone-300/70">
+              <span className="text-[11px] font-semibold text-stone-700 tracking-tight block leading-tight">
+                Autonomous Fiduciary Care
               </span>
-              <span className="text-[10px] sm:text-[11px] font-medium text-stone-500 tracking-normal hidden lg:block">
-                Autonomous Fiduciary Care Console
+              <span className="text-[9px] font-mono font-bold text-amber-800 uppercase tracking-wide block">
+                Safety & Voice Rail
               </span>
             </div>
           </div>
