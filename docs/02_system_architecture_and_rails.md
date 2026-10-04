@@ -339,50 +339,111 @@ In elderly care, financial fraud, impersonation by fake relatives, and pension v
 
 ---
 
-## 7. Caregiver Transparency Rail: Telegram & WhatsApp MTProto
+## 6.5 Ambient In-Clinic Doctor Consultation Transcriber & MedGemma 3-Tier Clinical Transformation 🩺🎙️
 
-All telemetry, emotional state benchmarks, and operational actions are transmitted to the family via modern messaging receptors.
+Elderly outpatient clinic visits in India present severe comprehension and continuity gaps: consultations are conducted in high-speed Hinglish/Medical jargon, doctors give rapid verbal instructions, and prescriptions change without being seamlessly updated in the senior's routine.
 
-### 7.1 Daily Morning Reassurance Card
-Delivered within 60 seconds of call termination:
-- **Header:** 🌿 *Project Sambandh: Daily Reassurance Card*
-- **Elder Status:** Ramesh Chandra (Age 72, Rohini)
-- **Call Timestamp:** 08:30 – 08:36 IST (Duration: 5m 42s)
-- **Tone & Lucidity Score:** High Vitality (0.94 / 1.00), Spirited & Nostalgic
-- **Mentorship Topic:** Mentored Aarav (23, Pune) on Northern Railway signaling leadership.
-- **Oral Adherence:** Confirmed (Telma 40mg + Metformin 500mg taken with morning tea).
-- **Supply Runway:** 3 days remaining (<5d threshold).
-- **Autonomous Fulfillment:** ₹840 debited via Pine Labs Plural; Delhivery Waybill `DLV-98234-DEL` arriving today by 4:00 PM.
-- **Interactive Inline Buttons:**
-  - `[🎧 Listen to Papa's Story (30s)]`
-  - `[📦 Track Delhivery Delivery]`
-  - `[💳 View Pine Labs Receipt]`
-  - `[📞 Call Papa Directly]`
+Project Sambandh solves this with an **Ambient In-Clinic Transcriber & 3-Tier Transformation Engine**:
 
-### 7.2 Sunday 7:00 PM Longitudinal Family Digest
-Every Sunday evening, Sambandh aggregates the week's data into a macro digest:
-- **Weekly Adherence Rate:** 98.4% (7/7 days ground-truthed)
-- **Cumulative Monthly Spend:** ₹840.00 / ₹4,500.00 budget ceiling
-- **Vocal Biomarkers:** Tremor index stable (<0.02), articulation rate steady (138 wpm)
-- **Prescription Runway:** 28 days of buffer secured.
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│               AMBIENT CLINIC AUDIO INGRESS (NO RIGID SPEAKER TAGGING)                 │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  In-Room Microphone (Consultation Room: Doctor + Senior Ramesh Uncle + Caregiver Priya)│
+│       ▲                                                                                │
+│       │ Real-time Web Speech / Gnani Ambient Audio Capture (Hindi + English + Hinglish)│
+│       ▼                                                                                │
+│  Raw Unpartitioned Consultation Transcript Stream                                      │
+└───────┬────────────────────────────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│            MEDGEMMA / GEMINI 1.5 PRO CLINICAL REASONING & 3-TIER EXTRACTION            │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  Multi-Turn Clinical LLM Pipeline:                                                     │
+│  Extracts: Chief Complaints, Vitals, Diagnoses, Prescription Changes, Diet, Follow-up │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  ▼ TIER 1: ABDM FHIR EHR CLINICAL DOSSIER                                              │
+│  • Structured Clinical Summary & Doctor Notes                                          │
+│  • New / Adjusted Active Molecules (e.g., Atorvastatin 10mg OD Night, Telma 40mg OD)  │
+│  • Vitals Captured (e.g., BP 138/86 mmHg, Pulse 74 bpm) & Follow-up Date               │
+│  • 🔄 Real-Time Sync: Directly injects into activeMolecules & PostgreSQL Health Locker │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  ▼ TIER 2: PAPA'S HINDI VERNACULAR PATIENT GUIDE (DEVNAGARI + ZERO-LATENCY AUDIO)      │
+│  • 100% Conversational Devanagari Hindi translation ("डॉक्टर साहब ने क्या समझाया")     │
+│  • Simple, respectful medicine schedule ("रात को खाना खाने के बाद")                    │
+│  • Lifestyle & Dietary warnings ("नमक और तली चीज़ें कम करनी हैं")                      │
+│  • 🔊 Built-in Vernacular TTS: 1-tap read-aloud via Hindi Web Speech / SAPI5           │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  ▼ TIER 3: CAREGIVER TELEGRAM ACTION CHECKLIST & MTPROTO PUSH CARD                     │
+│  • High-priority clinical action items dispatched directly to Daughter Priya           │
+│  • Instant 1-Click Telegram Push Card via @SambandhCare_Bot                            │
+│  • Pharmacy Refill Prompts for newly prescribed medications                            │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Key Technical Innovations of the In-Clinic Bridge:
+1. **Zero Artificial Speaker Tagging:** In real-world clinics, family members chime in, doctors speak over patients, and rigid speaker diarization frequently misattributes statements. Sambandh ingests the raw acoustic dialogue stream and relies on MedGemma's semantic reasoning to attribute clinical facts, patient symptoms, and doctor instructions.
+2. **Autonomous Medication State Synchronization:** When the doctor prescribes a new medication (e.g. *Atorvastatin 10mg*), the extraction engine parses the molecule, brand name, dosage, timing, and meal relation, automatically appending it to `activeMolecules`. This immediately updates Sambandh's morning phone call prompts without manual caregiver data entry.
+3. **Multi-Modal Vernacular Playback:** Seniors can listen to their doctor's advice in warm, familiar Hindi speech anytime by tapping the `[🔊 Hindi Audio Summary]` button in the consultation modal.
+
+---
+
+## 7. Caregiver Transparency Rail: Live Telegram & WhatsApp MTProto
+
+All telemetry, emotional state benchmarks, clinical consultations, and operational actions are transmitted to the family via live Telegram MTProto Bot integration (`@SambandhCare_Bot`).
+
+### 7.1 Telegram Bot Integration Architecture
+- **Bot Handle:** `@SambandhCare_Bot`
+- **Protocol:** Telegram Bot API HTTPS REST Endpoints (`/sendMessage`)
+- **Parse Mode:** Structured HTML with automatic HTML entity escaping (`escapeHtml`) to prevent formatting breakage.
+- **Button URL Sanitizer:** Automatically sanitizes deep links to conform with Telegram's HTTPS URL schema requirements.
+- **Resilient Fallback:** Automatically retries with plain text formatting if HTML parsing encounters edge-case syntax rejections.
+
+### 7.2 Message Card Types
+
+#### 1. Daily Morning Care Briefing (Delivered <60s post-call)
+- **Vitality Score & Mood:** Real-time vitality gauge (e.g., `96/100 · 🌿 Cheerful & Energetic`).
+- **Adherence Ground-Truth:** Dynamic confirmation of morning medications (e.g., `✅ Morning Telma-40 confirmed taken with fresh water`).
+- **Call Summary:** 2-line conversational recap of topics discussed (e.g., morning tea on balcony, railway memories).
+- **Inline Action Buttons:** `[📊 Open Telemetry Console]`, `[📞 Call Papa Directly]`.
+
+#### 2. Human-in-the-Loop (HITL) Medication Refill Approval Card
+- **Trigger:** Initiated when pill runway drops below 5 days or senior mentions running low on medicines.
+- **Financial Headroom:** Displays proposed debit vs. Pine Labs monthly mandate ceiling (`₹840 / ₹4,500`).
+- **Pharmacy & Logistics:** Netmeds partner fulfillment, Delhivery 4-hour doorstep SLA.
+- **Interactive Inline Buttons:** `[✅ Approve Refill (₹840)]`, `[❌ Deny / Edit Refill]`.
+
+#### 3. In-Clinic Doctor Consultation Summary Card
+- **Trigger:** Dispatched immediately upon conclusion of an in-clinic doctor visit.
+- **Doctor & Hospital:** Dr. Alok Saxena (Max Super Speciality Hospital).
+- **Diagnoses & Vitals:** BP 138/86 mmHg, mild hypertensive fluctuation.
+- **Prescription Changes:** Newly prescribed Atorvastatin 10mg (OD Night).
+- **Caregiver Action Items:** Order new cholesterol medication, schedule follow-up in 4 weeks.
+
+#### 4. Acoustic Fraud Tripwire Emergency Alert
+- **Trigger:** Sub-second line severance on financial exploitation keyword detection.
+- **Threat Type:** Impersonation / Fake pension verification scam.
+- **Mitigation:** Telephony trunk severed in 182ms; elder financial envelope locked.
 
 ---
 
 ## 8. Finite State Machine (FSM) Specification
 
-The system transitions across 9 formal states with 4 governed exception traps:
+The system transitions across 10 formal states with 4 governed exception traps:
 
 | State | Name | Trigger / Condition | Autonomous Action | Exception Trap |
 | :--- | :--- | :--- | :--- | :--- |
 | **S0** | **IDLE** | 08:30 AM cron timer or inbound ring | Prepares profile context & ABDM record | - |
 | **S1** | **CALL CONNECT** | SIP gateway handshakes | Validates caller ID and voiceprint | Trunk timeout $\rightarrow$ Redial in 15m |
-| **S2** | **LANE 1: WISDOM** | Call answered | Delivers mentorship guidance prompt | **E3 (Acoustic Tripwire):** Money solicitation $\rightarrow$ Sever in 182ms |
-| **S3** | **LANE 2: ADHERENCE** | Mentorship concluded | Prompts conversational pill intake | **E1 (Clinical Alarm):** Chest pain $\rightarrow$ Emergency doctor alert |
+| **S2** | **LANE 1: WISDOM & BANTER** | Call answered | Natural 30s opening spark (weather, humor, news) | **E3 (Acoustic Tripwire):** Money solicitation $\rightarrow$ Sever in 182ms |
+| **S3** | **LANE 2: ADHERENCE** | Turn $\ge 2$ or health mention | Casually weaves in clock-based medicine check | **E1 (Clinical Alarm):** Chest pain $\rightarrow$ Emergency doctor alert |
 | **S4** | **RUNWAY EVAL** | Pill recall processed | Compares consumption against ABDM record | Unclear recall $\rightarrow$ Caregiver manual verify |
-| **S5** | **SETTLEMENT** | Runway $\le 20\%$ (<5 days) | Checks mandate headroom; debits ₹840 | **E2 (Fiduciary Breach):** Cost >₹4,500 $\rightarrow$ 2FA Telegram card |
-| **S6** | **LOGISTICS** | Payment 200 OK | Books Delhivery same-day courier dispatch | Stockout $\rightarrow$ Secondary pharmacy hub routing |
-| **S7** | **CAREGIVER BRIEF** | Logistics manifested | Formats and dispatches Telegram Reassurance Card | MTProto retry backoff |
-| **S8** | **TERMINATE** | Call concluded | Updates memory ledger and returns to S0 | - |
+| **S5** | **HITL APPROVAL GATE** | Runway $\le 20\%$ (<5 days) | Dispatches Telegram approval card to caregiver | Caregiver Deny $\rightarrow$ Abort transaction |
+| **S6** | **SETTLEMENT** | Caregiver approves / Auto-cap OK | Checks mandate headroom; debits ₹840 via Pine Labs | **E2 (Fiduciary Breach):** Cost >₹4,500 $\rightarrow$ 2FA Telegram card |
+| **S7** | **LOGISTICS** | Payment 200 OK | Books Delhivery same-day courier dispatch | Stockout $\rightarrow$ Secondary pharmacy hub routing |
+| **S8** | **CAREGIVER BRIEF** | Call ended / Logistics manifested | Formats and dispatches Telegram Morning Briefing | MTProto retry backoff |
+| **S9** | **DOCTOR BRIDGE** | Consultation audio captured | Executes 3-tier clinical transformation & sync | Unparseable audio $\rightarrow$ Caregiver review flag |
 
 ---
 
@@ -394,22 +455,25 @@ To eradicate static constants and ensure zero hardcoded senior profiles, Samband
 - **`senior_interests` Table:** Tracks caregiver-curated and autonomously call-extracted conversation topics with active/inactive boolean flags.
 - **`senior_opinions` Table:** Stores topical local news sparks (infrastructure, parks, metro expansions) used to stimulate elder opinions and combat cognitive decline.
 - **`prescriptions` & `medication_intakes` Tables:** Powers deterministic pill runway calculations and adherence timelines.
+- **`doctor_consultations` Table:** Stores structured in-clinic transcripts, clinical notes, EHR FHIR payloads, and vernacular summaries.
 
-FastAPI endpoints (`services/health_locker/api_server.py`) expose CRUD operations (`PUT /api/seniors/{id}`, `GET/POST /api/seniors/{id}/interests`, `GET /api/seniors/{id}/opinions`), enabling daughter Priya to adjust Ramesh Uncle's profile at runtime via the Caregiver Hub.
+FastAPI endpoints (`services/health_locker/api_server.py`) expose CRUD operations (`PUT /api/seniors/{id}`, `GET/POST /api/seniors/{id}/interests`, `GET /api/seniors/{id}/opinions`, `POST /api/consultations`), enabling daughter Priya to adjust Ramesh Uncle's profile at runtime via the Caregiver Hub.
 
 ---
 
 ## 10. Frontend Architecture: Single-Responsibility Hooks
 
-The Telemetry Console (`telemetry-console/src/`) avoids monolithic context anti-patterns by decomposing state into 8 focused hooks coordinated by a thin `TelemetryContext`:
+The Telemetry Console (`telemetry-console/src/`) avoids monolithic context anti-patterns by decomposing state into 9 focused hooks coordinated by a thin `TelemetryContext`:
 
 1. `useAudioPipeline`: Multi-engine Hindi voice synthesis (SAPI5/Natural, Web Speech), live audio context, and animated waveform bars.
-2. `useConversationEngine`: JIT modular prompt assembly, Gemini LLM invocations, dialogue streams, and auto-discovery of new interests.
-3. `useCaregiverState`: PostgreSQL senior profile sync, active conversation sparks, and opinion topic updates.
-4. `useFiduciaryLedger`: Pine Labs wallet balances, UPI transaction entries, and 2FA step-up limits.
-5. `useYouthMentorship`: Intergenerational engineering student questions, LLM safety gate reviews, and asynchronous voice relays.
-6. `useCallSession`: Telephony call lifecycle states (IDLE, CONNECTING, ACTIVE, ENDED) and duration timers.
-7. `useExecutionNodes`: Partner rail execution timeline, HTTP request/response payloads, and latency tracking.
-8. `useScenarioPlayback`: 1-click test execution of the 5 competition preset scenarios.
+2. `useConversationEngine`: JIT modular prompt assembly, dynamic clock-based medication resolution, Gemini LLM invocations, and auto-discovery of new interests.
+3. `useDoctorConsultation`: Ambient in-clinic microphone capture, MedGemma 3-tier clinical extraction, Devanagari Hindi TTS playback, and live sync to `activeMolecules`.
+4. `useCaregiverState`: PostgreSQL senior profile sync, active conversation sparks, and opinion topic updates.
+5. `useFiduciaryLedger`: Pine Labs wallet balances, UPI transaction entries, HITL refill approvals, and 2FA step-up limits.
+6. `useYouthMentorship`: Intergenerational engineering student questions, LLM safety gate reviews, and asynchronous voice relays.
+7. `useCallSession`: Telephony call lifecycle states (IDLE, CONNECTING, ACTIVE, ENDED), "End Call" trigger, and duration timers.
+8. `useExecutionNodes`: Partner rail execution timeline, HTTP request/response payloads, and latency tracking.
+9. `useScenarioPlayback`: 1-click test execution of the 5 competition preset scenarios.
 
 For the exhaustive specification of the dynamic prompt construction and token savings, consult **[System Prompt Architecture & JIT Budgeting](file:///d:/lab/projects/project-sambandh/docs/SYSTEM_PROMPT_ARCHITECTURE.md)**.
+

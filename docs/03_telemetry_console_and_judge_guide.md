@@ -104,8 +104,19 @@ Instead of stuffing unlimited raw dialogue history into the LLM context window�
 - Renders conversational turns between Ramesh Chandra (Senior) and Sambandh (Voice Agent).
 - **Per-Turn Audio Playback:** Click the `[🔊]` icon beside any message to replay the Hindi voice synthesis on demand.
 - **Colloquial Transliterator Bar:** Allows judges to type unscripted Hinglish phrases (e.g., *"aaj sugar ki goli bhool gaya tha"*); the built-in transliterator converts it to authentic Devanagari in real time.
+- **Active Call Controls & "End Call" Button:** A red `[🔴 End Call]` button in the telephony header terminates the active session immediately, computing vitality scores and automatically dispatching the formatted Daily Care Briefing to daughter Priya's Telegram.
 
-### 2.6 Live Modular JIT Prompt Inspector (`SystemPromptModal.tsx`)
+### 2.6 Ambient In-Clinic Doctor Consultation Bridge Modal (`DoctorConsultationModal.tsx`)
+Clicking the `[🩺 In-Clinic Doctor Visit]` button in the top navigation bar opens the **Ambient In-Clinic Doctor Consultation Bridge**:
+- **Ambient Audio Capture:** Toggle `[🎙️ Start Ambient Transcriber]` or test with one-click realistic clinical presets (e.g., *Dr. Saxena Hypertension & Statin Consultation*).
+- **Zero Artificial Diarization:** Ingests the free-flowing consultation room conversation between the doctor, Ramesh Uncle, and daughter Priya without brittle speaker labeling.
+- **MedGemma 3-Tier Clinical Extraction:**
+  - **Tier 1 (ABDM EHR Clinical Record):** Structured vitals (BP, pulse), formal diagnosis codes, clinical summary, follow-up timelines, and newly detected active molecules (e.g., *Atorvastatin 10mg OD Night*).
+  - **Tier 2 (Papa's Hindi Vernacular Guide):** Pure Devanagari simplified explanation with dietary rules and daily dosage schedules. Includes built-in `[🔊 Play Hindi Audio Summary]` TTS synthesis.
+  - **Tier 3 (Caregiver Telegram Action Checklist):** High-priority clinical action items and instant `[📱 Send Doctor Consultation Report to Telegram]` button.
+- **Automatic Molecule Synchronization:** Tapping `[🔄 Sync to Papa's Active Prescriptions]` immediately injects parsed medicines into `activeMolecules`, updating the AI companion's morning pill reminder prompts in real time.
+
+### 2.7 Live Modular JIT Prompt Inspector (`SystemPromptModal.tsx`)
 Clicking the `[📜 System Prompt]` button in the top navigation bar opens the **Modular JIT Prompt Inspector**:
 - **Real-Time Module Status Badges:**
   - `[Companion Core: Active]` (Always active: warm persona, Awadhi respect, unscripted sparks)
@@ -174,7 +185,7 @@ A unified, accordion-driven Command Deck designed for daughter Priya Sharma (ove
    - Real-time DAG execution tree tracking tool execution status, HTTP status codes, and microsecond latencies.
    - Audit trail of autonomous Pine Labs UPI auto-debits, ABDM inventory queries, and Delhivery courier dispatches.
 4. **Caregiver Telegram & Weekly Digest Receptors:**
-   - Interactive Telegram MTProto reassurance card delivered within 60s of call completion.
+   - Interactive Telegram MTProto reassurance card delivered within 60s of call completion (`@SambandhCare_Bot`).
    - Sunday Family Digest visualizing longitudinal adherence (98.4%) and 28-day medicine runway buffers.
 
 ### 4.3 Persona Tab 3: Youth & Wisdom Bridge (DTU Engineering Students)
@@ -198,8 +209,10 @@ When evaluating Project Sambandh during the competition, look for these specific
 - [ ] **Opinion Elicitation:** Does the agent actively solicit Ramesh Uncle's perspective on local topics, reinforcing elder dignity?
 - [ ] **Subtle Adherence Weaving:** Does the agent naturally bridge into morning medication reminders after 2–3 turns without breaking conversational rapport?
 - [ ] **Modular JIT Prompting:** Inspect the `[📜 System Prompt]` modal to confirm prompt slices are attached conditionally rather than bloating upfront.
-- [ ] **Hybrid Topic Hub:** Check the Caregiver Portal to verify Priya can add conversation topics and inspect autonomously extracted interests.
+- [ ] **Ambient Doctor Consultation Bridge:** Click `[🩺 In-Clinic Doctor Visit]` to inspect ambient audio capture, MedGemma 3-tier clinical extraction, and live sync to active prescriptions.
+- [ ] **Live Telegram Integration:** Check Telegram `@SambandhCare_Bot` to inspect real-time delivery of Morning Care Briefings, HITL Refill Approval Cards, and Doctor Reports.
 - [ ] **Authentic Vernacular Fluency:** Does the agent comprehend natural Indic speech (e.g., *"laal wali goli"* $\rightarrow$ *Telmisartan 40mg*)?
 - [ ] **Deterministic L3 Limits:** Does the system auto-debit ₹840 without asking, but strictly halt and request 2FA when an order is ₹5,200?
 - [ ] **Acoustic Safety SLA:** Does the tripwire sever the telephony carrier line in under 300ms when financial solicitation occurs?
 - [ ] **Caregiver Reassurance:** Does the family receive clear, non-anxious transparency via Telegram within 60 seconds of call completion?
+
