@@ -169,7 +169,7 @@ export const useConversationEngine = ({
       timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
       speaker: 'agent',
       lane: 'lane1',
-      speakerLabel: 'Sambandh Companion (Agent)',
+      speakerLabel: 'Saarthi (Agent)',
       content: randomGreeting.fullTurnText
     };
 
@@ -269,7 +269,7 @@ Instructions for your response:
       timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
       speaker,
       lane: speaker === 'senior' ? 'lane2' : 'lane1',
-      speakerLabel: speaker === 'senior' ? 'Ramesh Chandra (Senior)' : 'Sambandh Companion (Agent)',
+      speakerLabel: speaker === 'senior' ? 'Ramesh Chandra (Senior)' : 'Saarthi (Agent)',
       content: content.trim()
     };
 
@@ -454,7 +454,7 @@ Instructions for your response:
             timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
             speaker: 'agent',
             lane: 'lane1',
-            speakerLabel: `Sambandh Companion (${modelDisplayName})`,
+            speakerLabel: `Saarthi (${modelDisplayName})`,
             content: result.text,
             modelUsed: modelDisplayName,
             isFailover,
@@ -579,9 +579,10 @@ Instructions for your response:
       seniorProfile,
       orderTotalLimitInr,
       [],
-      activeMolecules
+      activeMolecules,
+      activeMentorshipQuestion
     );
-  }, [foldedMemory, seniorProfile, orderTotalLimitInr, activeMolecules]);
+  }, [foldedMemory, seniorProfile, orderTotalLimitInr, activeMolecules, activeMentorshipQuestion]);
 
   return {
     selectedModelId,

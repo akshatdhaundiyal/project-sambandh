@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   YouthPersona,
   MentorshipExchangeItem
@@ -46,6 +46,10 @@ export const useYouthMentorship = ({
               safetyCategory: d.safety_category,
               safetyExplanation: d.safety_explanation,
               curatedSpeechHindi: d.curated_speech_hindi,
+              caregiverApproved: d.caregiver_approved,
+              caregiverApprovedAt: d.caregiver_approved_at,
+              caregiverRejectedAt: d.caregiver_rejected_at,
+              caregiverFeedback: d.caregiver_feedback,
               elderAnswerText: d.elder_answer_text,
               elderAnswerAudioUrl: d.elder_answer_audio_url,
               submittedAt: d.submitted_at ? new Date(d.submitted_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST' : undefined,
@@ -86,12 +90,15 @@ export const useYouthMentorship = ({
     setActiveMentorshipQuestion(newItem);
     setMentorshipHistory(prev => [newItem, ...prev.filter(q => q.id !== newItem.id)]);
 
-    // Trigger AI Safety Gate Evaluation
+    // Trigger Sambandh AI Safety Gate Evaluation (Tier 1)
     setTimeout(async () => {
       const result = await evaluateQuestionSafety(questionText, youth, presetMetadata);
+      const isSafe = result.verdict === 'SAFE';
+
       const evaluatedItem: MentorshipExchangeItem = {
         ...newItem,
-        status: result.verdict === 'SAFE' ? 'APPROVED' : 'BLOCKED',
+        // Tier 1: If safe, move to SAMBANDH_APPROVED_PENDING_CAREGIVER for Tier 2 Caregiver Approval
+        status: isSafe ? 'SAMBANDH_APPROVED_PENDING_CAREGIVER' : 'BLOCKED',
         safetyVerdict: result.verdict,
         safetyConfidence: result.confidence,
         safetyCategory: result.category,
@@ -107,8 +114,10 @@ export const useYouthMentorship = ({
       // Persist to Postgres
       await syncYouthQuestionToBackend(evaluatedItem);
 
-      if (result.verdict === 'BLOCKED') {
+      if (!isSafe) {
         handleTelegramAction('SECURITY_ALERT');
+      } else {
+        handleTelegramAction('🛡️ Sambandh AI Safety Cleared! Question sent to Priya for Caregiver Approval.');
       }
     }, 500);
 
@@ -130,9 +139,10 @@ export const useYouthMentorship = ({
       statusBadge: 'Student'
     };
     const result = await evaluateQuestionSafety(item.questionText, dummyYouth);
+    const isSafe = result.verdict === 'SAFE';
     const updated: MentorshipExchangeItem = {
       ...item,
-      status: result.verdict === 'SAFE' ? 'APPROVED' : 'BLOCKED',
+      status: isSafe ? 'SAMBANDH_APPROVED_PENDING_CAREGIVER' : 'BLOCKED',
       safetyVerdict: result.verdict,
       safetyConfidence: result.confidence,
       safetyCategory: result.category,
@@ -143,6 +153,82 @@ export const useYouthMentorship = ({
     setActiveMentorshipQuestion(updated);
     setMentorshipHistory(prev => prev.map(q => q.id === questionId ? updated : q));
   }, [activeMentorshipQuestion, mentorshipHistory]);
+
+  // Caregiver HITL Approval (Tier 2)
+  const approveMentorshipQuestion = useCallback(async (questionId: string) => {
+    const now = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST';
+    let targetItem: MentorshipExchangeItem | undefined;
+
+    setMentorshipHistory(prev => prev.map(q => {
+      if (q.id === questionId) {
+        const updated: MentorshipExchangeItem = {
+          ...q,
+          status: 'APPROVED',
+          caregiverApproved: true,
+          caregiverApprovedAt: now
+        };
+        targetItem = updated;
+        return updated;
+      }
+      return q;
+    }));
+
+    setActiveMentorshipQuestion(prev => {
+      if (prev && prev.id === questionId) {
+        return {
+          ...prev,
+          status: 'APPROVED',
+          caregiverApproved: true,
+          caregiverApprovedAt: now
+        };
+      }
+      return prev;
+    });
+
+    if (targetItem) {
+      await syncYouthQuestionToBackend(targetItem);
+    }
+    handleTelegramAction("✨ Question approved by Priya! Queued for Papa's next companion call.");
+  }, [handleTelegramAction]);
+
+  // Caregiver HITL Decline / Reject
+  const rejectMentorshipQuestion = useCallback(async (questionId: string, reason?: string) => {
+    const now = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST';
+    let targetItem: MentorshipExchangeItem | undefined;
+
+    setMentorshipHistory(prev => prev.map(q => {
+      if (q.id === questionId) {
+        const updated: MentorshipExchangeItem = {
+          ...q,
+          status: 'REJECTED_BY_CAREGIVER',
+          caregiverApproved: false,
+          caregiverRejectedAt: now,
+          caregiverFeedback: reason || 'Declined by caregiver'
+        };
+        targetItem = updated;
+        return updated;
+      }
+      return q;
+    }));
+
+    setActiveMentorshipQuestion(prev => {
+      if (prev && prev.id === questionId) {
+        return {
+          ...prev,
+          status: 'REJECTED_BY_CAREGIVER',
+          caregiverApproved: false,
+          caregiverRejectedAt: now,
+          caregiverFeedback: reason || 'Declined by caregiver'
+        };
+      }
+      return prev;
+    });
+
+    if (targetItem) {
+      await syncYouthQuestionToBackend(targetItem);
+    }
+    handleTelegramAction('🚫 Question declined by caregiver.');
+  }, [handleTelegramAction]);
 
   const simulateElderAnswerVoice = useCallback(async (questionId: string) => {
     const item = activeMentorshipQuestion?.id === questionId ? activeMentorshipQuestion : mentorshipHistory.find(q => q.id === questionId);
@@ -185,11 +271,23 @@ export const useYouthMentorship = ({
     handleTelegramAction('MEDICATION_REASSURANCE_PING');
   }, [activeMentorshipQuestion, mentorshipHistory, activeTtsEngine, handleTelegramAction]);
 
+  const pendingCaregiverQuestions = useMemo(() => {
+    return mentorshipHistory.filter(q => q.status === 'SAMBANDH_APPROVED_PENDING_CAREGIVER');
+  }, [mentorshipHistory]);
+
+  const approvedQuestions = useMemo(() => {
+    return mentorshipHistory.filter(q => q.status === 'APPROVED');
+  }, [mentorshipHistory]);
+
   return {
     activeMentorshipQuestion,
     mentorshipHistory,
+    pendingCaregiverQuestions,
+    approvedQuestions,
     submitYouthQuestion,
     evaluateMentorshipQuestion,
+    approveMentorshipQuestion,
+    rejectMentorshipQuestion,
     simulateElderAnswerVoice
   };
 };

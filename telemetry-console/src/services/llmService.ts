@@ -100,9 +100,107 @@ export const generateContextualCompanionResponse = (
   const text = userMessage || '';
   const lower = text.toLowerCase();
 
+  // Exclude current user turn from prior turns if already present as last element
+  const priorTurns = (_history && _history.length > 0 && _history[_history.length - 1].role === 'user' && _history[_history.length - 1].content === userMessage)
+    ? _history.slice(0, -1)
+    : (_history || []);
+
+  // Check if medicine has already been discussed in previous conversation turns
+  const historyText = priorTurns.map(m => m.content).join(' ').toLowerCase();
+  const medicineDiscussedInHistory =
+    matchesKeywords(historyText, [...MEDICATION_KEYWORDS, ...ADHERENCE_CONFIRMATION_KEYWORDS]) ||
+    historyText.includes('dawai') ||
+    historyText.includes('goli') ||
+    historyText.includes('telma') ||
+    historyText.includes('medicine') ||
+    historyText.includes('दवाई') ||
+    historyText.includes('गोली') ||
+    historyText.includes('टेल्मा');
+
+  // Check if the previous agent turn asked the pre-disconnect medicine check
+  const lastAssistantTurn = [...priorTurns].reverse().find(m => m.role === 'assistant');
+  const lastTurnWasPreDisconnectCheck = Boolean(
+    lastAssistantTurn &&
+    (lastAssistantTurn.content.includes('जाने से पहले') ||
+     lastAssistantTurn.content.includes('गोली ताज़े पानी') ||
+     lastAssistantTurn.content.includes('1 सेकंड') ||
+     lastAssistantTurn.content.includes('एक सेकंड') ||
+     lastAssistantTurn.content.includes('दवाई ताज़े पानी'))
+  );
+
+  if (lastTurnWasPreDisconnectCheck) {
+    // If elder re-engages or urges to keep talking
+    if (
+      lower.includes('ek baat') ||
+      lower.includes('suno') ||
+      lower.includes('ruko') ||
+      lower.includes('batao') ||
+      lower.includes('poochna') ||
+      lower.includes('सुनो') ||
+      lower.includes('रुको') ||
+      lower.includes('एक बात') ||
+      lower.includes('बताओ') ||
+      lower.includes('पूछना')
+    ) {
+      return 'हाँ हाँ अंकल जी, बताइए! मैं बिल्कुल सुन रही हूँ आपकी बात। क्या कहना चाह रहे थे आप?';
+    }
+
+    if (
+      lower.includes('nahi') ||
+      lower.includes('nhi') ||
+      lower.includes('bhool') ||
+      lower.includes('rehti') ||
+      lower.includes('rehta') ||
+      lower.includes('ab tak nahi') ||
+      lower.includes('नहीं') ||
+      lower.includes('भूल') ||
+      lower.includes('ना') ||
+      lower.includes('छूट')
+    ) {
+      return 'अरे अंकल जी, जाने से पहले बस एक घूंट ताज़े पानी के साथ अपनी गोली ले लीजिए। फिर आराम से जाइएगा, दिन बहुत शुभ हो आपका, सादर प्रणाम!';
+    } else {
+      return 'बहुत बढ़िया अंकल जी, टेल्मा वाली गोली समय पर ले ली तो बहुत अच्छा किया। अपना ध्यान रखिएगा, आज का दिन आपके लिए मंगलमय हो, सादर प्रणाम!';
+    }
+  }
+
   // FAREWELL & DEPARTURE CUES
-  if (lower.includes('rakhta') || lower.includes('rakhoon') || lower.includes('nahane') || lower.includes('pooja') || lower.includes('bye') || lower.includes('alvida') || lower.includes('chalta')) {
-    return 'बिल्कुल अंकल जी, आप आराम से जाइए और अपना ध्यान रखिए। आज का दिन आपके लिए बहुत शुभ और सुखद रहे, सादर प्रणाम!';
+  const isFarewellCue =
+    (
+      lower.includes('rakhta') ||
+      lower.includes('rakhoon') ||
+      lower.includes('nahane') ||
+      lower.includes('snan') ||
+      lower.includes('pooja') ||
+      lower.includes('puja') ||
+      lower.includes('bye') ||
+      lower.includes('alvida') ||
+      lower.includes('chalta') ||
+      lower.includes('chalta hoon') ||
+      lower.includes('chalta hu') ||
+      lower.includes('रखता') ||
+      lower.includes('रखूँ') ||
+      lower.includes('नहाने') ||
+      lower.includes('स्नान') ||
+      lower.includes('पूजा') ||
+      lower.includes('अलविदा') ||
+      lower.includes('चलता') ||
+      lower.includes('जा रहा हूँ') ||
+      lower.includes('जा रहा हूं') ||
+      lower.includes('फोन रखता')
+    ) &&
+    !lower.includes('abhi nahi') &&
+    !lower.includes('ruko') &&
+    !lower.includes('suno') &&
+    !lower.includes('अभी नहीं') &&
+    !lower.includes('रुको') &&
+    !lower.includes('सुनो');
+
+  if (isFarewellCue) {
+    if (medicineDiscussedInHistory) {
+      return 'बिल्कुल अंकल जी, आप आराम से जाइए और अपना ध्यान रखिए। आज का दिन आपके लिए बहुत शुभ और सुखद रहे, सादर प्रणाम!';
+    } else {
+      return 'बिल्कुल अंकल जी! बस 1 सेकंड—जाने से पहले आज की टेल्मा वाली गोली ताज़े पानी से ले ली थी ना आपने?';
+    }
   }
 
   // 0A. CRITICAL MEDICAL EMERGENCY: Chest Pain, Breathlessness, Cardiac Crisis (Highest Priority)
@@ -172,12 +270,12 @@ export const generateContextualCompanionResponse = (
 
   // 9. Breakfast / Morning Tea / Routine / Daliya
   if (matchesKeywords(text, BREAKFAST_KEYWORDS)) {
-    return 'बहुत बढ़िया अंकल जी, सुबह की ताज़ा अदरक वाली चाय और हल्का नाश्ता स्वास्थ्य के लिए सबसे अच्छा है। नाश्ते के बाद अपनी नियमित वाली बीपी की गोली ताज़े पानी से ले लीजिएगा।';
+    return 'बहुत बढ़िया अंकल जी, सुबह की ताज़ा अदरक वाली चाय और हल्का नाश्ता स्वास्थ्य के लिए सबसे अच्छा है। नाश्ते के बाद अपनी नियमित वाली बीपी की गोली ताज़े पानी से ले लीजिएगा। आज दिन में क्या खास योजना बनाई है आपने?';
   }
 
-  // 10. Affirmations / Short Answers / Greetings (Haan, Theek, Achha, Pranam) -> PROACTIVE TOPIC SPARKER
+  // 10. Affirmations / Short Answers / Greetings (Haan, Theek, Achha, Pranam) -> CASUAL FRIENDLY SMALL TALK
   if (matchesKeywords(text, GREETING_KEYWORDS) || lower === 'haan' || lower === 'theek' || lower === 'achha' || lower === 'theek hai' || lower === 'haan ji' || lower.length <= 6) {
-    return 'यह जानकर बहुत तसल्ली हुई अंकल जी! आज सुबह रेडियो पर गाजियाबाद जंक्शन का ज़िक्र आ रहा था, तो तुरंत आपकी याद आ गई। उन दिनों सिग्नल रिले की चेकिंग के लिए आप सुबह की पहली इंस्पेक्शन ट्रॉली से निकलते थे ना?';
+    return 'बहुत बढ़िया अंकल जी! आज सुबह धूप भी बड़ी मीठी खिली है ना बाहर? नाश्ता तसल्ली से हो गया आपका?';
   }
 
   // 11. General in-character attentive response with topic spark & open question

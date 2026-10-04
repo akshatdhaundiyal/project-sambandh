@@ -58,12 +58,16 @@ export interface MentorshipExchangeItem {
   questionText: string;
   category: 'GENUINE' | 'MALICIOUS';
   domainTopic: string;
-  status: 'DRAFT' | 'PENDING_REVIEW' | 'APPROVED' | 'BLOCKED' | 'VOICED_IN_CALL' | 'ANSWERED';
+  status: 'DRAFT' | 'PENDING_REVIEW' | 'SAMBANDH_APPROVED_PENDING_CAREGIVER' | 'APPROVED' | 'REJECTED_BY_CAREGIVER' | 'BLOCKED' | 'VOICED_IN_CALL' | 'ANSWERED';
   safetyVerdict?: 'SAFE' | 'BLOCKED';
   safetyConfidence?: number;
   safetyCategory?: string;
   safetyExplanation?: string;
   curatedSpeechHindi?: string;
+  caregiverApproved?: boolean;
+  caregiverApprovedAt?: string;
+  caregiverRejectedAt?: string;
+  caregiverFeedback?: string;
   elderAnswerText?: string;
   elderAnswerAudioUrl?: string;
   submittedAt?: string;
@@ -224,6 +228,7 @@ export interface PromptSliceStatus {
   clinicalDossier: boolean;
   fiduciaryMandate: boolean;
   acousticTripwire: boolean;
+  intergenerationalWisdom?: boolean;
 }
 
 export interface CashWalletState {

@@ -56,6 +56,7 @@ import {
   User,
   Stethoscope,
   Users,
+  GraduationCap,
   X
 } from 'lucide-react';
 import { CaregiverProfileTab } from './CaregiverProfileTab';
@@ -92,6 +93,9 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
     approveMedicationOrder,
     declineMedicationOrder,
     resetMedicationApproval,
+    pendingCaregiverMentorshipQuestions,
+    approveMentorshipQuestion,
+    rejectMentorshipQuestion,
     dispatchTelegramCareBriefing,
     latestCallSummary,
     isGeneratingSummary
@@ -551,6 +555,78 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
                       >
                         Dismiss
                       </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* 1.7. HUMAN-IN-THE-LOOP CAREGIVER MENTORSHIP QUESTION APPROVAL ALERT CARD */}
+                {pendingCaregiverMentorshipQuestions.length > 0 && (
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-br from-indigo-50/95 via-white to-amber-50/80 border-2 border-indigo-300 space-y-3 shadow-md animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="font-bold text-indigo-950 flex items-center gap-1.5">
+                        <span className="relative flex h-2.5 w-2.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-600"></span>
+                        </span>
+                        <span className="font-serif tracking-tight text-xs font-bold">Action Required: Mentorship Question for Papa</span>
+                      </span>
+                      <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-900 border border-indigo-300">
+                        {pendingCaregiverMentorshipQuestions.length} PENDING
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-stone-600 leading-snug">
+                      Sambandh AI cleared this genuine student question. Authorize it so the companion agent can casually ask Papa during his check-in call.
+                    </p>
+
+                    <div className="space-y-2">
+                      {pendingCaregiverMentorshipQuestions.map(q => (
+                        <div key={q.id} className="p-2.5 rounded-xl bg-white/95 border border-indigo-200 space-y-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl shrink-0">{q.youthAvatar || '👩‍🎓'}</span>
+                              <div>
+                                <div className="text-xs font-bold text-stone-900">{q.youthName}</div>
+                                <div className="text-[10px] text-stone-500">{q.youthBio}</div>
+                              </div>
+                            </div>
+                            <span className="text-[9px] font-mono font-bold bg-emerald-50 text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-200 flex items-center gap-1 shrink-0">
+                              <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                              <span>Verified ({q.safetyConfidence || 98}%)</span>
+                            </span>
+                          </div>
+
+                          <div className="p-2 rounded-lg bg-[#FAF8F5] border border-stone-200 text-xs text-stone-800 font-medium leading-snug">
+                            "{q.questionText}"
+                          </div>
+
+                          {q.curatedSpeechHindi && (
+                            <div className="text-[10px] text-stone-600 bg-amber-50 p-1.5 rounded-lg border border-amber-200 flex items-start gap-1">
+                              <span className="font-bold text-amber-900 shrink-0">🎙️ Sambandh Script:</span>
+                              <span className="italic">"{q.curatedSpeechHindi}"</span>
+                            </div>
+                          )}
+
+                          <div className="grid grid-cols-2 gap-2 pt-0.5">
+                            <button
+                              type="button"
+                              onClick={() => approveMentorshipQuestion(q.id)}
+                              className="py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 text-white font-bold text-[11px] flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs transition-all"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <span>✓ Approve for Papa</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => rejectMentorshipQuestion(q.id)}
+                              className="py-1.5 px-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold text-[11px] flex items-center justify-center gap-1 cursor-pointer border border-stone-300 transition-colors"
+                            >
+                              <X className="w-3.5 h-3.5 text-stone-500" />
+                              <span>✕ Decline</span>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -1520,14 +1596,17 @@ export const CaregiverMobilePhone: React.FC<CaregiverMobilePhoneProps> = ({ onUp
             <button
               type="button"
               onClick={() => setActiveTab('topics')}
-              className={`flex-1 py-1 px-0.5 flex flex-col items-center justify-center gap-0.5 rounded-xl transition-all cursor-pointer ${
+              className={`flex-1 py-1 px-0.5 flex flex-col items-center justify-center gap-0.5 rounded-xl transition-all cursor-pointer relative ${
                 activeTab === 'topics'
                   ? 'text-teal-800 font-bold'
                   : 'text-stone-400 hover:text-stone-700 font-medium'
               }`}
             >
-              <div className={`p-1 rounded-lg transition-colors ${activeTab === 'topics' ? 'bg-teal-50' : ''}`}>
+              <div className={`p-1 rounded-lg transition-colors relative ${activeTab === 'topics' ? 'bg-teal-50' : ''}`}>
                 <Sparkles className={`w-4 h-4 ${activeTab === 'topics' ? 'stroke-[2.5]' : 'stroke-[1.8]'}`} />
+                {pendingCaregiverMentorshipQuestions.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-500 rounded-full ring-2 ring-white animate-pulse" />
+                )}
               </div>
               <span className="text-[10px] tracking-tight leading-none">Topics</span>
             </button>

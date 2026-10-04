@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import {
   DoctorConsultationSession,
   DoctorConsultationTurn,
@@ -23,6 +23,101 @@ interface UseDoctorConsultationProps {
   seniorProfile?: DynamicElderProfile;
 }
 
+export interface LiveClinicalObservation {
+  bpReading?: string;
+  pulse?: string;
+  symptoms: string[];
+  medicationsMentioned: string[];
+  investigations: string[];
+}
+
+export const classifySpeaker = (
+  text: string,
+  caregiverAttending: boolean = false,
+  doctorName: string = 'Dr. Arvind Saxena',
+  seniorName: string = 'Ramesh Chandra'
+): { speaker: DoctorConsultationSpeaker; speakerName: string; channel: 'in_clinic_mic' | 'remote_telephony' } => {
+  const lower = text.toLowerCase();
+
+  // 1. Remote Caregiver indicators
+  if (
+    caregiverAttending &&
+    (lower.includes('priya') ||
+     lower.includes('बेंगलुरु') ||
+     lower.includes('bengaluru') ||
+     lower.includes('प्रिया') ||
+     lower.includes('पापा का') ||
+     lower.includes('papa ka') ||
+     lower.includes('डॉक्टर अंकल') ||
+     lower.includes('doctor uncle') ||
+     lower.includes('लाइन पर हूँ'))
+  ) {
+    return {
+      speaker: 'caregiver',
+      speakerName: 'Priya Sharma (Daughter - Remote)',
+      channel: 'remote_telephony'
+    };
+  }
+
+  // 2. Doctor indicators (Clinical assessment, examination, measurements, prescriptions, instructions)
+  const doctorKeywords = [
+    'नमस्ते रमेश', 'बैठिए', 'ब्लड प्रेशर', 'blood pressure', 'bp', 'पल्स', 'pulse',
+    'mmhg', 'bpm', 'माप लेते', 'दवाई', 'medicine', 'स्टार्ट', 'शुरू कर', 'tablet', 'गोली',
+    'atorvastatin', 'telma', 'telmisartan', 'statin', 'mg', 'लिपिड', 'lipid',
+    'प्रोफाइल', 'profile', 'जांच', 'test', 'रिपोर्ट', 'report', 'हफ्ते बाद', 'weeks',
+    'नियंत्रण', 'stable', 'नियमित', 'दिन में', 'रात को', 'डोज', 'dose', 'rx', 'prescribe', 'अटोरवा'
+  ];
+
+  const hasDoctorKeyword = doctorKeywords.some(k => lower.includes(k));
+
+  // 3. Senior / Patient indicators (Addressing doctor, symptoms, morning walk, daily routine)
+  const seniorKeywords = [
+    'डॉक्टर साहब', 'doctor sahab', 'doctor saab', 'जी डॉक्टर', 'नमस्ते डॉक्टर',
+    'टहलते हैं', 'टहलता', 'जापानी पार्क', 'japanese park', 'घुटने', 'ghutne',
+    'दर्द', 'dard', 'सैर', 'sair', 'चाय', 'chai', 'नाश्ता', 'सुबह से', 'भारीपन', 'खिंचाव'
+  ];
+
+  const hasSeniorKeyword = seniorKeywords.some(k => lower.includes(k));
+
+  if (hasDoctorKeyword && !hasSeniorKeyword) {
+    return {
+      speaker: 'doctor',
+      speakerName: doctorName,
+      channel: 'in_clinic_mic'
+    };
+  }
+
+  if (hasSeniorKeyword && !hasDoctorKeyword) {
+    return {
+      speaker: 'senior',
+      speakerName: `${seniorName} (Papa)`,
+      channel: 'in_clinic_mic'
+    };
+  }
+
+  if (hasDoctorKeyword) {
+    return {
+      speaker: 'doctor',
+      speakerName: doctorName,
+      channel: 'in_clinic_mic'
+    };
+  }
+
+  if (hasSeniorKeyword) {
+    return {
+      speaker: 'senior',
+      speakerName: `${seniorName} (Papa)`,
+      channel: 'in_clinic_mic'
+    };
+  }
+
+  return {
+    speaker: 'doctor',
+    speakerName: doctorName,
+    channel: 'in_clinic_mic'
+  };
+};
+
 const INITIAL_CONSULTATION_STATE: DoctorConsultationSession = {
   id: 'consult-apollo-001',
   doctorName: 'Dr. Arvind Saxena',
@@ -34,59 +129,82 @@ const INITIAL_CONSULTATION_STATE: DoctorConsultationSession = {
   caregiverRelationship: 'Daughter',
   caregiverAttending: true,
   initiatedBy: 'senior',
-  startedAt: '10:30 AM IST',
+  startedAt: '',
   status: 'idle',
-  turns: [
-    {
-      id: 'turn-1',
-      timestamp: '10:30:15',
-      speaker: 'doctor',
-      speakerName: 'Dr. Arvind Saxena',
-      channel: 'in_clinic_mic',
-      content: 'नमस्ते रमेश जी! बैठिए, कैसे हैं आप? चलिए पहले आपका ब्लड प्रेशर और पल्स माप लेते हैं।',
-      hindiText: 'नमस्ते रमेश जी! बैठिए, कैसे हैं आप? चलिए पहले आपका ब्लड प्रेशर और पल्स माप लेते हैं।'
-    },
-    {
-      id: 'turn-2',
-      timestamp: '10:30:42',
-      speaker: 'senior',
-      speakerName: 'Ramesh Chandra (Papa)',
-      channel: 'in_clinic_mic',
-      content: 'नमस्ते डॉक्टर साहब। बस सब ठीक है, जापानी पार्क में 25 मिनट सुबह की सैर रोज़ चलती है। हल्का सा घुटने में खिंचाव रहता है।',
-      hindiText: 'नमस्ते डॉक्टर साहब। बस सब ठीक है, जापानी पार्क में 25 मिनट सुबह की सैर रोज़ चलती है। हल्का सा घुटने में खिंचाव रहता है।'
-    },
-    {
-      id: 'turn-3',
-      timestamp: '10:31:18',
-      speaker: 'caregiver',
-      speakerName: 'Priya Sharma (Daughter)',
-      channel: 'remote_telephony',
-      content: 'प्रणाम डॉक्टर अंकल, मैं प्रिया बेंगलुरु से लाइन पर हूँ। पापा का सुबह का बीपी 130/84 रहता है, और टेल्मा 40 समय पर ले रहे हैं।',
-      hindiText: 'प्रणाम डॉक्टर अंकल, मैं प्रिया बेंगलुरु से लाइन पर हूँ। पापा का सुबह का बीपी 130/84 रहता है, और टेल्मा 40 समय पर ले रहे हैं।'
-    },
-    {
-      id: 'turn-4',
-      timestamp: '10:32:05',
-      speaker: 'doctor',
-      speakerName: 'Dr. Arvind Saxena',
-      channel: 'in_clinic_mic',
-      content: 'बहुत बढ़िया। आज क्लिनिक में बीपी 130/82 mmHg और पल्स 72 bpm है। बीपी नियंत्रण में है, लेकिन लिपिड प्रोफाइल को देखते हुए रात को Atorvastatin 10mg शुरू कर रहे हैं।',
-      hindiText: 'बहुत बढ़िया। आज क्लिनिक में बीपी 130/82 mmHg और पल्स 72 bpm है। बीपी नियंत्रण में है, लेकिन लिपिड प्रोफाइल को देखते हुए रात को Atorvastatin 10mg शुरू कर रहे हैं।'
-    }
-  ],
-  attachments: [
-    {
-      id: 'att-rx-001',
-      type: 'prescription',
-      title: 'Dr. Saxena Review Slip & Statin Protocol',
-      doctorName: 'Dr. Arvind Saxena (Apollo Clinic)',
-      rawText: 'Rx: Ramesh Chandra, 72/M. BP 130/82. Continue Telmisartan 40mg OD. Add Atorvastatin 10mg HS post-dinner. Repeat Lipid Profile in 4 weeks.',
-      uploadedAt: '10:33 AM IST',
-      medGemmaEntitiesExtracted: ['Telmisartan 40mg OD', 'Atorvastatin 10mg HS', 'Repeat Lipid Panel 4w']
-    }
-  ],
+  turns: [],
+  attachments: [],
   syncedToEhr: false,
   caregiverBriefingSent: false
+};
+
+export const CLINIC_SIMULATION_SCRIPT: { speaker: DoctorConsultationSpeaker; text: string; hindiText: string }[] = [
+  {
+    speaker: 'doctor',
+    text: 'नमस्ते रमेश जी! बैठिए, कैसे हैं आप? चलिए पहले आपका ब्लड प्रेशर और पल्स माप लेते हैं।',
+    hindiText: 'नमस्ते रमेश जी! बैठिए, कैसे हैं आप? चलिए पहले आपका ब्लड प्रेशर और पल्स माप लेते हैं।'
+  },
+  {
+    speaker: 'senior',
+    text: 'नमस्ते डॉक्टर साहब। बस सब ठीक है, जापानी पार्क में 25 मिनट सुबह की सैर रोज़ चलती है। हल्का सा घुटने में खिंचाव रहता है।',
+    hindiText: 'नमस्ते डॉक्टर साहब। बस सब ठीक है, जापानी पार्क में 25 मिनट सुबह की सैर रोज़ चलती है। हल्का सा घुटने में खिंचाव रहता है।'
+  },
+  {
+    speaker: 'caregiver',
+    text: 'प्रणाम डॉक्टर अंकल, मैं प्रिया बेंगलुरु से लाइन पर हूँ। पापा का सुबह का बीपी 130/84 रहता है, और टेल्मा 40 समय पर ले रहे हैं।',
+    hindiText: 'प्रणाम डॉक्टर अंकल, मैं प्रिया बेंगलुरु से लाइन पर हूँ। पापा का सुबह का बीपी 130/84 रहता है, और टेल्मा 40 समय पर ले रहे हैं।'
+  },
+  {
+    speaker: 'doctor',
+    text: 'बहुत बढ़िया। आज क्लिनिक में बीपी 130/82 mmHg और पल्स 72 bpm है। बीपी नियंत्रण में है, लेकिन लिपिड प्रोफाइल को देखते हुए रात को Atorvastatin 10mg शुरू कर रहे हैं।',
+    hindiText: 'बहुत बढ़िया। आज क्लिनिक में बीपी 130/82 mmHg और पल्स 72 bpm है। बीपी नियंत्रण में है, लेकिन लिपिड प्रोफाइल को देखते हुए रात को Atorvastatin 10mg शुरू कर रहे हैं।'
+  }
+];
+
+export const extractLiveObservations = (
+  turns: DoctorConsultationTurn[],
+  attachments: DoctorConsultationAttachment[]
+): LiveClinicalObservation => {
+  const allText = turns.map(t => t.content).join(' ') + ' ' + attachments.map(a => a.rawText).join(' ');
+  const obs: LiveClinicalObservation = {
+    symptoms: [],
+    medicationsMentioned: [],
+    investigations: []
+  };
+
+  // 1. Blood pressure extraction (e.g., 130/82 or 130/84)
+  const bpMatch = allText.match(/(\d{2,3}\s*\/\s*\d{2,3})/);
+  if (bpMatch) {
+    obs.bpReading = `${bpMatch[1].replace(/\s+/g, '')} mmHg`;
+  }
+
+  // 2. Pulse extraction (e.g., 72 bpm or पल्स 72)
+  const pulseMatch = allText.match(/(?:पल्स|pulse|hr|heart rate)\s*(?:is|:)?\s*(\d{2,3})/i) || allText.match(/(\d{2,3})\s*bpm/i);
+  if (pulseMatch) {
+    obs.pulse = `${pulseMatch[1]} bpm`;
+  }
+
+  // 3. Symptoms
+  if (/घुटने|knee|खिंचाव|stiffness/i.test(allText)) {
+    obs.symptoms.push('Bilateral Knee Morning Stiffness (हल्का घुटने में खिंचाव)');
+  }
+  if (/सैर|walk|park/i.test(allText)) {
+    obs.symptoms.push('Daily 25-min Morning Walk (Japanese Park)');
+  }
+
+  // 4. Medications
+  if (/atorvastatin|atorva|अटोरवा|statin/i.test(allText)) {
+    obs.medicationsMentioned.push('Atorvastatin 10mg (Night HS - Added)');
+  }
+  if (/telma|telmisartan|टेल्मा/i.test(allText)) {
+    obs.medicationsMentioned.push('Telma 40mg (Morning OD - Continued)');
+  }
+
+  // 5. Investigations
+  if (/lipid|लिपिड/i.test(allText)) {
+    obs.investigations.push('Fasting Lipid Profile (Repeat in 4 weeks)');
+  }
+
+  return obs;
 };
 
 export const useDoctorConsultation = ({
@@ -106,18 +224,25 @@ export const useDoctorConsultation = ({
   const recognizerRef = useRef<HindiSpeechRecognizer | null>(null);
   const vadTimerRef = useRef<any>(null);
 
-  // Auto-commit function for ambient speech segments
+  // Auto-commit function for ambient speech segments with automatic speaker classification
   const commitAmbientSpeech = useCallback((text: string) => {
     const trimmed = text.trim();
     if (!trimmed) return;
 
     const now = new Date().toTimeString().split(' ')[0];
+    const classification = classifySpeaker(
+      trimmed,
+      consultationSession.caregiverAttending,
+      consultationSession.doctorName,
+      consultationSession.seniorName
+    );
+
     const newTurn: DoctorConsultationTurn = {
       id: `turn-${Date.now()}`,
       timestamp: now,
-      speaker: 'ambient',
-      speakerName: 'In-Clinic Ambient Audio',
-      channel: 'in_clinic_mic',
+      speaker: classification.speaker,
+      speakerName: classification.speakerName,
+      channel: classification.channel,
       content: trimmed,
       hindiText: trimmed
     };
@@ -128,7 +253,7 @@ export const useDoctorConsultation = ({
     }));
 
     setLiveSpokenSnippet('');
-  }, []);
+  }, [consultationSession.caregiverAttending, consultationSession.doctorName, consultationSession.seniorName]);
 
   // Initialize Speech Recognizer
   useEffect(() => {
@@ -416,17 +541,38 @@ export const useDoctorConsultation = ({
     onFeedbackToast
   ]);
 
-  // Reset Consultation
+  // Progressive 1-tap simulation helper for seamless interactive demo
+  const simulateNextConsultationTurn = useCallback(() => {
+    const currentCount = consultationSession.turns.length;
+    if (currentCount < CLINIC_SIMULATION_SCRIPT.length) {
+      const scriptItem = CLINIC_SIMULATION_SCRIPT[currentCount];
+      addDoctorConsultationTurn(scriptItem.speaker, scriptItem.text, scriptItem.hindiText);
+      onFeedbackToast(`🎙️ Transcribed Live Turn ${currentCount + 1}: ${scriptItem.speaker === 'doctor' ? '👨‍⚕️ Dr. Saxena' : scriptItem.speaker === 'senior' ? '👴🏼 Ramesh' : '👩‍💼 Priya'}`);
+    } else if (consultationSession.attachments.length === 0) {
+      // Step 5: Attach Dr. Saxena Prescription Review Slip
+      attachDocumentToConsultation({
+        type: 'prescription',
+        title: 'Dr. Saxena Review Slip & Statin Protocol',
+        doctorName: 'Dr. Arvind Saxena (Apollo Clinic)',
+        rawText: 'Rx: Ramesh Chandra, 72/M. BP 130/82. Continue Telmisartan 40mg OD. Add Atorvastatin 10mg HS post-dinner. Repeat Lipid Profile in 4 weeks.',
+        medGemmaEntitiesExtracted: ['Telmisartan 40mg OD', 'Atorvastatin 10mg HS', 'Repeat Lipid Panel 4w']
+      });
+      onFeedbackToast("📄 Scanned & Attached: Dr. Saxena Review Slip parsed via MedGemma.");
+    } else {
+      onFeedbackToast("✅ All live consultation dialogue and prescription slips captured! Ready to click 'Complete & Transform'.");
+    }
+  }, [consultationSession.turns.length, consultationSession.attachments.length, addDoctorConsultationTurn, attachDocumentToConsultation, onFeedbackToast]);
+
   const resetDoctorConsultation = useCallback(() => {
     stopLiveListening();
-    setConsultationSession({
-      ...INITIAL_CONSULTATION_STATE,
-      status: 'idle',
-      syncedToEhr: false,
-      caregiverBriefingSent: false
-    });
-    setIsConsultationModalOpen(false);
-  }, [stopLiveListening]);
+    setConsultationSession(INITIAL_CONSULTATION_STATE);
+    setLiveSpokenSnippet('');
+    onFeedbackToast('🔄 Consultation session reset to initial standby state.');
+  }, [stopLiveListening, onFeedbackToast]);
+
+  const liveObservations = useMemo(() => {
+    return extractLiveObservations(consultationSession.turns, consultationSession.attachments);
+  }, [consultationSession.turns, consultationSession.attachments]);
 
   return {
     consultationSession,
@@ -440,6 +586,8 @@ export const useDoctorConsultation = ({
     isListening,
     isTransforming,
     liveSpokenSnippet,
+    liveObservations,
+    simulateNextConsultationTurn,
     startLiveListening,
     stopLiveListening,
     startDoctorConsultation,

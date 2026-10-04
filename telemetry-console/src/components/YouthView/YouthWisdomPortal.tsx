@@ -29,7 +29,8 @@ import {
   Radio,
   ChevronRight,
   RefreshCw,
-  MessageSquareQuote
+  MessageSquareQuote,
+  X
 } from 'lucide-react';
 
 export const YouthWisdomPortal: React.FC = () => {
@@ -37,6 +38,8 @@ export const YouthWisdomPortal: React.FC = () => {
     activeMentorshipQuestion,
     mentorshipHistory,
     submitYouthQuestion,
+    approveMentorshipQuestion,
+    rejectMentorshipQuestion,
     simulateElderAnswerVoice,
     activeTtsEngine
   } = useTelemetry();
@@ -680,10 +683,131 @@ export const YouthWisdomPortal: React.FC = () => {
                 </div>
               )}
 
-              {/* APPROVED / ACCEPTED FLOW */}
+              {/* TIER 1 SAMBANDH AI CLEARED -> PENDING CAREGIVER AUTHORIZATION */}
+              {activeMentorshipQuestion.status === 'SAMBANDH_APPROVED_PENDING_CAREGIVER' && (
+                <div className="bg-white border-2 border-amber-400 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3.5 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-amber-100 rounded-full -mr-10 -mt-10 opacity-40"></div>
+
+                  {/* 2-Tier Progress Stepper */}
+                  <div className="bg-[#FAF8F5] p-2.5 rounded-xl border border-stone-200">
+                    <div className="flex items-center justify-between text-[11px] font-bold">
+                      <div className="flex items-center gap-1.5 text-emerald-800">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>1. Sambandh AI: SAFE</span>
+                      </div>
+                      <span className="text-stone-300">→</span>
+                      <div className="flex items-center gap-1.5 text-amber-900 animate-pulse">
+                        <Clock className="w-3.5 h-3.5 text-amber-600" />
+                        <span>2. Caregiver (Priya): PENDING</span>
+                      </div>
+                      <span className="text-stone-300">→</span>
+                      <div className="flex items-center gap-1.5 text-stone-400">
+                        <Radio className="w-3.5 h-3.5" />
+                        <span>3. In-Call Voicing</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-amber-100 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center shrink-0">
+                        <ShieldCheck className="w-5 h-5 text-amber-700" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-serif font-bold text-sm text-amber-950">
+                            TIER 1 CLEARED: AWAITING CAREGIVER AUTHORIZATION
+                          </h4>
+                          <span className="text-[10px] font-mono font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full border border-amber-300">
+                            Confidence: {Math.round((activeMentorshipQuestion.safetyConfidence || 0.98) * 100)}%
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-amber-800">
+                          Sambandh Safety Gate verified zero threat. Sent to Priya Sharma's phone for family approval.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-mono bg-emerald-50 text-emerald-800 px-2 py-1 rounded-lg border border-emerald-200 font-bold">
+                        Threat: NONE
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Safety Explanation */}
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-bold text-stone-700 block">
+                      AI Safety Assessment:
+                    </span>
+                    <p className="text-xs text-stone-700 bg-stone-50 p-2.5 rounded-xl border border-stone-200/80 leading-relaxed font-sans">
+                      {activeMentorshipQuestion.safetyExplanation}
+                    </p>
+                  </div>
+
+                  {/* Curated Voice Prompt Preview */}
+                  {activeMentorshipQuestion.curatedSpeechHindi && (
+                    <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-3 space-y-1">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                        <span>Proposed In-Call Hindi Question for Papa:</span>
+                      </div>
+                      <p className="text-xs font-serif text-amber-950 italic">
+                        "{activeMentorshipQuestion.curatedSpeechHindi}"
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Caregiver Authorization Action Bar */}
+                  <div className="bg-amber-50/90 border border-amber-300 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-amber-700 animate-spin shrink-0" />
+                      <div>
+                        <span className="text-xs font-bold text-amber-950 block">
+                          Waiting for Priya's approval in Caregiver App
+                        </span>
+                        <span className="text-[10px] text-amber-800">
+                          Question will be unlocked for live calls immediately upon approval.
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => approveMentorshipQuestion(activeMentorshipQuestion.id)}
+                      className="flex items-center justify-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-700 to-teal-800 hover:from-emerald-800 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer shrink-0"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Approve as Caregiver (Priya)</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* APPROVED / ACCEPTED FLOW (TIER 1 & TIER 2 CLEARED) */}
               {activeMentorshipQuestion.status === 'APPROVED' && (
-                <div className="bg-white border-2 border-emerald-500 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3 relative overflow-hidden">
+                <div className="bg-white border-2 border-emerald-500 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3.5 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100 rounded-full -mr-10 -mt-10 opacity-40"></div>
+
+                  {/* 2-Tier Progress Stepper */}
+                  <div className="bg-[#FAF8F5] p-2.5 rounded-xl border border-stone-200">
+                    <div className="flex items-center justify-between text-[11px] font-bold">
+                      <div className="flex items-center gap-1.5 text-emerald-800">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>1. Sambandh AI: SAFE</span>
+                      </div>
+                      <span className="text-emerald-500">→</span>
+                      <div className="flex items-center gap-1.5 text-emerald-800">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>2. Caregiver (Priya): APPROVED</span>
+                      </div>
+                      <span className="text-emerald-500">→</span>
+                      <div className="flex items-center gap-1.5 text-indigo-900 animate-pulse">
+                        <Radio className="w-3.5 h-3.5 text-indigo-600" />
+                        <span>3. Active in Live Call</span>
+                      </div>
+                    </div>
+                  </div>
 
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-emerald-100 pb-3">
                     <div className="flex items-center gap-2.5">
@@ -693,24 +817,21 @@ export const YouthWisdomPortal: React.FC = () => {
                       <div>
                         <div className="flex items-center gap-2">
                           <h4 className="font-serif font-bold text-sm text-emerald-950">
-                            VERDICT: SAFE & APPROVED
+                            VERDICT: FULLY APPROVED & AUTHORIZED
                           </h4>
                           <span className="text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full border border-emerald-300">
                             Confidence: {Math.round((activeMentorshipQuestion.safetyConfidence || 0.98) * 100)}%
                           </span>
                         </div>
                         <p className="text-[11px] text-emerald-800">
-                          Category: <strong>{activeMentorshipQuestion.safetyCategory}</strong> · Dignity Preserving
+                          Approved by <strong>Priya Sharma</strong> · Authorized for Papa's morning check-in call.
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono bg-stone-100 text-stone-700 px-2 py-1 rounded-lg border border-stone-200">
-                        PII Risk: <strong>0.01</strong>
-                      </span>
-                      <span className="text-[10px] font-mono bg-stone-100 text-stone-700 px-2 py-1 rounded-lg border border-stone-200">
-                        Financial Threat: <strong>0.00</strong>
+                      <span className="text-[10px] font-mono bg-emerald-100 text-emerald-800 px-2 py-1 rounded-lg border border-emerald-300 font-bold">
+                        CAREGIVER AUTHORIZED
                       </span>
                     </div>
                   </div>
@@ -718,7 +839,7 @@ export const YouthWisdomPortal: React.FC = () => {
                   {/* Safety Explanation */}
                   <div className="space-y-1">
                     <span className="text-[11px] font-bold text-stone-700 block">
-                      Safety Rationale:
+                      Safety & Vocational Rationale:
                     </span>
                     <p className="text-xs text-stone-700 bg-stone-50 p-2.5 rounded-xl border border-stone-200/80 leading-relaxed font-sans">
                       {activeMentorshipQuestion.safetyExplanation}
@@ -747,7 +868,7 @@ export const YouthWisdomPortal: React.FC = () => {
                           Queued for Morning Companion Call (08:30 AM)
                         </span>
                         <span className="text-[10px] text-emerald-800">
-                          Sambandh AI will voice this to Ramesh Uncle in Awadhi/Hindi during breakfast check-in.
+                          Sambandh AI will voice this to Ramesh Uncle in pure Hindi during breakfast check-in.
                         </span>
                       </div>
                     </div>
@@ -760,6 +881,25 @@ export const YouthWisdomPortal: React.FC = () => {
                       <Volume2 className="w-3.5 h-3.5" />
                       <span>Simulate Elder Spoken Response</span>
                     </button>
+                  </div>
+                </div>
+              )}
+
+              {/* REJECTED BY CAREGIVER */}
+              {activeMentorshipQuestion.status === 'REJECTED_BY_CAREGIVER' && (
+                <div className="bg-white border-2 border-stone-400 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3 relative overflow-hidden">
+                  <div className="flex items-center gap-2.5 border-b border-stone-200 pb-3">
+                    <div className="w-9 h-9 rounded-xl bg-stone-100 text-stone-700 flex items-center justify-center shrink-0">
+                      <X className="w-5 h-5 text-stone-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-serif font-bold text-sm text-stone-900">
+                        DECLINED BY PRIMARY CAREGIVER (PRIYA SHARMA)
+                      </h4>
+                      <p className="text-[11px] text-stone-500">
+                        The caregiver opted not to include this question in Papa's daily call.
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}

@@ -724,7 +724,7 @@ export const SettingsModal: React.FC = () => {
                     </span>
                   </div>
                   <p className="text-[11px] text-stone-500">
-                    Select distinct voice personas for Sambandh Companion and Papa with live sample auditioning
+                    Select distinct voice personas for Saarthi (Agent) and Papa with live sample auditioning
                   </p>
                 </div>
               </div>

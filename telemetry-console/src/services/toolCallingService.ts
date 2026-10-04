@@ -389,7 +389,7 @@ export const executeApprovedMedicationOrder = async (
   eta: string;
   approvedAt: string;
 }> => {
-  // Step A: Netmeds Pharmacy Order
+  // Step A: Netmeds Pharmacy Order Draft
   const netmedsResult = await callNetmedsOrderTool({
     medicationName: request.medicationName,
     dosage: request.dosage,
@@ -400,7 +400,13 @@ export const executeApprovedMedicationOrder = async (
     recipientPhone: request.recipientPhone
   });
 
-  // Step B: Delhivery CMU Dispatch
+  // Step B: Pine Labs Fiduciary Payment Capture (UPI Mandate)
+  const pineResult = await callPineLabsPaymentTool({
+    orderId: netmedsResult.orderId,
+    amountInr: request.costInr
+  });
+
+  // Step C: Delhivery CMU Dispatch & Manifest
   const delhiveryResult = await callDelhiveryDispatchTool({
     orderId: netmedsResult.orderId,
     destinationAddress: request.deliveryAddress,
@@ -408,17 +414,11 @@ export const executeApprovedMedicationOrder = async (
     itemsDesc: `${request.medicationName} (${request.units} Tablets)`
   });
 
-  // Step C: Pine Labs Payment Capture
-  const pineResult = await callPineLabsPaymentTool({
-    orderId: netmedsResult.orderId,
-    amountInr: request.costInr
-  });
-
-  // Step D: Attach execution nodes to telemetry graph
+  // Step D: Attach execution nodes to telemetry graph in exact pipeline order
   callbacks.onAddNodes([
     netmedsResult.telemetryNode,
-    delhiveryResult.telemetryNode,
-    pineResult.telemetryNode
+    pineResult.telemetryNode,
+    delhiveryResult.telemetryNode
   ]);
 
   // Step E: Deduct wallet & add inventory order

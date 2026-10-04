@@ -565,7 +565,7 @@ export const ElderMobilePhone: React.FC<ElderMobilePhoneProps> = ({ standalonePh
 
                 <div>
                   <h2 className="text-3xl sm:text-4xl font-serif font-bold text-white tracking-tight pt-1">
-                    Sambandh AI · संबंध
+                    Saarthi · सारथी
                   </h2>
                   <p className="text-xs text-stone-300 font-medium mt-0.5">
                     Sambandh AI Eldercare Companion

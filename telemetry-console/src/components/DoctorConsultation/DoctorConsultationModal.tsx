@@ -41,6 +41,8 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
     isListeningConsultation,
     isTransformingConsultation,
     liveSpokenSnippetConsultation,
+    liveObservationsConsultation,
+    simulateNextConsultationTurn,
     startLiveListeningConsultation,
     stopLiveListeningConsultation,
     addDoctorConsultationTurn,
@@ -75,7 +77,7 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
     if (preset === 'rx') {
       attachDocumentToConsultation({
         type: 'prescription',
-        title: 'Dr. Saxena Review Slip (Statin Protocol)',
+        title: 'Dr. Saxena Review Slip & Statin Protocol',
         doctorName: 'Dr. Arvind Saxena (Cardiology)',
         rawText:
           'Rx: Ramesh Chandra, 72/M. BP 130/82. Continue Telmisartan 40mg OD. Add Atorvastatin 10mg HS post-dinner. Repeat Lipid Profile in 4 weeks.',
@@ -208,7 +210,7 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
                   className="px-2 py-0.5 bg-white/15 hover:bg-white/25 text-white rounded-md text-[10px] font-bold cursor-pointer transition-colors"
                   title="Toggle Caregiver remote live attendance"
                 >
-                  {consultationSession.caregiverAttending ? 'Drop Call' : '+ Bridge Priya'}
+                  {consultationSession.caregiverAttending ? 'Drop Remote Stream' : '+ Bridge Priya'}
                 </button>
               )}
             </div>
@@ -217,7 +219,7 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
 
         {/* Modal Body / Dialogue Stream */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3.5 scrollbar-thin bg-[#FAF8F5]">
-          {/* Initial Prompt when Idle */}
+          {/* Initial Clean Standby Screen when Idle */}
           {isIdle && (
             <div className="p-6 bg-white rounded-3xl border border-stone-200 text-center space-y-4 shadow-2xs">
               <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-3xl mx-auto shadow-xs">
@@ -225,10 +227,10 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
               </div>
               <div className="space-y-1">
                 <h4 className="font-serif font-bold text-stone-900 text-base">
-                  Ambient In-Clinic Consultation Transcriber
+                  In-Clinic Consultation Live Transcriber
                 </h4>
                 <p className="text-xs text-stone-600 max-w-md mx-auto leading-relaxed">
-                  Place the phone on the desk. The system continuously captures natural ambient speech (Doctor, Senior & Caregiver) and transforms it into structured EHR records, simple Hindi instructions, and a Telegram care briefing.
+                  Place the phone on the doctor's desk. The system continuously captures live ambient speech, segregates speakers (Doctor, Senior & Caregiver), extracts clinical observations in real time, and allows scanning prescription slips on the fly.
                 </p>
               </div>
 
@@ -276,26 +278,93 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
                         : 'Transcriber Standby'}
                     </span>
                     <p className="text-[10px] text-stone-500 truncate">
-                      {liveSpokenSnippetConsultation || 'Speak naturally in Hindi, English, or Hinglish'}
+                      {liveSpokenSnippetConsultation || 'Speak naturally or use interactive step-by-step turns below'}
                     </p>
                   </div>
                 </div>
 
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={
+                      isListeningConsultation
+                        ? stopLiveListeningConsultation
+                        : startLiveListeningConsultation
+                    }
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                      isListeningConsultation
+                        ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                        : 'bg-emerald-700 hover:bg-emerald-800 text-white'
+                    }`}
+                  >
+                    {isListeningConsultation ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+                    <span>{isListeningConsultation ? 'Pause Mic' : 'Start Mic'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Dynamic Live Ambient Clinical Observations Panel */}
+              <div className="p-3 bg-gradient-to-r from-emerald-50/70 to-teal-50/70 rounded-2xl border border-emerald-200/80 shadow-2xs space-y-2">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="font-serif font-bold text-emerald-950 flex items-center gap-1.5">
+                    <Activity className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>Real-Time Clinical Observations (Extracted as Doctor Speaks)</span>
+                  </span>
+                  <span className="text-[9px] font-mono text-emerald-800 bg-emerald-100/70 px-1.5 py-0.5 rounded">
+                    Gnani Indic NLP
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-xs">
+                  <div className="p-2 bg-white rounded-xl border border-emerald-100 shadow-2xs">
+                    <span className="text-[9px] text-stone-500 block">Measured BP</span>
+                    <span className="font-mono font-bold text-xs text-emerald-950">
+                      {liveObservationsConsultation.bpReading || '—'}
+                    </span>
+                  </div>
+                  <div className="p-2 bg-white rounded-xl border border-emerald-100 shadow-2xs">
+                    <span className="text-[9px] text-stone-500 block">Pulse</span>
+                    <span className="font-mono font-bold text-xs text-emerald-950">
+                      {liveObservationsConsultation.pulse || '—'}
+                    </span>
+                  </div>
+                  <div className="p-2 bg-white rounded-xl border border-emerald-100 shadow-2xs col-span-2">
+                    <span className="text-[9px] text-stone-500 block">Medications Mentioned</span>
+                    <span className="font-semibold text-[10px] text-emerald-950 truncate block">
+                      {liveObservationsConsultation.medicationsMentioned.length > 0
+                        ? liveObservationsConsultation.medicationsMentioned.join(', ')
+                        : '—'}
+                    </span>
+                  </div>
+                </div>
+
+                {liveObservationsConsultation.symptoms.length > 0 && (
+                  <div className="flex items-center gap-1 flex-wrap pt-0.5">
+                    <span className="text-[9px] font-bold text-stone-500">Symptoms:</span>
+                    {liveObservationsConsultation.symptoms.map((s, idx) => (
+                      <span key={idx} className="text-[9px] bg-amber-100/80 text-amber-900 px-1.5 py-0.5 rounded-md border border-amber-200">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Progressive 1-Tap Simulation Bar */}
+              <div className="p-2.5 bg-stone-100/90 rounded-2xl border border-stone-200 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span className="text-[11px] font-bold text-stone-800 truncate">
+                    Interactive Live Simulation Flow:
+                  </span>
+                </div>
                 <button
                   type="button"
-                  onClick={
-                    isListeningConsultation
-                      ? stopLiveListeningConsultation
-                      : startLiveListeningConsultation
-                  }
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 flex items-center gap-1.5 shadow-2xs ${
-                    isListeningConsultation
-                      ? 'bg-rose-600 hover:bg-rose-700 text-white'
-                      : 'bg-emerald-700 hover:bg-emerald-800 text-white'
-                  }`}
+                  onClick={simulateNextConsultationTurn}
+                  className="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-[10px] font-bold transition-all cursor-pointer shrink-0 shadow-2xs flex items-center gap-1"
                 >
-                  {isListeningConsultation ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
-                  <span>{isListeningConsultation ? 'Pause Mic' : 'Start Mic'}</span>
+                  <span>+ Transcribe Next Live Step</span>
+                  <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
 
@@ -304,60 +373,109 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
                 <div className="flex items-center justify-between text-[11px] text-stone-500 pb-1 border-b border-stone-200">
                   <span className="font-serif font-bold text-stone-800 flex items-center gap-1">
                     <Activity className="w-3.5 h-3.5 text-emerald-700" />
-                    <span>Ambient Clinic Notes ({consultationSession.turns.length})</span>
+                    <span>Live Transcript & Speaker Diarization ({consultationSession.turns.length} turns)</span>
                   </span>
-                  <span className="font-mono text-[10px]">No rigid speaker tags</span>
+                  <span className="font-mono text-[10px] text-emerald-800">Auto-Segregated</span>
                 </div>
 
-                {consultationSession.turns.map(turn => (
-                  <div
-                    key={turn.id}
-                    className="p-3 rounded-2xl bg-white border border-stone-200/90 shadow-2xs text-xs space-y-1 hover:border-emerald-300 transition-colors"
-                  >
-                    <div className="flex items-center justify-between text-[10px] text-stone-400">
-                      <span className="font-mono font-medium text-stone-500">{turn.timestamp} IST</span>
-                      <span className="text-[9px] font-mono bg-stone-100 text-stone-600 px-1.5 py-0.2 rounded">
-                        Clinic Audio
-                      </span>
-                    </div>
-                    <p className="text-stone-800 leading-relaxed font-sans text-xs">
-                      {turn.content}
-                    </p>
+                {consultationSession.turns.length === 0 ? (
+                  <div className="p-6 bg-white rounded-2xl border border-dashed border-stone-300 text-center text-xs text-stone-400 space-y-1">
+                    <p>🎙️ Waiting for clinic speech... Speak via microphone or click "+ Transcribe Next Live Step".</p>
                   </div>
-                ))}
+                ) : (
+                  consultationSession.turns.map(turn => {
+                    const isDoctor = turn.speaker === 'doctor';
+                    const isSenior = turn.speaker === 'senior';
+                    const isCaregiver = turn.speaker === 'caregiver';
+
+                    return (
+                      <div
+                        key={turn.id}
+                        className={`p-3 rounded-2xl border shadow-2xs text-xs space-y-1 transition-colors ${
+                          isDoctor
+                            ? 'bg-emerald-50/40 border-emerald-200/90 hover:border-emerald-300'
+                            : isSenior
+                            ? 'bg-amber-50/40 border-amber-200/90 hover:border-amber-300'
+                            : isCaregiver
+                            ? 'bg-sky-50/40 border-sky-200/90 hover:border-sky-300'
+                            : 'bg-white border-stone-200/90'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between text-[10px]">
+                          <div className="flex items-center gap-1.5 font-bold">
+                            <span>{isDoctor ? '👨‍⚕️' : isSenior ? '👴🏼' : isCaregiver ? '👩‍💼' : '🎙️'}</span>
+                            <span
+                              className={
+                                isDoctor
+                                  ? 'text-emerald-950 font-serif'
+                                  : isSenior
+                                  ? 'text-amber-950'
+                                  : isCaregiver
+                                  ? 'text-sky-950'
+                                  : 'text-stone-700'
+                              }
+                            >
+                              {turn.speakerName || 'Clinic Audio'}
+                            </span>
+                            {isCaregiver && (
+                              <span className="text-[8px] font-mono bg-sky-100 text-sky-800 px-1 rounded">
+                                Remote Telephony
+                              </span>
+                            )}
+                          </div>
+                          <span className="font-mono font-medium text-stone-400">{turn.timestamp} IST</span>
+                        </div>
+                        <p className="text-stone-800 leading-relaxed font-sans text-xs pt-0.5">
+                          {turn.content}
+                        </p>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
           )}
 
-          {/* Attached Doctor's Notes & Prescriptions */}
-          {(isOngoing || isCompleted) && consultationSession.attachments.length > 0 && (
+          {/* Attached Doctor's Notes & Prescriptions (Empty until attached!) */}
+          {(isOngoing || isCompleted) && (
             <div className="p-3 bg-white rounded-2xl border border-stone-200 space-y-2 shadow-2xs">
-              <span className="text-xs font-serif font-bold text-stone-900 flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-teal-700" />
-                <span>Attached Doctor's Slips & Prescriptions ({consultationSession.attachments.length})</span>
-              </span>
-
-              <div className="space-y-1.5">
-                {consultationSession.attachments.map(att => (
-                  <div
-                    key={att.id}
-                    className="p-2.5 rounded-xl bg-[#FAF8F5] border border-stone-200/80 text-xs space-y-1"
-                  >
-                    <div className="flex items-center justify-between text-[10px]">
-                      <span className="font-bold text-stone-900 flex items-center gap-1">
-                        <Pill className="w-3 h-3 text-teal-700" />
-                        <span>{att.title}</span>
-                      </span>
-                      <span className="text-[9px] font-mono text-emerald-800 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
-                        MedGemma Extracted
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-stone-600 font-mono bg-white p-2 rounded-lg border border-stone-200 leading-relaxed">
-                      {att.rawText}
-                    </p>
-                  </div>
-                ))}
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-serif font-bold text-stone-900 flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5 text-teal-700" />
+                  <span>Attached Doctor's Slips & Prescriptions ({consultationSession.attachments.length})</span>
+                </span>
+                {consultationSession.attachments.length === 0 && (
+                  <span className="text-[10px] text-stone-400 italic">None attached yet</span>
+                )}
               </div>
+
+              {consultationSession.attachments.length === 0 ? (
+                <div className="p-3 rounded-xl bg-stone-50 border border-dashed border-stone-300 text-center text-xs text-stone-500">
+                  <span>Prescription slips appear here once scanned or uploaded during the call.</span>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  {consultationSession.attachments.map(att => (
+                    <div
+                      key={att.id}
+                      className="p-2.5 rounded-xl bg-[#FAF8F5] border border-stone-200/80 text-xs space-y-1 animate-in fade-in"
+                    >
+                      <div className="flex items-center justify-between text-[10px]">
+                        <span className="font-bold text-stone-900 flex items-center gap-1">
+                          <Pill className="w-3 h-3 text-teal-700" />
+                          <span>{att.title}</span>
+                        </span>
+                        <span className="text-[9px] font-mono text-emerald-800 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                          MedGemma Extracted
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-stone-600 font-mono bg-white p-2 rounded-lg border border-stone-200 leading-relaxed">
+                        {att.rawText}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -541,56 +659,13 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
         {/* In-Call Simulation Presets & Complete Controls (When Ongoing) */}
         {isOngoing && (
           <div className="p-3 bg-white border-t border-stone-200 space-y-2 shrink-0">
-            {/* Quick Simulation Presets */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-[11px] scrollbar-thin">
-              <span className="text-[10px] text-stone-500 font-bold shrink-0">Test Presets:</span>
-              <button
-                type="button"
-                onClick={() =>
-                  addDoctorConsultationTurn(
-                    'doctor',
-                    'रमेश जी, बीपी 130/82 बहुत स्थिर है। लिपिड के लिए रात को Atorvastatin 10mg शुरू करें, और 4 हफ्ते बाद लिपिड प्रोफाइल कराएं।'
-                  )
-                }
-                className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-semibold border border-emerald-200 shrink-0 transition-colors cursor-pointer text-[10px]"
-              >
-                + Dr. Saxena Statin Rx
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  addDoctorConsultationTurn(
-                    'senior',
-                    'डॉक्टर साहब, जापानी पार्क में रोज़ सुबह 25 मिनट टहलते हैं। सीने में कोई भारीपन नहीं है, बस हल्का घुटने में खिंचाव है।'
-                  )
-                }
-                className="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 font-semibold border border-amber-200 shrink-0 transition-colors cursor-pointer text-[10px]"
-              >
-                + Ramesh Routine Turn
-              </button>
-              {consultationSession.caregiverAttending && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    addDoctorConsultationTurn(
-                      'caregiver',
-                      'डॉक्टर अंकल, क्या पापा Atorvastatin रात के खाने के बाद ताज़े पानी से ले सकते हैं?'
-                    )
-                  }
-                  className="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-900 font-semibold border border-sky-200 shrink-0 transition-colors cursor-pointer text-[10px]"
-                >
-                  + Priya Clarification
-                </button>
-              )}
-            </div>
-
             {/* Custom Spoken Text Box */}
             <form onSubmit={handleSendTurn} className="flex items-center gap-1.5">
               <input
                 type="text"
                 value={customText}
                 onChange={e => setCustomText(e.target.value)}
-                placeholder="Type or dictate ambient consultation note..."
+                placeholder="Dictate or type clinic speech (auto-detects Doctor vs Patient)..."
                 className="flex-1 text-xs bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-stone-900 focus:bg-white focus:border-teal-700 outline-none"
               />
 
@@ -611,12 +686,12 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
                 className="px-3 py-1.5 bg-[#FAF8F5] hover:bg-stone-100 text-stone-700 border border-stone-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <FileUp className="w-3.5 h-3.5 text-teal-700" />
-                <span>{isAttachOpen ? 'Hide Slips' : '+ Attach Rx Slip / Note'}</span>
+                <span>{isAttachOpen ? 'Hide Slips' : '+ Scan / Attach Doctor\'s Rx Slip'}</span>
               </button>
 
               <button
                 type="button"
-                disabled={isTransformingConsultation}
+                disabled={isTransformingConsultation || consultationSession.turns.length === 0}
                 onClick={completeDoctorConsultation}
                 className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-2xs transition-all cursor-pointer active:scale-95 disabled:opacity-50"
               >
@@ -639,32 +714,32 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
               <div className="p-2.5 bg-stone-50 rounded-2xl border border-stone-200 space-y-2 animate-in fade-in duration-200">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-bold text-stone-800">
-                    Quick Prescription Presets:
+                    Scan / Attach Doctor's Prescription Slip:
                   </span>
-                  <span className="text-[9px] text-stone-500 font-mono">MedGemma 4B</span>
+                  <span className="text-[9px] text-stone-500 font-mono">MedGemma 4B RAG</span>
                 </div>
 
                 <div className="flex flex-wrap gap-1.5">
                   <button
                     type="button"
                     onClick={() => handleAttachPreset('rx')}
-                    className="px-2.5 py-1 bg-white hover:bg-emerald-50 text-emerald-900 border border-emerald-200 rounded-lg text-[10px] font-bold cursor-pointer"
+                    className="px-2.5 py-1 bg-white hover:bg-emerald-50 text-emerald-900 border border-emerald-200 rounded-lg text-[10px] font-bold cursor-pointer flex items-center gap-1 shadow-2xs"
                   >
-                    Dr. Saxena Rx Slip (Atorvastatin 10mg)
+                    <span>📷 Dr. Saxena Review Slip (Atorvastatin 10mg)</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleAttachPreset('lab')}
-                    className="px-2.5 py-1 bg-white hover:bg-purple-50 text-purple-900 border border-purple-200 rounded-lg text-[10px] font-bold cursor-pointer"
+                    className="px-2.5 py-1 bg-white hover:bg-purple-50 text-purple-900 border border-purple-200 rounded-lg text-[10px] font-bold cursor-pointer flex items-center gap-1 shadow-2xs"
                   >
-                    Lipid Profile Lab Order
+                    <span>🧪 Lipid Profile Lab Order</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleAttachPreset('diet')}
-                    className="px-2.5 py-1 bg-white hover:bg-amber-50 text-amber-900 border border-amber-200 rounded-lg text-[10px] font-bold cursor-pointer"
+                    className="px-2.5 py-1 bg-white hover:bg-amber-50 text-amber-900 border border-amber-200 rounded-lg text-[10px] font-bold cursor-pointer flex items-center gap-1 shadow-2xs"
                   >
-                    Knee Exercise Note
+                    <span>📄 Knee Exercise Note</span>
                   </button>
                 </div>
               </div>

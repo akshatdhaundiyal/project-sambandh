@@ -55,7 +55,7 @@ import {
   PacingOption,
   getStepApiExchange
 } from '../hooks';
-import { useDoctorConsultation } from '../hooks/useDoctorConsultation';
+import { useDoctorConsultation, LiveClinicalObservation } from '../hooks/useDoctorConsultation';
 import {
   DoctorConsultationSession,
   DoctorConsultationSpeaker,
@@ -184,6 +184,8 @@ interface TelemetryContextType {
   // Youth Mentorship & Intergenerational Wisdom (Tab 4)
   activeMentorshipQuestion: MentorshipExchangeItem | null;
   mentorshipHistory: MentorshipExchangeItem[];
+  pendingCaregiverMentorshipQuestions: MentorshipExchangeItem[];
+  approvedMentorshipQuestions: MentorshipExchangeItem[];
   submitYouthQuestion: (
     youth: YouthPersona,
     questionText: string,
@@ -192,6 +194,8 @@ interface TelemetryContextType {
     presetMetadata?: { curatedSpeechHindi?: string; mockElderAnswer?: string }
   ) => Promise<MentorshipExchangeItem>;
   evaluateMentorshipQuestion: (questionId: string) => Promise<void>;
+  approveMentorshipQuestion: (questionId: string) => Promise<void>;
+  rejectMentorshipQuestion: (questionId: string, reason?: string) => Promise<void>;
   simulateElderAnswerVoice: (questionId: string) => Promise<void>;
 
   // In-Clinic Doctor Consultation Bridge & Ambient Transformation
@@ -203,6 +207,8 @@ interface TelemetryContextType {
   isListeningConsultation: boolean;
   isTransformingConsultation: boolean;
   liveSpokenSnippetConsultation: string;
+  liveObservationsConsultation: LiveClinicalObservation;
+  simulateNextConsultationTurn: () => void;
   startLiveListeningConsultation: () => void;
   stopLiveListeningConsultation: () => void;
   startDoctorConsultation: (initiatedBy: 'senior' | 'caregiver', caregiverAttending: boolean) => void;
@@ -371,8 +377,12 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
   const {
     activeMentorshipQuestion,
     mentorshipHistory,
+    pendingCaregiverQuestions,
+    approvedQuestions,
     submitYouthQuestion,
     evaluateMentorshipQuestion,
+    approveMentorshipQuestion,
+    rejectMentorshipQuestion,
     simulateElderAnswerVoice
   } = useYouthMentorship({
     activeTtsEngine,
@@ -399,6 +409,8 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
     isListening: isListeningConsultation,
     isTransforming: isTransformingConsultation,
     liveSpokenSnippet: liveSpokenSnippetConsultation,
+    liveObservations: liveObservationsConsultation,
+    simulateNextConsultationTurn,
     startLiveListening: startLiveListeningConsultation,
     stopLiveListening: stopLiveListeningConsultation,
     startDoctorConsultation,
@@ -960,8 +972,12 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         // Youth Mentorship & Intergenerational Wisdom (Tab 4)
         activeMentorshipQuestion,
         mentorshipHistory,
+        pendingCaregiverMentorshipQuestions: pendingCaregiverQuestions,
+        approvedMentorshipQuestions: approvedQuestions,
         submitYouthQuestion,
         evaluateMentorshipQuestion,
+        approveMentorshipQuestion,
+        rejectMentorshipQuestion,
         simulateElderAnswerVoice,
 
         // In-Clinic Doctor Consultation Bridge & Ambient Transformation
@@ -973,6 +989,8 @@ export const TelemetryProvider: React.FC<{ children: ReactNode }> = ({ children 
         isListeningConsultation,
         isTransformingConsultation,
         liveSpokenSnippetConsultation,
+        liveObservationsConsultation,
+        simulateNextConsultationTurn,
         startLiveListeningConsultation,
         stopLiveListeningConsultation,
         startDoctorConsultation,
